@@ -1,0 +1,539 @@
+/* public/CSS/home.css */
+:root {
+    /* Palette from login.php */
+    --superdarkblue: #08162D;
+    --blue: #0B2A4A;
+    --lightblue: #14345E;
+    --superlightblue: #193B6A;
+    --red: #D72626;
+    --red2: #C83432;
+    --yellow: #F1B82D;
+    --yellow2: #F5C400;
+    --white: #FFFFFF;
+    --text: #EAF1FF;
+    --muted: #AFC1E6;
+    --line: rgba(255, 255, 255, .12);
+    --shadow: 0 20px 70px rgba(0, 0, 0, .55);
+
+    --font-main: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-main);
+    color: var(--text);
+    background: var(--superdarkblue);
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: 0.2s;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Utilities */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-radius: 4px;
+    /* Slightly squared for sport look, or round for modern? Login uses rounded. */
+    border-radius: 999px;
+    /* Matching login */
+    cursor: pointer;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+.btn--primary {
+    background: linear-gradient(180deg, var(--yellow2), var(--yellow));
+    color: var(--superdarkblue);
+    box-shadow: 0 4px 15px rgba(245, 196, 0, 0.3);
+    border: none;
+}
+
+.btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 196, 0, 0.4);
+}
+
+.btn--ghost {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--white);
+}
+
+.btn--ghost:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+}
+
+.btn--small {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    height: auto;
+}
+
+.btn--block {
+    width: 100%;
+}
+
+/* HEADER STYLES */
+.site-header {
+    background: rgba(8, 22, 45, 0.95);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+}
+
+.club-strip {
+    background: var(--superdarkblue);
+    border-bottom: 1px solid var(--line);
+    padding: 8px 0;
+    overflow: hidden;
+}
+
+.club-strip__inner {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    /* Animation could go here */
+}
+
+.club-strip img {
+    height: 24px;
+    width: auto;
+    opacity: 0.7;
+    filter: grayscale(100%);
+    transition: 0.3s;
+}
+
+.club-strip img:hover {
+    opacity: 1;
+    filter: grayscale(0%);
+    transform: scale(1.1);
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+    padding: 0 5%;
+}
+
+.nav__brand img {
+    height: 48px;
+}
+
+.nav__links {
+    display: flex;
+    gap: 32px;
+}
+
+.nav__links a {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.nav__links a:hover {
+    color: var(--white);
+}
+
+.nav__actions {
+    display: flex;
+    gap: 12px;
+}
+
+.nav__burger {
+    display: none;
+}
+
+@media (max-width: 768px) {
+
+    .nav__links,
+    .nav__actions {
+        display: none;
+    }
+
+    .nav__burger {
+        display: block;
+        color: var(--white);
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+    }
+}
+
+/* HERO SECTION */
+.hero {
+    position: relative;
+    padding: 100px 0 140px;
+    text-align: center;
+    background:
+        linear-gradient(to bottom, rgba(8, 22, 45, 0.3), var(--superdarkblue)),
+        radial-gradient(circle at center, rgba(30, 60, 100, 0.4) 0%, transparent 70%);
+    /* If user adds bg image later: background-image: url(...); background-size: cover; */
+    overflow: hidden;
+}
+
+/* Particle dust effect */
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, var(--yellow), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(2px 2px at 90% 40px, var(--yellow2), transparent);
+    background-size: 300px 300px;
+    opacity: 0.3;
+}
+
+.hero-crests-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.hero-crests-row img {
+    height: 32px;
+    width: auto;
+    opacity: 0.9;
+}
+
+.hero h1 {
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 1;
+    margin: 0 0 20px;
+    text-transform: uppercase;
+    font-weight: 900;
+    background: linear-gradient(180deg, #fff, #ccc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: var(--muted);
+    max-width: 700px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+}
+
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* CONTENT SECTIONS */
+.section {
+    padding: 80px 0;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    color: var(--white);
+}
+
+.section-header p {
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* SOCIAL & RESULTS GRID */
+.social-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+@media (max-width: 900px) {
+    .social-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cards shared design */
+.card-panel {
+    background: linear-gradient(180deg, rgba(20, 52, 94, 0.4), rgba(8, 22, 45, 0.8));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Instagram Header */
+.ig-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.ig-user {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.ig-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+}
+
+.ig-stats {
+    display: flex;
+    gap: 20px;
+    padding: 15px 0;
+    border-block: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+}
+
+.ig-stats strong {
+    color: var(--white);
+}
+
+/* Matches */
+.match-item {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: grid;
+    gap: 10px;
+}
+
+.match-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--yellow);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.match-score {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.match-team {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.match-team img {
+    width: 24px;
+    height: 24px;
+}
+
+.match-result {
+    font-size: 1.5rem;
+    color: var(--yellow2);
+}
+
+/* Sidebar Categories */
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cat-btn {
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: var(--text);
+    display: block;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.cat-btn:hover {
+    border-color: var(--yellow);
+    background: rgba(241, 184, 45, 0.1);
+    color: var(--white);
+}
+
+/* EVENTS GRID */
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.event-card {
+    background: var(--lightblue);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--yellow);
+}
+
+.event-img {
+    height: 180px;
+    background: #000;
+    /* Simulate image */
+    background: linear-gradient(45deg, #1e3c72, #2a5298);
+}
+
+.event-body {
+    padding: 20px;
+}
+
+.event-body h3 {
+    color: var(--yellow);
+    margin-top: 0;
+}
+
+.event-body p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* CONTACT */
+.contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+@media (max-width: 800px) {
+    .contact-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.contact-info-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 30px;
+    border-left: 4px solid var(--yellow);
+}
+
+.contact-form {
+    display: grid;
+    gap: 15px;
+}
+
+.c-input,
+.c-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 14px;
+    border-radius: 8px;
+    color: var(--white);
+    font-family: inherit;
+}
+
+.c-input:focus,
+.c-textarea:focus {
+    outline: none;
+    border-color: var(--yellow);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.c-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* FOOTER (Restored/Integrated) */
+.site-footer {
+    background: #050e1d;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 60px 0 30px;
+    margin-top: 60px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h4 {
+    color: var(--yellow);
+    margin-bottom: 20px;
+}
+
+.footer-links li {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.footer-links a:hover {
+    color: var(--white);
+    padding-left: 5px;
+}
+
+.footer-bottom {
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 30px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85rem;
+}
