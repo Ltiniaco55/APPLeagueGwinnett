@@ -1,0 +1,96 @@
+<header class="navbar">
+    <style>
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background-color: #1a1a1a;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            gap: 20px;
+        }
+
+        .navbar-logo {
+            flex-shrink: 0;
+        }
+
+        .navbar-logo img {
+            height: 50px;
+            width: auto;
+        }
+
+        .navbar-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .navbar-center a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: 500;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .navbar-center a:hover {
+            color: #ffc107;
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .navbar-auth {
+            display: flex;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .navbar-auth button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-auth .btn-login {
+            background-color: transparent;
+            color: #fff;
+            border: 2px solid #ffc107;
+        }
+
+        .navbar-auth .btn-login:hover {
+            background-color: #ffc107;
+            color: #1a1a1a;
+        }
+
+        .navbar-auth .btn-signup {
+            background-color: #ffc107;
+            color: #1a1a1a;
+        }
+
+        .navbar-auth .btn-signup:hover {
+            background-color: #ffb300;
+        }
+    </style>
+
+    <div class="navbar-logo">
+        <img src="../escudos/gwinnett.svg" alt="Gwinnett League">
+    </div>
+
+    <div class="navbar-center">
+        <a href="#leagues">Leagues</a>
+        <a href="#contact">Contact us</a>
+        <a href="#equipos">Equipos</a>
+        <a href="#galeria">Galería</a>
+    </div>
+
+    <div class="navbar-auth">
+        <button class="btn-login">Login</button>
+        <button class="btn-signup">Sign Up</button>
+    </div>
+</header>

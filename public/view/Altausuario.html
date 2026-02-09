@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+<h1>Alta usuario</h1>
+<form id="altaForm" onsubmit="grabar(event)">
+    <label>Nombre
+        <input type="text" id="nombre" name="nombre" required>
+    </label>
+
+    <br>
+
+    <label>Apellido
+        <input type="text" id="apellido" name="apellido" required>
+    </label>
+    <br>
+    <label>Fecha de nacimiento
+        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+    </label>
+    <br>
+    <label>Sexo
+        <select id="sexo" name="sexo" required>
+            <option value="">--</option>
+            <option value="M">M</option>
+            <option value="F">F</option>
+            <option value="O">O</option>
+        </select>
+    </label>
+    <br>
+    <label>Email
+        <input type="email" id="email" name="email" required>
+    </label>
+    <br>
+    <label>Contraseña
+        <input type="password" id="pwd" name="pwd" required>
+    </label>
+    <br>
+    <label>Teléfono
+        <input type="text" id="telefono" name="telefono">
+    </label>
+    <br>
+    <button type="submit">Crear usuario</button>
+</form>
+
+
+<script>
+
+    async function grabar(e){
+        e.preventDefault();
+        const url = '../../app/controller/insert.php';
+
+        const payload = {
+            entidad: 'usuario',
+            nombre: document.getElementById('nombre').value,
+            apellido: document.getElementById('apellido').value,
+            fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+            sexo: document.getElementById('sexo').value,
+            email: document.getElementById('email').value,
+            pwd: document.getElementById('pwd').value,
+            telefono: document.getElementById('telefono').value
+        };
+
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                // notify parent window and reset form
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'user-created', data: data }, '*');
+                }
+                alert('Usuario creado. ID: ' + data.id + '\n' + JSON.stringify(data.data));
+                document.getElementById('altaForm').reset();
+            } else {
+                alert('Error: ' + (data.message || JSON.stringify(data)));
+            }
+        } catch (err) {
+            alert('Error de red: ' + err.message);
+        }
+    }
+</script>
+
+</body>
+</html>
