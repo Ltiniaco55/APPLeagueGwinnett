@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL Admin — Jugadores y Plantilla</title>
+    <meta name="description" content="Alta masiva de jugadores, gestión de plantilla y ficha individual GYSL">
+
+    <link rel="stylesheet" href="./CSS/global.css">
+    <link rel="stylesheet" href="./CSS/admin.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
+
+    <script src="./JS/adminNav.js" defer></script>
+
+    <style>
+        /* ─── Tabs ────────────────────── */
+        .gysl-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--gysl-line);
+            padding-bottom: 0;
+        }
+
+        .gysl-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--gysl-muted);
+            font-family: var(--gysl-font);
+            font-size: 14px;
+            font-weight: var(--fw-bold);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .gysl-tab:hover {
+            color: var(--gysl-white);
+        }
+
+        .gysl-tab.is-active {
+            color: var(--gysl-yellow);
+            border-bottom-color: var(--gysl-yellow);
+        }
+
+        .gysl-tab-panel {
+            display: none;
+        }
+
+        .gysl-tab-panel.is-active {
+            display: block;
+        }
+
+        /* ─── Alta Masiva ─────────────── */
+        .gysl-lote-global {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--gysl-line);
+            background: radial-gradient(ellipse at 20% 15%, rgba(20, 52, 94, .35), transparent 60%), rgba(8, 22, 45, .5);
+        }
+
+        .gysl-lote-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 460px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .gysl-lote-row {
+            display: grid;
+            grid-template-columns: 30px 1fr 1fr 140px;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.03);
+            transition: background 0.15s ease;
+        }
+
+        .gysl-lote-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .gysl-lote-row__num {
+            font-size: 12px;
+            font-weight: var(--fw-bold);
+            color: var(--gysl-muted);
+            text-align: center;
+        }
+
+        .gysl-lote-row input {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--gysl-white);
+            font-family: var(--gysl-font);
+            font-size: 13px;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        .gysl-lote-row input:focus {
+            outline: none;
+            border-color: var(--gysl-yellow);
+            background: rgba(241, 184, 45, 0.06);
+        }
+
+        .gysl-lote-row input::placeholder {
+            color: rgba(175, 193, 230, .4);
+        }
+
+        .gysl-lote-header {
+            display: grid;
+            grid-template-columns: 30px 1fr 1fr 140px;
+            gap: 10px;
+            padding: 0 14px 8px;
+            font-size: 11px;
+            font-weight: var(--fw-bold);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--gysl-muted);
+        }
+
+        /* ─── Filtros Plantilla ────────── */
+        .gysl-filters {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .gysl-filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .gysl-filter-group label {
+            font-size: 11px;
+            font-weight: var(--fw-semibold);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--gysl-muted);
+        }
+
+        .gysl-filter-group select,
+        .gysl-filter-group input {
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--gysl-white);
+            font-family: var(--gysl-font);
+            font-size: 14px;
+            min-width: 180px;
+            transition: border-color 0.2s ease;
+        }
+
+        .gysl-filter-group select:focus,
+        .gysl-filter-group input:focus {
+            outline: none;
+            border-color: var(--gysl-yellow);
+        }
+
+        .gysl-filter-group select option {
+            background: var(--gysl-superdark);
+            color: var(--gysl-white);
+        }
+
+        /* ─── Confirmation overlay ────── */
+        .gysl-confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 8000;
+        }
+
+        .gysl-confirm-overlay.is-open {
+            display: flex;
+        }
+
+        .gysl-confirm-card {
+            background: radial-gradient(ellipse at 20% 20%, rgba(20, 52, 94, .5), transparent 60%), var(--gysl-superdark);
+            border: 1px solid var(--gysl-line);
+            border-radius: 16px;
+            padding: 28px;
+            width: min(420px, 90%);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+            text-align: center;
+            animation: gyslMsgIn .22s ease-out;
+        }
+
+        .gysl-confirm-card h3 {
+            font-size: 18px;
+            font-weight: var(--fw-black);
+            color: var(--gysl-white);
+            margin: 0 0 16px;
+        }
+
+        .gysl-confirm-card p {
+            font-size: 14px;
+            color: var(--gysl-muted);
+            margin: 0 0 20px;
+        }
+
+        .gysl-confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        /* ─── Detalle ─────────────────── */
+        .gysl-detail-grid {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .gysl-detail-photo {
+            width: 160px;
+            height: 200px;
+            border-radius: 12px;
+            border: 1px solid var(--gysl-line);
+            background: rgba(255, 255, 255, 0.04);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gysl-muted);
+            font-size: 13px;
+        }
+
+        .gysl-detail-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gysl-detail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .gysl-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .gysl-detail-row__label {
+            font-size: 12px;
+            font-weight: var(--fw-semibold);
+            text-transform: uppercase;
+            color: var(--gysl-muted);
+        }
+
+        .gysl-detail-row__value {
+            font-size: 14px;
+            color: var(--gysl-white);
+            font-weight: var(--fw-bold);
+        }
+
+        /* ─── Message toast ───────────── */
+        .gysl-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-family: var(--gysl-font);
+            font-size: 14px;
+            font-weight: var(--fw-bold);
+            z-index: 9999;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+
+        .gysl-toast.is-visible {
+            transform: translateX(0);
+        }
+
+        .gysl-toast--success {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .gysl-toast--error {
+            background: rgba(215, 38, 38, 0.15);
+            color: var(--gysl-red);
+            border: 1px solid rgba(215, 38, 38, 0.3);
+        }
+
+        .gysl-toast--warning {
+            background: rgba(241, 184, 45, 0.15);
+            color: var(--gysl-yellow);
+            border: 1px solid rgba(241, 184, 45, 0.3);
+        }
+
+        /* ─── File upload ─────────────── */
+        .gysl-file-input {
+            display: none;
+        }
+
+        .gysl-file-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: var(--gysl-text);
+            font-family: var(--gysl-font);
+            font-size: 13px;
+            font-weight: var(--fw-semibold);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .gysl-file-btn:hover {
+            border-color: var(--gysl-yellow);
+            color: var(--gysl-yellow);
+        }
+
+        .gysl-file-btn.is-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* ─── Responsive ──────────────── */
+        @media (max-width: 600px) {
+            .gysl-lote-global {
+                grid-template-columns: 1fr;
+            }
+
+            .gysl-lote-row {
+                grid-template-columns: 24px 1fr;
+            }
+
+            .gysl-lote-header {
+                display: none;
+            }
+
+            .gysl-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gysl-filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="gysl-admin">
+
+        <header class="gysl-admin__header">
+            <div>
+                <h1 class="gysl-admin__title">Gestión de Jugadores</h1>
+                <p class="gysl-admin__subtitle">Alta masiva, plantilla y ficha individual</p>
+            </div>
+            <nav class="gysl-admin__breadcrumb">
+                <a href="admin-dashboard.html">Dashboard</a> / Jugadores
+            </nav>
+        </header>
+
+        <div class="gysl-admin__content">
+
+            <!-- ═══ TABS ═══ -->
+            <div class="gysl-tabs" id="main-tabs">
+                <button class="gysl-tab is-active" data-tab="alta-masiva">+ Alta Directa</button>
+                <button class="gysl-tab" data-tab="plantilla">Plantilla</button>
+                <button class="gysl-tab" data-tab="pendientes">Pendientes</button>
+            </div>
+
+            <!-- ═══ TAB 1: ALTA MASIVA ═══ -->
+            <div class="gysl-tab-panel is-active" id="panel-alta-masiva">
+
+                <!-- PASO 1: Preparar -->
+                <div id="lote-step1">
+                    <div class="gysl-admin-form-card" style="max-width:400px; margin: 0 auto;">
+                        <h3>Preparar Alta Masiva</h3>
+                        <div class="gysl-admin-form-group">
+                            <label for="lote-cantidad">Número de jugadores (máx. 25)</label>
+                            <input type="number" id="lote-cantidad" min="1" max="25" value="1"
+                                placeholder="Ej: 5">
+                        </div>
+                        <div class="gysl-admin-form-actions">
+                            <button class="gysl-admin-btn gysl-admin-btn--primary"
+                                onclick="prepararPantalla()">Preparar pantalla</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 2: Formulario masivo -->
+                <div id="lote-step2" style="display:none;">
+                    <!-- Global: liga + equipo -->
+                    <div class="gysl-lote-global">
+                        <div class="gysl-filter-group">
+                            <label for="lote-liga">Liga</label>
+                            <select id="lote-liga" onchange="onLoteLigaChange()">
+                                <option value="">— Seleccionar liga —</option>
+                            </select>
+                        </div>
+                        <div class="gysl-filter-group">
+                            <label for="lote-equipo">Equipo</label>
+                            <select id="lote-equipo">
+                                <option value="">— Seleccionar equipo —</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Cabecera filas -->
+                    <div class="gysl-lote-header">
+                        <span>#</span>
+                        <span>Nombre</span>
+                        <span>Apellido</span>
+                        <span>Fecha Nac.</span>
+                    </div>
+
+                    <!-- Filas dinámicas -->
+                    <div class="gysl-lote-rows" id="lote-rows-container"></div>
+
+                    <div class="gysl-admin-form-actions" style="margin-top: 20px;">
+                        <button class="gysl-admin-btn gysl-admin-btn--secondary"
+                            onclick="volverStep1()">← Volver</button>
+                        <button class="gysl-admin-btn gysl-admin-btn--primary"
+                            onclick="validarYConfirmarLote()">Guardar Lote</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB 2: PLANTILLA ═══ -->
+            <div class="gysl-tab-panel" id="panel-plantilla">
+
+                <div class="gysl-filters">
+                    <div class="gysl-filter-group">
+                        <label for="filtro-liga">Liga</label>
+                        <select id="filtro-liga" onchange="onFiltroLigaChange()">
+                            <option value="">— Seleccionar liga —</option>
+                        </select>
+                    </div>
+                    <div class="gysl-filter-group">
+                        <label for="filtro-equipo">Equipo</label>
+                        <select id="filtro-equipo" onchange="cargarPlantilla()">
+                            <option value="">— Seleccionar equipo —</option>
+                        </select>
+                    </div>
+                    <div class="gysl-filter-group">
+                        <label for="filtro-buscar">Buscar equipo</label>
+                        <input type="text" id="filtro-buscar" placeholder="Nombre del equipo..."
+                            oninput="buscarEquipo()">
+                    </div>
+                </div>
+
+                <div id="plantilla-loading" class="gysl-admin-loading" style="display:none;">Cargando plantilla...
+                </div>
+
+                <div id="plantilla-empty" class="gysl-admin-empty" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <p>Selecciona una liga y un equipo para ver su plantilla</p>
+                </div>
+
+                <div class="gysl-admin-table-wrapper" id="plantilla-table-wrapper" style="display:none;">
+                    <table class="gysl-admin-table">
+                        <thead>
+                            <tr>
+                                <th>Dorsal</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Fecha Nac.</th>
+                                <th>Foto</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="plantilla-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ═══ TAB 3: PENDIENTES ═══ -->
+            <div class="gysl-tab-panel" id="panel-pendientes">
+
+                <div id="pendientes-loading" class="gysl-admin-loading">Cargando pendientes...</div>
+
+                <div id="pendientes-empty" class="gysl-admin-empty" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v6l3 3"></path>
+                        <circle cx="12" cy="12" r="10"></circle>
+                    </svg>
+                    <p>No hay jugadores pendientes de aprobación</p>
+                </div>
+
+                <div class="gysl-admin-table-wrapper" id="pendientes-table-wrapper" style="display:none;">
+                    <table class="gysl-admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Equipo Sol.</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendientes-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══ DETALLE MODAL ═══ -->
+    <div class="gysl-admin-form-overlay" id="detalle-overlay">
+        <div class="gysl-admin-form-card" style="width: min(560px, 95%);">
+            <h3 id="detalle-title">Ficha del Jugador</h3>
+            <div class="gysl-detail-grid" id="detalle-content">
+                <!-- Se genera dinámicamente -->
+            </div>
+            <div class="gysl-admin-form-actions" style="margin-top: 20px;">
+                <button class="gysl-admin-btn gysl-admin-btn--secondary"
+                    onclick="cerrarDetalle()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CONFIRMATION MODAL ═══ -->
+    <div class="gysl-confirm-overlay" id="confirm-overlay">
+        <div class="gysl-confirm-card">
+            <h3 id="confirm-title">¿Está seguro?</h3>
+            <p id="confirm-msg">¿Está seguro de los datos introducidos?</p>
+            <div class="gysl-confirm-actions">
+                <button class="gysl-admin-btn gysl-admin-btn--secondary"
+                    id="confirm-cancel">Seguir modificando</button>
+                <button class="gysl-admin-btn gysl-admin-btn--primary"
+                    id="confirm-ok">Sí</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ TOAST ═══ -->
+    <div class="gysl-toast" id="toast"></div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            let allLigas = [];
+            let allEquipos = [];
+            let plantillaData = [];
+            let pendientesData = [];
+
+            // ═══════════════════════════════════════
+            //  TOAST
+            // ═══════════════════════════════════════
+            function showToast(msg, type = "success") {
+                const toast = document.getElementById("toast");
+                toast.textContent = msg;
+                toast.className = "gysl-toast gysl-toast--" + type + " is-visible";
+                setTimeout(() => toast.classList.remove("is-visible"), 3500);
+            }
+
+            // ═══════════════════════════════════════
+            //  CONFIRMATION MODAL
+            // ═══════════════════════════════════════
+            function showConfirm(title, msg) {
+                return new Promise((resolve) => {
+                    document.getElementById("confirm-title").textContent = title;
+                    document.getElementById("confirm-msg").textContent = msg;
+                    document.getElementById("confirm-overlay").classList.add("is-open");
+
+                    const ok = document.getElementById("confirm-ok");
+                    const cancel = document.getElementById("confirm-cancel");
+
+                    function cleanup() {
+                        document.getElementById("confirm-overlay").classList.remove("is-open");
+                        ok.removeEventListener("click", onOk);
+                        cancel.removeEventListener("click", onCancel);
+                    }
+                    function onOk() { cleanup(); resolve(true); }
+                    function onCancel() { cleanup(); resolve(false); }
+
+                    ok.addEventListener("click", onOk);
+                    cancel.addEventListener("click", onCancel);
+                });
+            }
+
+            // ═══════════════════════════════════════
+            //  TABS
+            // ═══════════════════════════════════════
+            document.getElementById("main-tabs").addEventListener("click", (e) => {
+                if (!e.target.classList.contains("gysl-tab")) return;
+                const tabId = e.target.dataset.tab;
+
+                document.querySelectorAll(".gysl-tab").forEach(t => t.classList.remove("is-active"));
+                document.querySelectorAll(".gysl-tab-panel").forEach(p => p.classList.remove("is-active"));
+
+                e.target.classList.add("is-active");
+                document.getElementById("panel-" + tabId).classList.add("is-active");
+
+                if (tabId === "pendientes") loadPendientes();
+                if (tabId === "plantilla") { populateFilterDropdowns(); }
+            });
+
+            // ═══════════════════════════════════════
+            //  LOAD GLOBAL DATA (ligas + equipos)
+            // ═══════════════════════════════════════
+            async function loadGlobalData() {
+                try {
+                    const [ligasRes, equiposRes] = await Promise.all([
+                        fetch(API + "/ligas", { credentials: "include" }),
+                        fetch(API + "/equipos", { credentials: "include" })
+                    ]);
+                    const ligasJson = await ligasRes.json();
+                    const equiposJson = await equiposRes.json();
+
+                    allLigas = Array.isArray(ligasJson) ? ligasJson : (ligasJson.data || []);
+                    allEquipos = Array.isArray(equiposJson) ? equiposJson : (equiposJson.data || []);
+                } catch (err) {
+                    console.error("Error cargando datos globales:", err);
+                }
+            }
+
+            // ═══════════════════════════════════════
+            //  POPULATE DROPDOWNS
+            // ═══════════════════════════════════════
+            function populateLigaSelect(selectEl) {
+                selectEl.innerHTML = '<option value="">— Seleccionar liga —</option>';
+                allLigas.forEach(l => {
+                    const id = l.id_liga ?? l.id;
+                    const nom = l.nombre_liga ?? l.nombre ?? "Sin nombre";
+                    const cat = l.categoria ?? "";
+                    selectEl.innerHTML += `<option value="${id}">${nom} (${cat})</option>`;
+                });
+            }
+
+            function populateEquipoSelect(selectEl, idLiga) {
+                selectEl.innerHTML = '<option value="">— Seleccionar equipo —</option>';
+                if (!idLiga) return;
+
+                const lid = parseInt(idLiga, 10);
+                const filtrados = allEquipos.filter(e => {
+                    const ligas = e.ligas_ids || [];
+                    return ligas.map(Number).includes(lid);
+                });
+
+                filtrados.forEach(e => {
+                    const id = e.id_equipo ?? e.id;
+                    const nom = e.club ?? e.nombre ?? "Sin nombre";
+                    const cat = e.categoria ?? "";
+                    selectEl.innerHTML += `<option value="${id}">${nom} (${cat})</option>`;
+                });
+            }
+
+            function populateFilterDropdowns() {
+                populateLigaSelect(document.getElementById("filtro-liga"));
+            }
+
+            // ═══════════════════════════════════════
+            //  TAB 1: ALTA MASIVA
+            // ═══════════════════════════════════════
+
+            window.prepararPantalla = function () {
+                const n = parseInt(document.getElementById("lote-cantidad").value, 10);
+                if (!n || n < 1 || n > 25) {
+                    showToast("Introduce un número entre 1 y 25", "error");
+                    return;
+                }
+
+                // Populate liga/equipo
+                populateLigaSelect(document.getElementById("lote-liga"));
+
+                // Generate rows
+                const container = document.getElementById("lote-rows-container");
+                container.innerHTML = "";
+                for (let i = 0; i < n; i++) {
+                    container.innerHTML += `
+                    <div class="gysl-lote-row">
+                        <span class="gysl-lote-row__num">${i + 1}</span>
+                        <input type="text" placeholder="Nombre" data-field="nombre">
+                        <input type="text" placeholder="Apellido" data-field="apellido">
+                        <input type="date" data-field="fecha_nacimiento">
+                    </div>`;
+                }
+
+                document.getElementById("lote-step1").style.display = "none";
+                document.getElementById("lote-step2").style.display = "block";
+            };
+
+            window.volverStep1 = function () {
+                document.getElementById("lote-step1").style.display = "block";
+                document.getElementById("lote-step2").style.display = "none";
+            };
+
+            window.onLoteLigaChange = function () {
+                const ligaId = document.getElementById("lote-liga").value;
+                populateEquipoSelect(document.getElementById("lote-equipo"), ligaId);
+            };
+
+            window.validarYConfirmarLote = async function () {
+                const id_liga = document.getElementById("lote-liga").value;
+                const id_equipo = document.getElementById("lote-equipo").value;
+
+                if (!id_liga) { showToast("Selecciona una liga", "error"); return; }
+                if (!id_equipo) { showToast("Selecciona un equipo", "error"); return; }
+
+                const rows = document.querySelectorAll(".gysl-lote-row");
+                const jugadores = [];
+
+                for (const row of rows) {
+                    const nombre = row.querySelector('[data-field="nombre"]').value.trim();
+                    const apellido = row.querySelector('[data-field="apellido"]').value.trim();
+                    const fecha = row.querySelector('[data-field="fecha_nacimiento"]').value;
+
+                    if (!nombre || !apellido || !fecha) {
+                        showToast("Te faltan campos por rellenar", "error");
+                        return;
+                    }
+
+                    jugadores.push({ nombre, apellido, fecha_nacimiento: fecha });
+                }
+
+                const confirmado = await showConfirm(
+                    "Confirmar alta masiva",
+                    `¿Está seguro de los datos introducidos? Se registrarán ${jugadores.length} jugador(es).`
+                );
+
+                if (!confirmado) return;
+
+                // Enviar al backend
+                try {
+                    const res = await fetch(API + "/jugadores/lote", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            id_equipo: parseInt(id_equipo, 10),
+                            id_liga: parseInt(id_liga, 10),
+                            jugadores: jugadores
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        showToast(data.message || "Jugadores registrados correctamente", "success");
+
+                        if (data.avisos && data.avisos.length > 0) {
+                            setTimeout(() => {
+                                showToast("⚠ Algunos jugadores coinciden con registros en otros equipos", "warning");
+                            }, 1000);
+                        }
+
+                        volverStep1();
+                    } else {
+                        showToast(data.message || "Error al registrar", "error");
+                    }
+                } catch (err) {
+                    console.error("Error en alta masiva:", err);
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            // ═══════════════════════════════════════
+            //  TAB 2: PLANTILLA
+            // ═══════════════════════════════════════
+
+            window.onFiltroLigaChange = function () {
+                const ligaId = document.getElementById("filtro-liga").value;
+                populateEquipoSelect(document.getElementById("filtro-equipo"), ligaId);
+                // Limpiar tabla
+                document.getElementById("plantilla-table-wrapper").style.display = "none";
+                document.getElementById("plantilla-empty").style.display = "block";
+            };
+
+            window.buscarEquipo = function () {
+                const term = document.getElementById("filtro-buscar").value.trim().toLowerCase();
+                if (!term) return;
+
+                const match = allEquipos.find(e => {
+                    const club = (e.club ?? e.nombre ?? "").toLowerCase();
+                    return club.includes(term);
+                });
+
+                if (match) {
+                    const ligas = match.ligas_ids || [];
+                    if (ligas.length > 0) {
+                        document.getElementById("filtro-liga").value = ligas[0];
+                        onFiltroLigaChange();
+                        setTimeout(() => {
+                            document.getElementById("filtro-equipo").value = match.id_equipo ?? match.id;
+                            cargarPlantilla();
+                        }, 100);
+                    } else {
+                        showToast("Equipo encontrado pero sin liga asignada", "warning");
+                    }
+                }
+            };
+
+            window.cargarPlantilla = async function () {
+                const id_equipo = document.getElementById("filtro-equipo").value;
+                const id_liga = document.getElementById("filtro-liga").value;
+
+                if (!id_equipo || !id_liga) return;
+
+                document.getElementById("plantilla-loading").style.display = "flex";
+                document.getElementById("plantilla-table-wrapper").style.display = "none";
+                document.getElementById("plantilla-empty").style.display = "none";
+
+                try {
+                    const res = await fetch(
+                        API + `/plantillas?id_equipo=${id_equipo}&id_liga=${id_liga}`,
+                        { credentials: "include" }
+                    );
+                    const data = await res.json();
+                    plantillaData = data.data || [];
+                } catch (err) {
+                    console.error("Error cargando plantilla:", err);
+                    plantillaData = [];
+                }
+
+                document.getElementById("plantilla-loading").style.display = "none";
+                renderPlantilla();
+            };
+
+            function renderPlantilla() {
+                const tbody = document.getElementById("plantilla-tbody");
+                const wrapper = document.getElementById("plantilla-table-wrapper");
+                const empty = document.getElementById("plantilla-empty");
+
+                if (plantillaData.length === 0) {
+                    wrapper.style.display = "none";
+                    empty.querySelector("p").textContent = "No hay jugadores en esta plantilla";
+                    empty.style.display = "block";
+                    return;
+                }
+
+                empty.style.display = "none";
+                wrapper.style.display = "block";
+
+                const id_equipo = document.getElementById("filtro-equipo").value;
+                const id_liga = document.getElementById("filtro-liga").value;
+
+                tbody.innerHTML = plantillaData.map(j => {
+                    const dorsal = j.dorsal ? j.dorsal : "—";
+                    const fotoIcon = (j.foto_path && j.foto_path !== "") ? "📷" : "—";
+                    const estado = j.estado ?? "ALTA";
+                    const badgeClass = estado === "PENDIENTE" ? "gysl-badge--pending"
+                        : estado === "ALTA" ? "gysl-badge--active"
+                            : "gysl-badge--inactive";
+
+                    return `
+                    <tr>
+                        <td>${dorsal}</td>
+                        <td>${j.nombre ?? "—"}</td>
+                        <td>${j.apellido ?? "—"}</td>
+                        <td>${j.fecha_nacimiento ?? "—"}</td>
+                        <td>${fotoIcon}</td>
+                        <td><span class="gysl-badge ${badgeClass}">${estado}</span></td>
+                        <td>
+                            <div class="gysl-admin-table__actions">
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
+                                    onclick="abrirDetalle(${j.id_jugador}, ${id_equipo}, ${id_liga})">Detalle</button>
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
+                                    onclick="eliminarDePlantilla(${j.id_jugador}, ${id_equipo}, ${id_liga})">Quitar</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                }).join("");
+            }
+
+            window.eliminarDePlantilla = async function (id_jugador, id_equipo, id_liga) {
+                if (!confirm("¿Eliminar este jugador de la plantilla?")) return;
+
+                try {
+                    const res = await fetch(API + "/plantillas", {
+                        method: "DELETE",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            id_jugador: parseInt(id_jugador, 10),
+                            id_equipo: parseInt(id_equipo, 10),
+                            id_liga: parseInt(id_liga, 10)
+                        })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        showToast("Jugador eliminado de plantilla", "success");
+                        cargarPlantilla();
+                    } else {
+                        showToast(data.message || "Error", "error");
+                    }
+                } catch (err) {
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            // ═══════════════════════════════════════
+            //  TAB 3: PENDIENTES
+            // ═══════════════════════════════════════
+
+            async function loadPendientes() {
+                document.getElementById("pendientes-loading").style.display = "flex";
+                document.getElementById("pendientes-table-wrapper").style.display = "none";
+                document.getElementById("pendientes-empty").style.display = "none";
+
+                try {
+                    const res = await fetch(API + "/jugadores", { credentials: "include" });
+                    const data = await res.json();
+                    const todos = Array.isArray(data) ? data : (data.data || []);
+                    pendientesData = todos.filter(j => {
+                        const est = (j.estado ?? "").toUpperCase();
+                        return est === "PENDIENTE" || est === "PENDIENTE_BAJA";
+                    });
+                } catch (err) {
+                    console.error("Error:", err);
+                    pendientesData = [];
+                }
+
+                document.getElementById("pendientes-loading").style.display = "none";
+                renderPendientes();
+            }
+
+            function renderPendientes() {
+                const tbody = document.getElementById("pendientes-tbody");
+                const wrapper = document.getElementById("pendientes-table-wrapper");
+                const empty = document.getElementById("pendientes-empty");
+
+                if (pendientesData.length === 0) {
+                    wrapper.style.display = "none";
+                    empty.style.display = "block";
+                    return;
+                }
+
+                empty.style.display = "none";
+                wrapper.style.display = "block";
+
+                // Obtener permisos/roles
+                const isAdmin = window.gyslAdminUserRole === "ADMIN";
+
+                tbody.innerHTML = pendientesData.map(j => {
+                    const id = j.id_jugador ?? j.id;
+                    const est = (j.estado ?? "").toUpperCase();
+                    const badgeText = est === "PENDIENTE_BAJA" ? "BAJA PEND." : "ALTA PEND.";
+                    const badgeClass = est === "PENDIENTE_BAJA" ? "gysl-badge--inactive" : "gysl-badge--pending";
+                    
+                    let actionsHtml = "";
+                    if (isAdmin) {
+                        actionsHtml = `
+                            <button class="gysl-admin-table__btn gysl-admin-table__btn--approve"
+                                onclick="aprobarJugador(${id})">Aprobar</button>
+                            <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
+                                onclick="rechazarJugador(${id})">Rechazar</button>
+                        `;
+                    } else {
+                        actionsHtml = `<span style="color:var(--gysl-muted); font-size:12px;">En revisión...</span>`;
+                    }
+
+                    return `
+                    <tr>
+                        <td>${id}</td>
+                        <td>${j.nombre ?? "—"}</td>
+                        <td>${j.apellido ?? "—"}</td>
+                        <td>${j.id_equipo_solicitante ?? "—"}</td>
+                        <td><span class="gysl-badge ${badgeClass}">${badgeText}</span></td>
+                        <td>
+                            <div class="gysl-admin-table__actions">
+                                ${actionsHtml}
+                            </div>
+                        </td>
+                    </tr>`;
+                }).join("");
+            }
+
+            window.aprobarJugador = async function (id) {
+                const confirmado = await showConfirm("Aprobar jugador", "¿Aprobar este jugador y añadirlo a la plantilla?");
+                if (!confirmado) return;
+
+                try {
+                    const res = await fetch(API + "/jugadores/" + id + "/aprobar", {
+                        method: "POST",
+                        credentials: "include"
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        showToast("Jugador aprobado", "success");
+                        loadPendientes();
+                    } else {
+                        showToast(data.message || "Error al aprobar", "error");
+                    }
+                } catch (err) {
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            window.rechazarJugador = async function (id) {
+                const confirmado = await showConfirm("Rechazar jugador", "¿Rechazar y eliminar este jugador?");
+                if (!confirmado) return;
+
+                try {
+                    const res = await fetch(API + "/jugadores/" + id + "/rechazar", {
+                        method: "POST",
+                        credentials: "include"
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        showToast("Jugador rechazado", "success");
+                        loadPendientes();
+                    } else {
+                        showToast(data.message || "Error al rechazar", "error");
+                    }
+                } catch (err) {
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            // ═══════════════════════════════════════
+            //  DETALLE INDIVIDUAL
+            // ═══════════════════════════════════════
+
+            window.abrirDetalle = async function (id_jugador, id_equipo, id_liga) {
+                try {
+                    const res = await fetch(
+                        API + `/plantillas/detalle?id_jugador=${id_jugador}&id_equipo=${id_equipo}&id_liga=${id_liga}`,
+                        { credentials: "include" }
+                    );
+                    const data = await res.json();
+
+                    if (!res.ok || !data.data) {
+                        showToast(data.message || "Error cargando detalle", "error");
+                        return;
+                    }
+
+                    const j = data.data;
+                    const tieneFoto = j.foto_path && j.foto_path !== "";
+                    const tieneDorsal = j.dorsal && parseInt(j.dorsal, 10) > 0;
+
+                    const fotoHtml = tieneFoto
+                        ? `<img src="${API}${j.foto_path}" alt="Foto">`
+                        : `<span>Sin foto</span>`;
+
+                    document.getElementById("detalle-content").innerHTML = `
+                        <div class="gysl-detail-photo">${fotoHtml}</div>
+                        <div class="gysl-detail-info">
+                            <div class="gysl-detail-row">
+                                <span class="gysl-detail-row__label">Nombre</span>
+                                <span class="gysl-detail-row__value">${j.nombre} ${j.apellido}</span>
+                            </div>
+                            <div class="gysl-detail-row">
+                                <span class="gysl-detail-row__label">Fecha Nac.</span>
+                                <span class="gysl-detail-row__value">${j.fecha_nacimiento ?? "—"}</span>
+                            </div>
+                            <div class="gysl-detail-row">
+                                <span class="gysl-detail-row__label">Estado</span>
+                                <span class="gysl-detail-row__value">${j.estado ?? "—"}</span>
+                            </div>
+                            <div class="gysl-detail-row">
+                                <span class="gysl-detail-row__label">Dorsal</span>
+                                <span class="gysl-detail-row__value" id="detalle-dorsal-val">${tieneDorsal ? j.dorsal : "Sin asignar"}</span>
+                            </div>
+
+                            <!-- Asignar dorsal (solo si no tiene) -->
+                            ${!tieneDorsal ? `
+                            <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+                                <input type="number" id="detalle-dorsal-input" placeholder="Nº dorsal" min="1" max="99"
+                                    style="width:80px; padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:var(--gysl-white); font-family:var(--gysl-font); font-size:14px;">
+                                <button class="gysl-admin-btn gysl-admin-btn--primary" style="padding:8px 16px; font-size:13px;"
+                                    onclick="guardarDorsal(${j.id_jugador}, ${id_equipo}, ${id_liga})">Asignar</button>
+                            </div>` : `
+                            <div style="font-size:12px; color:var(--gysl-muted); margin-top:4px;">
+                                El dorsal ya fue asignado y no se puede modificar.
+                            </div>`}
+
+                            <!-- Subir foto (solo si no tiene) -->
+                            <div style="margin-top:12px;">
+                                ${!tieneFoto ? `
+                                <input type="file" accept="image/jpeg,image/png,image/webp" class="gysl-file-input"
+                                    id="detalle-foto-input" onchange="subirFoto(${j.id_jugador})">
+                                <label for="detalle-foto-input" class="gysl-file-btn">
+                                    📷 Subir foto
+                                </label>` : `
+                                <div style="font-size:12px; color:var(--gysl-muted);">
+                                    La foto ya fue asignada y no se puede modificar.
+                                </div>`}
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById("detalle-overlay").classList.add("is-open");
+                } catch (err) {
+                    console.error("Error en detalle:", err);
+                    showToast("Error cargando ficha", "error");
+                }
+            };
+
+            window.cerrarDetalle = function () {
+                document.getElementById("detalle-overlay").classList.remove("is-open");
+            };
+
+            window.guardarDorsal = async function (id_jugador, id_equipo, id_liga) {
+                const dorsal = parseInt(document.getElementById("detalle-dorsal-input")?.value, 10);
+                if (!dorsal || dorsal < 1) {
+                    showToast("Introduce un dorsal válido", "error");
+                    return;
+                }
+
+                const confirmado = await showConfirm("Asignar dorsal", "¿Está seguro de los cambios? El dorsal no se podrá modificar después.");
+                if (!confirmado) return;
+
+                try {
+                    const res = await fetch(API + "/plantillas/dorsal", {
+                        method: "PATCH",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id_jugador, id_equipo, id_liga, dorsal })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        showToast("Dorsal asignado correctamente", "success");
+                        cerrarDetalle();
+                        cargarPlantilla();
+                    } else {
+                        showToast(data.message || "Error al asignar dorsal", "error");
+                    }
+                } catch (err) {
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            window.subirFoto = async function (id_jugador) {
+                const input = document.getElementById("detalle-foto-input");
+                if (!input.files || input.files.length === 0) return;
+
+                const confirmado = await showConfirm("Subir foto", "¿Está seguro de los cambios? La foto no se podrá modificar después.");
+                if (!confirmado) { input.value = ""; return; }
+
+                const formData = new FormData();
+                formData.append("foto", input.files[0]);
+
+                try {
+                    const res = await fetch(API + "/jugadores/" + id_jugador + "/foto", {
+                        method: "POST",
+                        credentials: "include",
+                        body: formData
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        showToast("Foto subida correctamente", "success");
+                        cerrarDetalle();
+                        cargarPlantilla();
+                    } else {
+                        showToast(data.message || "Error al subir foto", "error");
+                    }
+                } catch (err) {
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            // ═══════════════════════════════════════
+            //  INIT
+            // ═══════════════════════════════════════
+            async function init() {
+                await loadGlobalData();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const equipoId = urlParams.get('equipo');
+                
+                if (equipoId) {
+                    const match = allEquipos.find(e => (e.id_equipo ?? e.id) == equipoId);
+                    if (match && match.ligas_ids && match.ligas_ids.length > 0) {
+                        document.querySelectorAll(".gysl-tab").forEach(t => t.classList.remove("is-active"));
+                        document.querySelectorAll(".gysl-tab-panel").forEach(p => p.classList.remove("is-active"));
+                        
+                        const tabPlantilla = document.querySelector('[data-tab="plantilla"]');
+                        if(tabPlantilla) tabPlantilla.classList.add("is-active");
+                        document.getElementById("panel-plantilla").classList.add("is-active");
+
+                        populateFilterDropdowns();
+                        document.getElementById("filtro-liga").value = match.ligas_ids[0];
+                        onFiltroLigaChange();
+                        
+                        setTimeout(() => {
+                            document.getElementById("filtro-equipo").value = equipoId;
+                            cargarPlantilla();
+                        }, 100);
+                    }
+                }
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

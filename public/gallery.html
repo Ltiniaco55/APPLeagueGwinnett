@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GYSL — Galería</title>
+
+    <link rel="stylesheet" href="./CSS/layout.css">
+    <link rel="stylesheet" href="./CSS/gallery.css">
+    <link rel="stylesheet" href="./CSS/contact.css">
+    <link rel="stylesheet" href="./CSS/mini-menu.css">
+    <script src="./JS/contact.js" defer></script>
+    <script src="./JS/login.js" defer></script>
+    <script src="./JS/sesionactiva.js" defer></script>
+    <script src="./JS/layout.js" defer></script>
+    <script src="./JS/gallery.js" defer></script>
+</head>
+
+<body>
+
+    <main id="page-content"><!--  -->
+
+        <section class="gysl-gallery-hero">
+            <div class="gysl-gallery-hero__inner">
+                <h1 class="gysl-gallery-hero__title">GALERÍA</h1>
+                <p class="gysl-gallery-hero__subtitle">
+                    Fotos de partidos, entrenamientos y eventos. Sí, los humanos son fotogénicos a veces.
+                </p>
+
+                <div class="gysl-gallery-hero__controls">
+                    <label class="gysl-gallery-label" for="gysl-gallery-jump">Ir a sección</label>
+
+                    <div class="gysl-select">
+                        <select id="gysl-gallery-jump" aria-label="Ir a una sección de la galería">
+                            <option value="">Selecciona una sección…</option>
+                            <option value="#sec-partidos">Momentos destacados</option>
+                            <option value="#sec-entrenos">Trofeos</option>
+                            <option value="#sec-eventos">Equipos</option>
+                            <option value="#sec-clubs">U6s</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Separator smooth -->
+        <div class="gysl-divider-smooth" aria-hidden="true"></div>
+
+        <!-- SECTION: Partidos -->
+        <section class="gysl-gallery-section" id="sec-partidos">
+            <header class="gysl-gallery-section__head">
+                <h2 class="gysl-gallery-section__title">Momentos destacados</h2>
+                <p class="gysl-gallery-section__desc">Highlights, goles y celebraciones (y algún drama).</p>
+            </header>
+
+            <div class="gysl-masonry">
+                <!-- Cambia src por tus imágenes reales -->
+                <a class="gysl-card" href="#" aria-label="Foto partido 1">
+                    <img src="./fotos/u12/public8.jpeg" alt="Partido 1">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Final</span>
+                        <span class="gysl-card__title">Momentos que se sienten</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#" aria-label="Foto partido 2">
+                    <img src="./fotos/u10/tension.jpeg" alt="Partido 2">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Final</span>
+                        <span class="gysl-card__title">La Copa</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#" aria-label="Foto partido 3">
+                    <img src="./fotos/u8/diversion.jpeg" alt="Partido 3">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Gol</span>
+                        <span class="gysl-card__title">Momento clave</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#" aria-label="Foto partido 4">
+                    <img src="./fotos/u6/celebracion.jpeg" alt="Partido 4">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Derby</span>
+                        <span class="gysl-card__title">Ambiente</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#" aria-label="Foto partido 5">
+                    <img src="./fotos/u12/futuro.jpeg" alt="Partido 5">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Youth</span>
+                        <span class="gysl-card__title">Futuro</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#" aria-label="Foto partido 6">
+                    <img src="./fotos/u12/public2.jpeg" alt="Partido 6">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Save</span>
+                        <span class="gysl-card__title">Parada</span>
+                    </div>
+                </a>
+        </section>
+
+        <!-- SECTION: Entrenos -->
+        <section class="gysl-gallery-section" id="sec-entrenos">
+            <header class="gysl-gallery-section__head">
+                <h2 class="gysl-gallery-section__title">Trofeos y medallas</h2>
+                <p class="gysl-gallery-section__desc">Orgullo y dedicación.</p>
+            </header>
+
+            <div class="gysl-masonry">
+                <a class="gysl-card" href="#">
+                    <img src="./fotos/trofeos/trofeo4.jpeg" alt="Entreno 1">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Training</span>
+                        <span class="gysl-card__title">Circuito</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="./fotos/trofeos/trofeo1.jpeg" alt="Entreno 2">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Técnica</span>
+                        <span class="gysl-card__title">Control</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="./fotos/trofeos/trofeo2.jpeg" alt="Entreno 3">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Sprint</span>
+                        <span class="gysl-card__title">Velocidad</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="./fotos/trofeos/trofeo3.jpeg" alt="Entreno 4">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Equipo</span>
+                        <span class="gysl-card__title">Rondo</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="./fotos/trofeos/trofeo5.png" alt="Entreno 5">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Keeper</span>
+                        <span class="gysl-card__title">Portería</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="./fotos/trofeos/trofeo7.png" alt="Entreno 6">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Gym</span>
+                        <span class="gysl-card__title">Físico</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="./fotos/trofeos/medalla2.png" alt="Entreno 7">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Equipo</span>
+                        <span class="gysl-card__title">Rondo</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="./fotos/trofeos/medalla1.jpeg" alt="Entreno 8">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Keeper</span>
+                        <span class="gysl-card__title">Portería</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="./fotos/trofeos/trofeo8.png" alt="Entreno 8">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Keeper</span>
+                        <span class="gysl-card__title">Portería</span>
+                    </div>
+                </a>
+
+
+            </div>
+
+        </section>
+
+        <!-- SECTION: Eventos -->
+        <section class="gysl-gallery-section" id="sec-eventos">
+            <header class="gysl-gallery-section__head">
+                <h2 class="gysl-gallery-section__title">Eventos</h2>
+                <p class="gysl-gallery-section__desc">Presentaciones, premios y caos organizado.</p>
+            </header>
+
+            <div class="gysl-masonry">
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=1200&q=80&auto=format&fit=crop"
+                        alt="Evento 1">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Awards</span>
+                        <span class="gysl-card__title">Premios</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1520975693411-6f0edb4f40f3?w=1200&q=80&auto=format&fit=crop"
+                        alt="Evento 2">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Fans</span>
+                        <span class="gysl-card__title">Gradas</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1400&q=80&auto=format&fit=crop"
+                        alt="Evento 3">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Media</span>
+                        <span class="gysl-card__title">Cobertura</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?w=1200&q=80&auto=format&fit=crop"
+                        alt="Evento 4">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Ceremony</span>
+                        <span class="gysl-card__title">Entrega</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1522778526097-ce0a22ceb253?w=1200&q=80&auto=format&fit=crop"
+                        alt="Evento 5">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Kids</span>
+                        <span class="gysl-card__title">Academy</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=1200&q=80&auto=format&fit=crop"
+                        alt="Evento 6">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Community</span>
+                        <span class="gysl-card__title">Club Day</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- SECTION: Clubs -->
+        <section class="gysl-gallery-section" id="sec-clubs">
+            <header class="gysl-gallery-section__head">
+                <h2 class="gysl-gallery-section__title">Clubs</h2>
+                <p class="gysl-gallery-section__desc">Identidad visual, camisetas y escudos.</p>
+            </header>
+
+            <div class="gysl-masonry">
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1520975916090-3105956dac38?w=1200&q=80&auto=format&fit=crop"
+                        alt="Club 1">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Club</span>
+                        <span class="gysl-card__title">Home Kit</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=1400&q=80&auto=format&fit=crop"
+                        alt="Club 2">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Brand</span>
+                        <span class="gysl-card__title">Escudos</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1200&q=80&auto=format&fit=crop"
+                        alt="Club 3">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Team</span>
+                        <span class="gysl-card__title">Lineup</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?w=1200&q=80&auto=format&fit=crop"
+                        alt="Club 4">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Merch</span>
+                        <span class="gysl-card__title">Camisetas</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=1200&q=80&auto=format&fit=crop"
+                        alt="Club 5">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Fans</span>
+                        <span class="gysl-card__title">Support</span>
+                    </div>
+                </a>
+
+                <a class="gysl-card" href="#">
+                    <img src="https://images.unsplash.com/photo-1600679472829-3044539ce8ed?w=1200&q=80&auto=format&fit=crop"
+                        alt="Club 6">
+                    <div class="gysl-card__meta">
+                        <span class="gysl-card__tag">Pitch</span>
+                        <span class="gysl-card__title">Stadium</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+
+</html>

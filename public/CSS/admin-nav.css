@@ -1,0 +1,203 @@
+/* ==========================================================
+   GYSL — ADMIN FLOATING BOTTOM NAV
+   Basado en Uiverse floating nav, adaptado al sistema GYSL
+   ========================================================== */
+
+.gysl-admin-nav {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 8000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    /* Pill shape */
+    padding: 8px 16px;
+    border-radius: 40px;
+
+    /* GYSL glass style */
+    background:
+        radial-gradient(ellipse at 25% 40%, rgba(20, 52, 94, .45), transparent 70%),
+        radial-gradient(ellipse at 80% 60%, rgba(11, 42, 74, .45), transparent 70%),
+        rgba(8, 22, 45, .92);
+
+    border: 1px solid rgba(255, 255, 255, .10);
+
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, .55),
+        0 4px 12px rgba(0, 0, 0, .35),
+        inset 0 1px 0 rgba(255, 255, 255, .06);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    /* Entry animation */
+    animation: gyslAdminNavIn .4s ease-out both;
+}
+
+@keyframes gyslAdminNavIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Top accent bar */
+.gysl-admin-nav::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    border-radius: 2px;
+
+    background: linear-gradient(90deg,
+            transparent 0%,
+            var(--gysl-yellow) 50%,
+            transparent 100%);
+    opacity: .7;
+    pointer-events: none;
+}
+
+/* ─── Nav Items ───────────────────────────────────────────── */
+
+.gysl-admin-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    /* sizing */
+    width: 64px;
+    height: 56px;
+    padding: 6px 8px;
+
+    /* reset */
+    background: transparent;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+
+    /* text */
+    color: var(--gysl-muted);
+    font-family: var(--gysl-font);
+    font-size: 10px;
+    font-weight: var(--fw-semibold);
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+
+    /* animation */
+    transition:
+        color .2s ease,
+        background .2s ease,
+        transform .2s ease;
+}
+
+.gysl-admin-nav__item svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    transition: transform .2s ease;
+}
+
+/* Hover */
+.gysl-admin-nav__item:hover {
+    color: var(--gysl-white);
+    background: rgba(255, 255, 255, .06);
+}
+
+.gysl-admin-nav__item:hover svg {
+    transform: translateY(-2px);
+}
+
+/* Active state */
+.gysl-admin-nav__item.is-active {
+    color: var(--gysl-yellow);
+    background: rgba(241, 184, 45, .12);
+    border: 1px solid rgba(241, 184, 45, .22);
+}
+
+.gysl-admin-nav__item.is-active svg {
+    filter: drop-shadow(0 0 6px rgba(241, 184, 45, .35));
+}
+
+/* Disabled / coming soon */
+.gysl-admin-nav__item.is-disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.gysl-admin-nav__item.is-disabled:hover {
+    background: transparent;
+    color: var(--gysl-muted);
+    transform: none;
+}
+
+/* Tooltip on disabled items */
+.gysl-admin-nav__item.is-disabled::after {
+    content: "Próximamente";
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) scale(.9);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: var(--fw-semibold);
+    color: var(--gysl-white);
+    background: var(--gysl-superdark);
+    border: 1px solid var(--gysl-line);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+}
+
+.gysl-admin-nav__item.is-disabled:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+/* ─── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 520px) {
+    .gysl-admin-nav {
+        bottom: 12px;
+        padding: 6px 10px;
+        gap: 2px;
+        border-radius: 28px;
+    }
+
+    .gysl-admin-nav__item {
+        width: 52px;
+        height: 48px;
+        font-size: 8.5px;
+        padding: 4px 4px;
+    }
+
+    .gysl-admin-nav__item svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 360px) {
+    .gysl-admin-nav__item span {
+        display: none;
+    }
+    .gysl-admin-nav__item {
+        width: 44px;
+    }
+}

@@ -1,0 +1,87 @@
+<!-- GYSL — Admin Floating Bottom Nav -->
+<nav class="gysl-admin-nav" id="gysl-admin-nav" aria-label="Admin navigation">
+
+    <!-- Dashboard -->
+    <button onclick="window.location.href='admin-dashboard.html'"
+            class="gysl-admin-nav__item"
+            data-admin-route="dashboard"
+            title="Dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"></path>
+        </svg>
+        <span>Panel</span>
+    </button>
+
+    <!-- Ligas -->
+    <button onclick="window.location.href='admin-ligas.html'"
+            class="gysl-admin-nav__item"
+            data-admin-route="ligas"
+            title="Gestionar Ligas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="5"></circle>
+            <path d="M12 13v8"></path>
+            <path d="M9 18h6"></path>
+        </svg>
+        <span>Ligas</span>
+    </button>
+
+    <!-- Equipos -->
+    <button onclick="window.location.href='admin-equipos.html'"
+            class="gysl-admin-nav__item"
+            data-admin-route="equipos"
+            title="Gestionar Equipos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Equipos</span>
+    </button>
+
+    <!-- Jugadores -->
+    <button onclick="window.location.href='admin-jugadores.html'"
+            class="gysl-admin-nav__item"
+            data-admin-route="jugadores"
+            title="Gestionar Jugadores">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Jugadores</span>
+    </button>
+
+    <!-- Usuarios -->
+    <button onclick="window.location.href='admin-usuarios.html'"
+            class="gysl-admin-nav__item"
+            data-admin-route="usuarios"
+            title="Gestionar Usuarios">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Usuarios</span>
+    </button>
+
+    <!-- Más (Próximamente) -->
+    <button onclick="alert('Próximamente: Partidos, Resultados, Clasificaciones')"
+            class="gysl-admin-nav__item is-disabled"
+            data-admin-route="more"
+            title="Más opciones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="19" cy="12" r="1"></circle>
+            <circle cx="5" cy="12" r="1"></circle>
+        </svg>
+        <span>Más</span>
+    </button>
+
+</nav>

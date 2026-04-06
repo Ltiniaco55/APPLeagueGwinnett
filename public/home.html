@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL — Layout Demo (Header + Footer)</title>
+    <meta name="description" content="Demo page showing the GYSL reusable header and footer layout components.">
+
+    <!-- Layout styles (header + footer) -->
+    <link rel="stylesheet" href="./CSS/layout.css">
+    <link rel="stylesheet" href="./CSS/home.css">
+    <link rel="stylesheet" href="./CSS/contact.css">
+    <link rel="stylesheet" href="./CSS/mini-menu.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
+    <script src="./JS/layout.js?v=2" defer></script>
+    <script src="./JS/contact.js" defer></script>
+    <script src="./JS/login.js" defer></script>
+    <script src="./JS/sesionactiva.js" defer></script>
+    <script src="./JS/adminNav.js" defer></script>
+
+
+</head>
+
+
+<body>
+
+    <!--
+    ╔══════════════════════════════════════════════╗
+    ║  HOW TO USE IN YOUR OWN PAGES                ║
+    ║                                              ║
+    ║  1. Add the <link> for layout.css in <head>  ║
+    ║  2. Add a <main> element with your content   ║
+    ║  3. Add the <script> for layout.js at end    ║
+    ║                                              ║
+    ║  The header and footer inject automatically! ║
+    ╚══════════════════════════════════════════════╝
+  -->
+
+    <!-- YOUR PAGE CONTENT goes inside <main> -->
+    <main id="page-content">
+
+        <section class="gysl-hero">
+
+            <div class="gysl-hero-overlay"></div>
+
+            <div class="gysl-hero-content">
+
+                <h1 class="gysl-hero-title">
+                    Liga de Futbol Profesional<br>
+                    en Atlanta
+                </h1>
+
+                <p class="gysl-hero-subtitle">
+                    Fomentando el crecimiento atlético y organizacional
+                    en futbol y futsal juvenil.
+                </p>
+
+                <p class="gysl-hero-desc">
+                    Somos el torneo de fútbol y futsal más destacado de Atlanta,
+                    ofreciendo una organización profesional para el desarrollo
+                    de jóvenes atletas.
+                </p>
+
+                <div class="gysl-hero-actions">
+                    <button class="gysl-btn-ui-home">
+                        <span class="gysl-btn-ui-home__text">VER PRÓXIMOS EVENTOS</span>
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="gysl-fixtures" id="fixtures">
+            <div class="gysl-divider-smooth" aria-hidden="true"></div>
+
+            <div class="gysl-fixtures__inner">
+                <div class="gysl-fixtures__top">
+                    <h2 class="gysl-fixtures__title">PRÓXIMOS PARTIDOS</h2>
+
+                    <div class="gysl-tabs" role="tablist" aria-label="Filtrar por liga">
+                        <button class="gysl-tab is-active" role="tab" aria-selected="true"
+                            data-league="all">Todas</button>
+                        <button class="gysl-tab" role="tab" aria-selected="false" data-league="juvenil">Liga
+                            Juvenil</button>
+                        <button class="gysl-tab" role="tab" aria-selected="false" data-league="adultos">Liga
+                            Adultos</button>
+                        <button class="gysl-tab" role="tab" aria-selected="false" data-league="futsal">Fútbol
+                            Sala</button>
+                    </div>
+                </div>
+
+                <!-- ✅ Carrusel SIN scroll (páginas de 4) -->
+                <div class="gysl-carousel" aria-label="Carrusel de partidos">
+                    <div class="gysl-carousel__viewport">
+                        <div class="gysl-carousel__track" id="gysl-carousel-track">
+
+                            <!-- PAGE 1 (4 cards) -->
+                            <div class="gysl-carousel__page" data-page="0">
+                                <!-- pega aquí tus 4 <article class="gysl-match"> -->
+                                <!-- (son EXACTAMENTE los 4 que ya tienes ahora, sin tocar nada) -->
+
+                                <!-- Card 1 -->
+                                <article class="gysl-match" data-league="juvenil">
+                                    <header class="gysl-match__head">
+                                        <span class="gysl-match__date">LUN 23.02.2026</span>
+                                        <span class="gysl-match__time">21:00</span>
+                                    </header>
+
+                                    <div class="gysl-match__body">
+                                        <div class="gysl-match__teams">
+                                            <div class="gysl-team">
+                                                <span class="gysl-team__abbr">ATL</span>
+                                                <span class="gysl-team__name">Atlanta FC</span>
+                                            </div>
+
+                                            <span class="gysl-match__vs">VS</span>
+
+                                            <div class="gysl-team">
+                                                <span class="gysl-team__abbr">NOR</span>
+                                                <span class="gysl-team__name">Norcross Utd</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="gysl-match__meta">
+                                            <span class="gysl-pill">U14–U17</span>
+                                            <span class="gysl-pill is-muted">Regular Season</span>
+                                        </div>
+
+                                        <div class="gysl-match__actions">
+                                            <button class="gysl-match__action">Comparar</button>
+                                            <button class="gysl-match__action">Previa</button>
+                                            <button class="gysl-match__action">TV</button>
+                                            <button class="gysl-match__action">Cuotas</button>
+                                        </div>
+                                    </div>
+
+                                    <footer class="gysl-match__foot">
+                                        <span class="gysl-channel">GYSL TV</span>
+                                    </footer>
+                                </article>
+
+                                <!-- Card 2 -->
+                                <article class="gysl-match" data-league="adultos">
+                                    <header class="gysl-match__head">
+                                        <span class="gysl-match__date">VIE 20.02.2026</span>
+                                        <span class="gysl-match__time">20:30</span>
+                                    </header>
+
+                                    <div class="gysl-match__body">
+                                        <div class="gysl-match__teams">
+                                            <div class="gysl-team">
+                                                <span class="gysl-team__abbr">RSC</span>
+                                                <span class="gysl-team__name">Roswell SC</span>
+                                            </div>
+
+                                            <span class="gysl-match__vs">VS</span>
+
+                                            <div class="gysl-team">
+                                                <span class="gysl-team__abbr">CUM</span>
+                                                <span class="gysl-team__name">Cumming SC</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="gysl-match__meta">
+                                            <span class="gysl-pill">Senior</span>
+                                            <span class="gysl-pill is-muted">Playoffs</span>
+                                        </div>
+
+                                        <div class="gysl-match__actions">
+                                            <button class="gysl-match__action">Comparar</button>
+                                            <button class="gysl-match__action">Previa</button>
+                                            <button class="gysl-match__action">TV</button>
+                                            <button class="gysl-match__action">Cuotas</button>
+                                        </div>
+                                    </div>
+
+                                    <footer class="gysl-match__foot">
+                                        <span class="gysl-channel">Field 2 · 20:30</span>
+                                    </footer>
+                                </article>
+
+                                <!-- Card 3 -->
+                                <article class="gysl-match" data-league="futsal">
+                                    <header class="gysl-match__head">
+                                        <span class="gysl-match__date">SAB 21.02.2026</span>
+                                        <span class="gysl-match__time">14:00</span>
+                                    </header>
+
+                                    <div class="gysl-match__body">
+                                        <div class="gysl-match__teams">
+                                            <div class="gysl-team">
+                                                <span class="gysl-team__abbr">ALS</span>
+                                                <span class="gysl-team__name">Alpharetta</span>
+                                            </div>
+
+                                            <span class="gysl-match__vs">VS</span>
+
+                                            <div class="gysl-team">
+                                                <span class="gysl-team__abbr">BFD</span>
+                                                <span class="gysl-team__name">Buford FC</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="gysl-match__meta">
+                                            <span class="gysl-pill">Futsal</span>
+                                            <span class="gysl-pill is-muted">Indoor</span>
+                                        </div>
+
+                                        <div class="gysl-match__actions">
+                                            <button class="gysl-match__action">Comparar</button>
+                                            <button class="gysl-match__action">Previa</button>
+                                            <button class="gysl-match__action">TV</button>
+                                            <button class="gysl-match__action">Cuotas</button>
+                                        </div>
+                                    </div>
+
+                                    <footer class="gysl-match__foot">
+                                        <span class="gysl-channel">GYSL Arena</span>
+                                    </footer>
+                                </article>
+
+                                <!-- Card 4 -->
+                                <article class="gysl-match" data-league="juvenil">
+                                    <header class="gysl-match__head">
+                                        <span class="gysl-match__date">SAB 21.02.2026</span>
+                                        <span class="gysl-match__time">16:15</span>
+                                    </header>
+
+                                    <div class="gysl-match__body">
+                                        <div class="gysl-match__teams">
+                                            <div class="gysl-team">
+                                                <span class="gysl-team__abbr">GNV</span>
+                                                <span class="gysl-team__name">Gainesville</span>
+                                            </div>
+
+                                            <span class="gysl-match__vs">VS</span>
+
+                                            <div class="gysl-team">
+                                                <span class="gysl-team__abbr">LWR</span>
+                                                <span class="gysl-team__name">Lawrenceville</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="gysl-match__meta">
+                                            <span class="gysl-pill">U10–U12</span>
+                                            <span class="gysl-pill is-muted">Group A</span>
+                                        </div>
+
+                                        <div class="gysl-match__actions">
+                                            <button class="gysl-match__action">Comparar</button>
+                                            <button class="gysl-match__action">Previa</button>
+                                            <button class="gysl-match__action">TV</button>
+                                            <button class="gysl-match__action">Cuotas</button>
+                                        </div>
+                                    </div>
+
+                                    <footer class="gysl-match__foot">
+                                        <span class="gysl-channel">Pitch 1</span>
+                                    </footer>
+                                </article>
+
+                            </div>
+
+                            <!-- PAGE 2 (vacía por ahora, luego metes 4 más) -->
+                            <div class="gysl-carousel__page" data-page="1">
+                                <!-- aquí van otras 4 cards cuando tengas más partidos -->
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Dots -->
+                    <div class="gysl-dots" id="gysl-carousel-dots" aria-label="Paginación"></div>
+                </div>
+
+                <div class="gysl-fixtures__bottom">
+                    <a class="gysl-fixtures__all" href="#">ACORDARME DE HACER EL JS DE ESTA PARTE ›</a>
+                </div>
+            </div>
+        </section>
+
+    </main><!-- /main -->
+
+    <!-- Layout JS — injects header + footer automatically -->
+
+
+</body>
+
+</html>

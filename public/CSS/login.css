@@ -1,0 +1,506 @@
+/* 
+  Estilo para el modal "Sliding Panel" recreando la animación
+  Requisitos: variables de global CSS.
+*/
+
+.login-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.login-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* El contenedor principal */
+.login-wrapper {
+    background: var(--gysl-white);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+    width: 800px;
+    max-width: 90%;
+    min-height: 540px;
+    transform: translateY(20px);
+    opacity: 0;
+    animation: slideUp 0.4s 0.1s ease-out forwards;
+    font-family: var(--gysl-font);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Base de los formularios (Signup y SignIn) */
+.login-form-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+}
+
+.login-form-container form {
+    background: var(--gysl-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 45px;
+    height: 100%;
+    text-align: center;
+}
+
+/* Login (visible a la derecha por defecto) */
+.login-sign-in-container {
+    left: 50%;
+    width: 50%;
+    z-index: 2;
+}
+
+/* Register (oculto a la izquierda por defecto) */
+.login-sign-up-container {
+    left: 0;
+    width: 50%;
+    opacity: 0;
+    z-index: 1;
+}
+
+/* --- CLASE MAGICA PARA ANIMAR --- */
+.login-wrapper.right-panel-active .login-sign-in-container {
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.login-wrapper.right-panel-active .login-sign-up-container {
+    transform: translateX(0);
+    opacity: 1;
+    z-index: 5;
+    animation: show 0.6s;
+}
+
+@keyframes show {
+
+    0%,
+    49.99% {
+        opacity: 0;
+        z-index: 1;
+    }
+
+    50%,
+    100% {
+        opacity: 1;
+        z-index: 5;
+    }
+}
+
+/* Panel Overlay (La capa azul que se desliza por encima) */
+.login-overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* COMIENZA A LA IZQUIERDA */
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: transform 0.6s ease-in-out, border-radius 0.6s ease-in-out;
+    z-index: 100;
+
+    /* Forma curva asimétrica (hacia la derecha inicialmente) */
+    border-top-right-radius: 120px;
+    border-bottom-right-radius: 120px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.login-wrapper.right-panel-active .login-overlay-container {
+    transform: translateX(100%);
+
+    /* Forma curva se invierte (apunta a la izquierda) */
+    border-top-left-radius: 120px;
+    border-bottom-left-radius: 120px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.login-overlay-panel-bg {
+    background: linear-gradient(135deg, var(--gysl-blue), var(--gysl-superdark));
+    /* Puedes cambiar a color sólido (#0A2345) si prefieres que no haya degradado */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 0 0;
+    color: var(--gysl-white);
+    position: relative;
+    left: 0;
+    height: 100%;
+    width: 200%;
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
+}
+
+.login-wrapper.right-panel-active .login-overlay-panel-bg {
+    transform: translateX(-50%);
+}
+
+.login-overlay-panel {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 40px;
+    text-align: center;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
+}
+
+.login-overlay-left {
+    left: 0;
+    transform: translateX(0);
+}
+
+.login-wrapper.right-panel-active .login-overlay-left {
+    transform: translateX(-20%);
+}
+
+.login-overlay-right {
+    right: 0;
+    transform: translateX(20%);
+}
+
+.login-wrapper.right-panel-active .login-overlay-right {
+    transform: translateX(0);
+}
+
+/* --- TEXTOS DEL OVERLAY --- */
+.login-overlay-panel h2 {
+    font-size: var(--fs-h2);
+    font-weight: var(--fw-bold);
+    color: var(--gysl-white);
+    margin-bottom: 10px;
+    font-family: var(--gysl-font);
+}
+
+.login-overlay-panel p {
+    font-size: var(--fs-body-sm);
+    color: var(--gysl-muted);
+    margin-bottom: 30px;
+}
+
+/* Botón transparente del overlay */
+.login-ghost-btn {
+    border: 1px solid var(--gysl-white);
+    background: transparent;
+    color: var(--gysl-white);
+    padding: 12px 45px;
+    border-radius: 30px;
+    font-size: var(--fs-body);
+    font-weight: var(--fw-semibold);
+    font-family: var(--gysl-font);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.login-ghost-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* --- ELEMENTOS DE LOS FORMULARIOS --- */
+.login-form-container h2 {
+    font-size: var(--fs-h2);
+    font-weight: var(--fw-bold);
+    color: var(--gysl-superdark);
+    margin-bottom: 20px;
+    font-family: var(--gysl-font);
+}
+
+.login-input-group {
+    position: relative;
+    width: 80%;
+    margin-bottom: 12px;
+}
+
+.login-input-group input {
+    width: 100%;
+    padding: 12px 48px 12px 15px;
+    border: none;
+    border-radius: 8px;
+    background: #f4f6fa;
+    font-family: var(--gysl-font);
+    font-size: var(--fs-body-sm);
+    color: var(--gysl-superdark);
+    box-sizing: border-box;
+    transition: outline 0.2s ease;
+}
+
+.login-input-group input:focus {
+    outline: 2px solid var(--gysl-superlight);
+}
+
+.pwd-toggle-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gysl-muted);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pwd-toggle-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Para poner Nombre y Apellido al lado */
+.login-input-group--half {
+    display: flex;
+    gap: 10px;
+}
+
+.login-forgot-link {
+    font-family: var(--gysl-font);
+    font-size: 13px;
+    color: var(--gysl-superdark);
+    text-decoration: none;
+    margin: 5px 0 15px 0;
+    font-weight: var(--fw-medium);
+    transition: color 0.2s;
+}
+
+.login-forgot-link:hover {
+    color: var(--gysl-superlight);
+}
+
+.login-social-text {
+    font-family: var(--gysl-font);
+    font-size: 12px;
+    color: #888;
+    margin: 15px 0 10px;
+}
+
+.login-social-icons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.login-social-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: var(--gysl-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: var(--gysl-superdark);
+    transition: background 0.2s;
+}
+
+.login-social-btn:hover {
+    background: #f4f6fa;
+}
+
+
+/* --- BOTON ESTILO HOME Y LOGIN --- */
+.gysl-btn-ui-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gysl-yellow);
+    border-radius: 12px;
+    border: 2px solid #030f14;
+    cursor: pointer;
+    font-family: var(--gysl-font);
+    font-size: 16px;
+    font-weight: 800;
+    padding: 12px;
+    user-select: none;
+    transition: all .25s ease;
+    box-shadow: inset 0 -4px 10px rgba(0, 0, 0, .25), inset 0 2px 4px rgba(255, 255, 255, .25), 0 6px 18px rgba(0, 0, 0, .35);
+}
+
+.gysl-btn-ui-login:hover {
+    transform: translateY(-2px);
+    box-shadow: inset 0 -6px 14px rgba(0, 0, 0, .35), inset 0 3px 6px rgba(255, 255, 255, .3), 0 12px 28px rgba(0, 0, 0, .45);
+}
+
+.gysl-btn-ui-login:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 6px 14px rgba(0, 0, 0, .5);
+}
+
+.gysl-btn-ui-login__text {
+    display: inline-block;
+    color: var(--gysl-superdark);
+    font-weight: 800;
+    letter-spacing: .6px;
+    transition: .2s;
+}
+
+.gysl-btn-ui-login:hover .gysl-btn-ui-login__text {
+    transform: scale(.95);
+}
+
+.gysl-btn-ui-login:active .gysl-btn-ui-login__text {
+    transform: scale(.9);
+}
+
+/* --- CLOSE BOTON --- */
+.login-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    font-size: 18px;
+    color: var(--gysl-superdark);
+    cursor: pointer;
+    z-index: 500;
+    transition: all 0.2s;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--gysl-red);
+}
+
+.login-wrapper.right-panel-active .login-close-btn {
+    color: var(--gysl-white);
+}
+
+/* --- FORGOT PASSWORD FLOW (HIDDEN) --- */
+.forgot-flow-container {
+    position: absolute;
+    inset: 0;
+    background: var(--gysl-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 45px;
+    z-index: 10;
+}
+
+.forgot-step {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.forgot-desc {
+    font-family: var(--gysl-font);
+    font-size: 13.5px;
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* Back button para salir de forgot password */
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: transparent;
+    border: none;
+    font-family: var(--gysl-font);
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gysl-superlight);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.back-btn:hover {
+    color: var(--gysl-yellow);
+}
+
+.pwd-requirements {
+    font-family: var(--gysl-font);
+    font-size: 11.5px;
+    color: #888;
+    text-align: left;
+    margin-top: -6px;
+    margin-bottom: 20px;
+    line-height: 1.4;
+    padding-left: 5px;
+}
+
+/* MOBILE RESPONSIVE PARA EL SLIDING PANEL */
+@media (max-width: 768px) {
+    .login-wrapper {
+        min-height: auto;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .login-overlay-container {
+        display: none;
+    }
+
+    .login-form-container {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding: 40px 0;
+    }
+
+    .login-wrapper.right-panel-active .login-sign-in-container {
+        display: none;
+    }
+
+    .login-wrapper:not(.right-panel-active) .login-sign-up-container {
+        display: none;
+    }
+
+    .login-wrapper.right-panel-active .login-sign-up-container {
+        transform: translateX(0);
+    }
+}

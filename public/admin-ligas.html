@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL Admin — Ligas</title>
+    <meta name="description" content="Gestión de ligas GYSL">
+
+    <link rel="stylesheet" href="./CSS/global.css">
+    <link rel="stylesheet" href="./CSS/admin.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
+
+    <script src="./JS/adminNav.js" defer></script>
+    <style>
+        .gysl-cards-wrapper {
+            margin-top: 20px;
+        }
+        .gysl-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .gysl-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .gysl-card:hover {
+            border-color: var(--gysl-yellow, #f1b82d);
+            background: rgba(241, 184, 45, 0.06);
+            transform: translateY(-2px);
+        }
+        .gysl-card__escudo {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0 auto;
+        }
+        .gysl-card__header {
+            text-align: center;
+        }
+        .gysl-card__title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--gysl-white, #fff);
+            margin: 0;
+            margin-bottom: 4px;
+        }
+        .gysl-card__info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--gysl-muted, #a1a1aa);
+        }
+        .gysl-card__desc {
+            font-size: 13px;
+            color: var(--gysl-muted, #a1a1aa);
+            text-align: center;
+            flex-grow: 1;
+        }
+        .gysl-card__actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="gysl-admin">
+
+        <header class="gysl-admin__header">
+            <div>
+                <h1 class="gysl-admin__title">Gestión de Ligas</h1>
+                <p class="gysl-admin__subtitle">Crear, editar y eliminar ligas del sistema</p>
+            </div>
+            <nav class="gysl-admin__breadcrumb">
+                <a href="admin-dashboard.html">Dashboard</a> / Ligas
+            </nav>
+        </header>
+
+        <div class="gysl-admin__content">
+
+            <!-- Actions bar -->
+            <div class="gysl-admin-actions">
+                <h2 class="gysl-admin-actions__title">Listado de Ligas</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="toggleViewMode()" id="view-mode-btn">
+                        🗂️ Cards
+                    </button>
+                    <button class="gysl-admin-btn gysl-admin-btn--primary"
+                            onclick="openLigaForm()">
+                        + Nueva Liga
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div id="ligas-loading" class="gysl-admin-loading">Cargando ligas...</div>
+
+            <div id="ligas-empty" class="gysl-admin-empty" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="5"></circle>
+                    <path d="M12 13v8"></path><path d="M9 18h6"></path>
+                </svg>
+                <p>No hay ligas registradas aún</p>
+            </div>
+
+            <div class="gysl-admin-table-wrapper" id="ligas-table-wrapper" style="display:none;">
+                <table class="gysl-admin-table" style="cursor: pointer;">
+                    <thead>
+                        <tr>
+                            <th>Escudo</th>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Temporada</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ligas-tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="gysl-cards-wrapper" id="ligas-cards-wrapper" style="display:none;">
+                <div class="gysl-cards-grid" id="ligas-cards-grid"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ═══ CREATE / EDIT FORM MODAL ═══ -->
+    <div class="gysl-admin-form-overlay" id="liga-form-overlay">
+        <div class="gysl-admin-form-card">
+            <h3 id="liga-form-title">Nueva Liga</h3>
+            <form id="liga-form" onsubmit="return false;">
+                <input type="hidden" id="liga-edit-id">
+
+                <div class="gysl-admin-form-group">
+                    <label for="liga-nombre">Nombre de la Liga</label>
+                    <input type="text" id="liga-nombre" placeholder="Ej: Liga Juvenil U14" required>
+                </div>
+                <div class="gysl-admin-form-group">
+                    <label for="liga-temporada">Temporada</label>
+                    <input type="text" id="liga-temporada" placeholder="Ej: 2025-2026" required>
+                </div>
+                <div class="gysl-admin-form-group">
+                    <label for="liga-categoria">Categoría</label>
+                    <input type="text" id="liga-categoria" placeholder="Ej: U14, Senior, Futsal" required>
+                </div>
+                <div class="gysl-admin-form-group">
+                    <label for="liga-descripcion">Descripción</label>
+                    <textarea id="liga-descripcion" placeholder="Ej: Breve descripción de la liga" required rows="3"></textarea>
+                </div>
+                
+                <div class="gysl-admin-form-group" id="liga-escudo-group">
+                    <label for="liga-escudo">Escudo (opcional al crear)</label>
+                    <input type="file" id="liga-escudo" accept=".jpg,.jpeg,.png,.webp" style="color: var(--gysl-white);">
+                    <small style="color:var(--gysl-muted); font-size: 11px; margin-top: 4px; display: block;">Nota: Una vez guardado, el escudo no se podrá cambiar.</small>
+                </div>
+
+                <div class="gysl-admin-form-actions">
+                    <button type="button" class="gysl-admin-btn gysl-admin-btn--secondary"
+                            onclick="closeLigaForm()">Cancelar</button>
+                    <button type="button" class="gysl-admin-btn gysl-admin-btn--primary"
+                            onclick="submitLiga()">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            /* ─── State ──────────────────────────────────────── */
+            let ligasData = [];
+            let viewMode = 'list'; // 'list' | 'cards'
+
+            /* ─── DOM refs ───────────────────────────────────── */
+            const tbody = document.getElementById("ligas-tbody");
+            const tableWrapper = document.getElementById("ligas-table-wrapper");
+            const cardsWrapper = document.getElementById("ligas-cards-wrapper");
+            const cardsGrid = document.getElementById("ligas-cards-grid");
+            const loading = document.getElementById("ligas-loading");
+            const empty = document.getElementById("ligas-empty");
+
+            window.toggleViewMode = function() {
+                viewMode = viewMode === 'list' ? 'cards' : 'list';
+                document.getElementById('view-mode-btn').innerHTML = viewMode === 'list' ? '🗂️ Cards' : '📄 Lista';
+                renderLigas();
+            };
+
+            window.goToEquipos = function(idLiga) {
+                window.location.href = "admin-equipos.html?liga=" + idLiga;
+            };
+
+            /* ─── Fetch ligas ────────────────────────────────── */
+            async function loadLigas() {
+                loading.style.display = "flex";
+                tableWrapper.style.display = "none";
+                cardsWrapper.style.display = "none";
+                empty.style.display = "none";
+
+                try {
+                    const res = await fetch(API + "/ligas", { credentials: "include" });
+                    const data = await res.json();
+                    ligasData = Array.isArray(data) ? data : (data.data || []);
+                } catch (err) {
+                    console.error("Error cargando ligas:", err);
+                    ligasData = [];
+                }
+
+                loading.style.display = "none";
+                renderLigas();
+            }
+
+            /* ─── Render table & cards ───────────────────────────────── */
+            function renderLigas() {
+                if (ligasData.length === 0) {
+                    empty.style.display = "block";
+                    tableWrapper.style.display = "none";
+                    cardsWrapper.style.display = "none";
+                    return;
+                }
+
+                empty.style.display = "none";
+
+                if (viewMode === 'list') {
+                    tableWrapper.style.display = "block";
+                    cardsWrapper.style.display = "none";
+                } else {
+                    tableWrapper.style.display = "none";
+                    cardsWrapper.style.display = "block";
+                }
+
+                let trs = "";
+                let cards = "";
+
+                ligasData.forEach((l) => {
+                    const idLiga = l.id_liga ?? l.id ?? "—";
+                    const nombre = l.nombre_liga ?? l.nom ?? l.nombre ?? "—";
+                    const imgUrl = l.escudo ? (API + l.escudo) : "./assets/img/placeholder.png";
+                    const desc = l.descripcion ?? "—";
+                    const temp = l.temporada ?? l.temp ?? "—";
+                    const cat = l.categoria ?? l.categ ?? "—";
+
+                    // LISTA
+                    trs += `
+                    <tr onclick="goToEquipos(${idLiga})">
+                        <td onclick="event.stopPropagation()"><img src="${imgUrl}" alt="${nombre}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: contain; background: rgba(255,255,255,0.05);"></td>
+                        <td>${idLiga}</td>
+                        <td>${nombre}</td>
+                        <td>${temp}</td>
+                        <td>${cat}</td>
+                        <td>${desc}</td>
+                        <td onclick="event.stopPropagation()">
+                            <div class="gysl-admin-table__actions">
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
+                                        onclick="editLiga('${nombre}', '${temp}', '${cat}')">Editar</button>
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
+                                        onclick="deleteLiga('${nombre}', '${temp}', '${cat}')">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>`;
+
+                    // CARDS
+                    cards += `
+                    <div class="gysl-card" onclick="goToEquipos(${idLiga})">
+                        <img src="${imgUrl}" alt="${nombre}" class="gysl-card__escudo">
+                        <div class="gysl-card__header">
+                            <h4 class="gysl-card__title">${nombre}</h4>
+                        </div>
+                        <div class="gysl-card__info">
+                            <span>Temp: ${temp}</span>
+                            <span>Cat: ${cat}</span>
+                        </div>
+                        <p class="gysl-card__desc">${desc}</p>
+                        <div class="gysl-card__actions" onclick="event.stopPropagation()">
+                            <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
+                                    onclick="editLiga('${nombre}', '${temp}', '${cat}')">Editar</button>
+                            <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
+                                    onclick="deleteLiga('${nombre}', '${temp}', '${cat}')">Eliminar</button>
+                        </div>
+                    </div>`;
+                });
+
+                tbody.innerHTML = trs;
+                cardsGrid.innerHTML = cards;
+            }
+
+            /* ─── Form helpers ───────────────────────────────── */
+            window.openLigaForm = function (liga = null) {
+                const overlay = document.getElementById("liga-form-overlay");
+                const title = document.getElementById("liga-form-title");
+
+                document.getElementById("liga-edit-id").value = "";
+                document.getElementById("liga-nombre").value = "";
+                document.getElementById("liga-temporada").value = "";
+                document.getElementById("liga-categoria").value = "";
+                document.getElementById("liga-descripcion").value = "";
+
+                if (liga) {
+                    title.textContent = "Editar Liga";
+                    document.getElementById("liga-edit-id").value = "edit"; // Usado solo como flag bool
+                    document.getElementById("liga-nombre").value = liga.nombre_liga ?? liga.nom ?? liga.nombre ?? "";
+                    document.getElementById("liga-temporada").value = liga.temporada ?? liga.temp ?? "";
+                    document.getElementById("liga-categoria").value = liga.categoria ?? liga.categ ?? "";
+                    document.getElementById("liga-descripcion").value = liga.descripcion ?? "";
+                    // Guardamos las keys originales en dataset por si el backend soportara update en el futuro
+                    document.getElementById("liga-nombre").dataset.original = liga.nombre_liga ?? liga.nom ?? "";
+                    document.getElementById("liga-temporada").dataset.original = liga.temporada ?? liga.temp ?? "";
+                    document.getElementById("liga-categoria").dataset.original = liga.categoria ?? liga.categ ?? "";
+
+                    if (liga.escudo_bloqueado === 1 || liga.escudo) {
+                        document.getElementById("liga-escudo-group").style.display = "none";
+                    } else {
+                        document.getElementById("liga-escudo-group").style.display = "block";
+                    }
+                } else {
+                    title.textContent = "Nueva Liga";
+                    document.getElementById("liga-escudo-group").style.display = "block";
+                }
+
+                document.getElementById("liga-escudo").value = "";
+                overlay.classList.add("is-open");
+            };
+
+            window.closeLigaForm = function () {
+                document.getElementById("liga-form-overlay").classList.remove("is-open");
+            };
+
+            window.editLiga = function (nom, temp, categ) {
+                const liga = ligasData.find((l) => (l.nombre_liga === nom || l.nom === nom) && 
+                                                   (l.temporada === temp || l.temp === temp) && 
+                                                   (l.categoria === categ || l.categ === categ));
+                if (liga) openLigaForm(liga);
+            };
+
+            /* ─── Submit (POST or PUT) ───────────────────────── */
+            window.submitLiga = async function () {
+                const editId = document.getElementById("liga-edit-id").value;
+                const fileInput = document.getElementById("liga-escudo");
+                const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+                const body = {
+                    nom: document.getElementById("liga-nombre").value.trim(),
+                    temp: document.getElementById("liga-temporada").value.trim(),
+                    categ: document.getElementById("liga-categoria").value.trim(),
+                    descripcion: document.getElementById("liga-descripcion").value.trim()
+                };
+
+                if (!body.nom || !body.temp || !body.categ || !body.descripcion) {
+                    alert("Todos los campos (nombre, temporada, categoría, descripción) son obligatorios");
+                    return;
+                }
+
+                if (hasFile) {
+                    if (!confirm("¿Estás seguro de subir el escudo? Una vez guardado no podrás cambiarlo.")) return;
+                }
+
+                try {
+                    let res;
+                    if (editId && ligasData.find((l) => l.nombre_liga === body.nom)) { 
+                        // PUT /ligas (el backend usa body, no URL param)
+                        body.id_liga = editId; // but editId currently is the bool flag. Try to retrieve real editId if possible
+                        res = await fetch(API + "/ligas", {
+                            method: "PUT",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(body)
+                        });
+                    } else {
+                        // POST /ligas
+                        res = await fetch(API + "/ligas", {
+                            method: "POST",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(body)
+                        });
+                    }
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        let savedId = data.data ? data.data.id_liga : null;
+                        
+                        // Si el edit no nos devolvió la id en 'data', probamos buscarla
+                        if (!savedId) {
+                            const lg = ligasData.find(lg => lg.nombre_liga === body.nom && lg.temporada === body.temp);
+                            if (lg) savedId = lg.id_liga;
+                        }
+
+                        if (hasFile && savedId) {
+                            const formData = new FormData();
+                            formData.append("escudo", fileInput.files[0]);
+                            try {
+                                await fetch(API + "/ligas/" + savedId + "/escudo", {
+                                    method: "POST",
+                                    credentials: "include",
+                                    body: formData
+                                });
+                            } catch (e) { console.error("Error subiendo escudo", e); }
+                        }
+
+                        closeLigaForm();
+                        loadLigas();
+                    } else {
+                        alert("Error: " + (data.message || JSON.stringify(data)));
+                    }
+                } catch (err) {
+                    console.error("Error guardando liga:", err);
+                    alert("Error de conexión");
+                }
+            };
+
+            /* ─── Delete ─────────────────────────────────────── */
+            window.deleteLiga = async function (nom, temp, categ) {
+                if (!confirm(`¿Estás seguro de eliminar la liga ${nom} (${temp})?`)) return;
+
+                try {
+                    const res = await fetch(API + "/ligas", {
+                        method: "DELETE",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ nom, temp, categ })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        loadLigas();
+                    } else {
+                        alert("Error: " + (data.message || JSON.stringify(data)));
+                    }
+                } catch (err) {
+                    console.error("Error eliminando liga:", err);
+                    alert("Error de conexión");
+                }
+            };
+
+            /* ─── Init ───────────────────────────────────────── */
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", loadLigas);
+            } else {
+                loadLigas();
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

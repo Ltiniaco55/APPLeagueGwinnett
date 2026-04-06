@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios y Roles - League Gwinnett</title>
+
+    <link rel="stylesheet" href="./CSS/global.css">
+    <link rel="stylesheet" href="./CSS/admin.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
+
+
+    <script src="./JS/adminNav.js" defer></script>
+    <style>
+        .gysl-filters-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .gysl-filters-bar select,
+        .gysl-filters-bar input {
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--gysl-white, #fff);
+            font-family: var(--gysl-font, sans-serif);
+        }
+
+        .gysl-filters-bar select {
+            min-width: 180px;
+        }
+
+        .gysl-filters-bar input {
+            min-width: 200px;
+        }
+
+        .gysl-filters-bar select option {
+            background: var(--gysl-superdark);
+            color: var(--gysl-white);
+        }
+
+        .gysl-filters-bar select:focus,
+        .gysl-filters-bar input:focus {
+            outline: none;
+            border-color: var(--gysl-yellow);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="gysl-admin">
+
+        <header class="gysl-admin__header">
+            <div>
+                <h1 class="gysl-admin__title">Gestión de Usuarios</h1>
+                <p class="gysl-admin__subtitle">Asignar roles y delegar equipos al staff</p>
+            </div>
+            <nav class="gysl-admin__breadcrumb">
+                <a href="admin-dashboard.html">Dashboard</a> / Usuarios & Roles
+            </nav>
+        </header>
+
+        <div class="gysl-admin__content">
+
+            <div class="gysl-admin-actions" style="margin-bottom: 12px;">
+                <h2 class="gysl-admin-actions__title">Listado de Usuarios</h2>
+            </div>
+
+            <div class="gysl-filters-bar">
+                <select id="filter-rol" onchange="renderUsuarios()">
+                    <option value="">— Ver todos los roles —</option>
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="ARBITRO">ARBITRO</option>
+                    <option value="STAFF">STAFF</option>
+                    <option value="USUARIO">USUARIO</option>
+                </select>
+                <input type="text" id="filter-search" placeholder="Buscar por email o nombre..."
+                    oninput="renderUsuarios()">
+            </div>
+
+            <div id="usuarios-loading" class="gysl-admin-loading">Cargando usuarios...</div>
+
+            <div id="usuarios-empty" class="gysl-admin-empty" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <p>No se encontraron usuarios</p>
+            </div>
+
+            <div class="gysl-admin-table-wrapper" id="usuarios-table-wrapper" style="display:none;">
+                <table class="gysl-admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol Actual</th>
+                            <th>Equipo Asignado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usuarios-tbody"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ═══ MODAL ROLE ═══ -->
+    <div class="gysl-admin-form-overlay" id="rol-form-overlay">
+        <div class="gysl-admin-form-card" style="max-width: 480px;">
+            <h3 id="rol-form-title">Modificar Rol de Usuario</h3>
+            <div style="color: var(--gysl-muted); font-size: 13px; margin-bottom: 15px;" id="rol-user-info">
+                Nombre - user@email.com
+            </div>
+            <form id="rol-form" onsubmit="return false;">
+                <input type="hidden" id="rol-edit-id">
+
+                <div class="gysl-admin-form-group">
+                    <label for="rol-select">Rol</label>
+                    <select id="rol-select"
+                        style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #fff;"
+                        onchange="onRolChange()">
+                        <option value="USUARIO">USUARIO (Espectador normal)</option>
+                        <option value="STAFF">STAFF (Encargado de un equipo)</option>
+                        <option value="ARBITRO">ARBITRO</option>
+                        <option value="ADMIN">ADMIN (Acceso total)</option>
+                    </select>
+                </div>
+
+                <div class="gysl-admin-form-group" id="rol-equipo-group" style="display:none;">
+                    <label for="rol-equipo-select">Equipo a gestionar (Obligatorio para STAFF)</label>
+                    <select id="rol-equipo-select"
+                        style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #fff;">
+                        <option value="">— Seleccione un equipo —</option>
+                    </select>
+                </div>
+
+                <div class="gysl-admin-form-actions">
+                    <button type="button" class="gysl-admin-btn gysl-admin-btn--secondary"
+                        onclick="closeRolForm()">Cancelar</button>
+                    <button type="button" class="gysl-admin-btn gysl-admin-btn--primary" onclick="submitRol()">Guardar
+                        Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div id="toast-container"
+        style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
+    </div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/api";
+            // As API is configured with router natively on root or directly via index.php logic, actually let's match the existing syntax which uses index.php or routes without /api.
+            const API_REAL = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            let usuariosData = [];
+            let equiposData = [];
+
+            const tbody = document.getElementById("usuarios-tbody");
+            const tableWrapper = document.getElementById("usuarios-table-wrapper");
+            const loading = document.getElementById("usuarios-loading");
+            const empty = document.getElementById("usuarios-empty");
+
+            /* ─── TOASTS ─── */
+            function showToast(message, type = "success") {
+                const toast = document.createElement("div");
+                toast.style.minWidth = "250px";
+                toast.style.padding = "16px";
+                toast.style.borderRadius = "8px";
+                toast.style.color = "#fff";
+                toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5)";
+                toast.style.background = type === "success" ? "#10b981" : type === "warning" ? "#f59e0b" : "#ef4444";
+                toast.innerText = message;
+
+                const cont = document.getElementById("toast-container");
+                cont.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = "0";
+                    toast.style.transition = "opacity 0.5s ease";
+                    setTimeout(() => toast.remove(), 500);
+                }, 3000);
+            }
+
+            /* ─── Load data ───────────────────────────────── */
+            async function loadData() {
+                loading.style.display = "flex";
+                tableWrapper.style.display = "none";
+                empty.style.display = "none";
+
+                try {
+                    const [resUsu, resEq] = await Promise.all([
+                        fetch(API_REAL + "/usuarios", { credentials: "include" }),
+                        fetch(API_REAL + "/equipos", { credentials: "include" })
+                    ]);
+
+                    const dataUsu = await resUsu.json();
+                    usuariosData = Array.isArray(dataUsu) ? dataUsu : (dataUsu.data || []);
+
+                    const dataEq = await resEq.json();
+                    equiposData = Array.isArray(dataEq) ? dataEq : (dataEq.data || []);
+
+                    populateEquiposSelect();
+
+                } catch (err) {
+                    console.error("Error cargando datos:", err);
+                    showToast("Error de conexión", "error");
+                }
+
+                loading.style.display = "none";
+                renderUsuarios();
+            }
+
+            function populateEquiposSelect() {
+                const sel = document.getElementById("rol-equipo-select");
+                sel.innerHTML = '<option value="">— Seleccione un equipo —</option>';
+                equiposData.forEach(eq => {
+                    const id = eq.id_equipo ?? eq.id;
+                    const nm = eq.club ?? eq.nombre ?? "Sin club";
+                    sel.innerHTML += `<option value="${id}">${nm}</option>`;
+                });
+            }
+
+            /* ─── Render ─── */
+            window.renderUsuarios = function () {
+                const fRol = document.getElementById("filter-rol").value;
+                const fStr = document.getElementById("filter-search").value.toLowerCase();
+
+                const filtrados = usuariosData.filter(u => {
+                    if (fRol && (u.rol || "").toUpperCase() !== fRol) return false;
+                    const nm = (u.nombre + " " + (u.apellido || "")).toLowerCase();
+                    const em = (u.email || "").toLowerCase();
+                    if (fStr && !nm.includes(fStr) && !em.includes(fStr)) return false;
+                    return true;
+                });
+
+                if (filtrados.length === 0) {
+                    empty.style.display = "block";
+                    tableWrapper.style.display = "none";
+                    return;
+                }
+
+                empty.style.display = "none";
+                tableWrapper.style.display = "block";
+
+                tbody.innerHTML = filtrados.map(u => {
+                    const id = u.id_usuario ?? u.id;
+                    const nm = (u.nombre || "—") + " " + (u.apellido || "");
+                    const role = u.rol || "USUARIO";
+
+                    let eqName = "—";
+                    if (u.id_equipo) {
+                        const matcha = equiposData.find(e => (e.id_equipo ?? e.id) == u.id_equipo);
+                        if (matcha) eqName = matcha.club ?? matcha.nombre;
+                    }
+
+                    const isStaff = role.toUpperCase() === "STAFF";
+                    const badgeClass = isStaff ? "gysl-badge--pending" : (role.toUpperCase() === "ADMIN" ? "gysl-badge--active" : "gysl-badge--inactive");
+
+                    return `
+                    <tr>
+                        <td>${id}</td>
+                        <td>${nm}</td>
+                        <td>${u.email}</td>
+                        <td><span class="gysl-badge ${badgeClass}" style="background: ${isStaff ? '#3b82f6' : ''}">${role}</span></td>
+                        <td>${isStaff ? eqName : '—'}</td>
+                        <td>
+                            <div class="gysl-admin-table__actions">
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
+                                        onclick="openRolForm(${id})">Cambiar Rol</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                }).join("");
+            };
+
+            /* ─── Forms ─── */
+            window.openRolForm = function (id) {
+                const u = usuariosData.find(usr => (usr.id_usuario ?? usr.id) == id);
+                if (!u) return;
+
+                document.getElementById("rol-edit-id").value = id;
+                document.getElementById("rol-user-info").textContent = `${u.nombre} ${u.apellido || ""} - ${u.email}`;
+                document.getElementById("rol-select").value = (u.rol || "USUARIO").toUpperCase();
+
+                if (u.id_equipo) {
+                    document.getElementById("rol-equipo-select").value = u.id_equipo;
+                } else {
+                    document.getElementById("rol-equipo-select").value = "";
+                }
+
+                onRolChange();
+                document.getElementById("rol-form-overlay").classList.add("is-open");
+            };
+
+            window.closeRolForm = function () {
+                document.getElementById("rol-form-overlay").classList.remove("is-open");
+            };
+
+            window.onRolChange = function () {
+                const s = document.getElementById("rol-select").value;
+                const eqGroup = document.getElementById("rol-equipo-group");
+                const eqSelect = document.getElementById("rol-equipo-select");
+
+                if (s === "STAFF") {
+                    eqGroup.style.display = "block";
+                    eqSelect.style.background = "rgba(255,255,255,0.06)";
+                } else {
+                    eqGroup.style.display = "none";
+                    eqSelect.value = "";
+                }
+            };
+
+            window.submitRol = async function () {
+                const id = document.getElementById("rol-edit-id").value;
+                const rol = document.getElementById("rol-select").value;
+                const idEquipo = document.getElementById("rol-equipo-select").value;
+
+                if (rol === "STAFF" && !idEquipo) {
+                    showToast("Debes seleccionar un equipo para el rol STAFF", "warning");
+                    document.getElementById("rol-equipo-select").style.border = "1px solid red";
+                    return;
+                }
+
+                if (!confirm(`¿Confirmas cambiar el rol a ${rol}?`)) return;
+
+                document.getElementById("rol-equipo-select").style.border = "1px solid rgba(255,255,255,0.12)";
+
+                try {
+                    // 1. Update Rol
+                    const resRol = await fetch(API_REAL + "/usuarios/" + id + "/rol", {
+                        method: "PATCH",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ rol: rol })
+                    });
+
+                    const dataRol = await resRol.json();
+
+                    if (!resRol.ok) {
+                        showToast(dataRol.message || "Error al actualizar rol", "error");
+                        return;
+                    }
+
+                    // 2. Update Equipo (Solo aplicable cuando es staff o cuando pierde su rol, 
+                    // pero el backend limpia el id_equipo automático si rol != STAFF, así que siempre lo enviamos si es STAFF)
+                    if (rol === "STAFF") {
+                        const resEq = await fetch(API_REAL + "/usuarios/" + id + "/equipo-staff", {
+                            method: "PATCH",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ id_equipo: parseInt(idEquipo, 10) })
+                        });
+
+                        const dataEq = await resEq.json();
+                        if (!resEq.ok) {
+                            showToast(dataEq.message || "Rol guardado, pero falló al asignar equipo", "error");
+                            return;
+                        }
+                    }
+
+                    showToast("Usuario actualizado correctamente", "success");
+                    closeRolForm();
+                    loadData();
+
+                } catch (err) {
+                    console.error(err);
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            /* ─── Init ─── */
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", loadData);
+            } else {
+                loadData();
+            }
+
+        })();
+    </script>
+</body>
+
+</html>

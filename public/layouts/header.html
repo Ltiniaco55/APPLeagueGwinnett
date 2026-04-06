@@ -1,0 +1,114 @@
+<!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  GYSL — Header Layout Component                         ║
+  ║  Include in any page via layout.js or PHP include.      ║
+  ║  Requires: /CSS/layout.css + /CSS/mini-menu.css         ║
+  ╚══════════════════════════════════════════════════════════╝
+-->
+
+
+
+
+
+<link rel="stylesheet"
+    href="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/CSS/mini-menu.css">
+
+<header class="gysl-header gysl-layout" id="gysl-header" role="banner">
+
+    <!-- ══ ROW 1 — Club logo strip ══════════════════════════ -->
+    <div class="gysl-header__strip">
+        <div class="gysl-container">
+            <div class="gysl-header__strip-inner" id="gysl-strip-crests">
+
+                <!-- Real SVG logos from /escudos/ folder -->
+                <img src="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/escudos/gwinnett.svg"
+                    alt="Gwinnett Youth Soccer League" title="GYSL" onerror="this.style.display='none'">
+                <img src="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/escudos/GWB.svg"
+                    alt="GWB Club" title="GWB" onerror="this.style.display='none'">
+                <img src="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/escudos/GWN.svg"
+                    alt="GWN Club" title="GWN" onerror="this.style.display='none'">
+                <img src="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/escudos/INTERAMERICANA.svg"
+                    alt="Interamericana" title="Interamericana" onerror="this.style.display='none'">
+
+                <!-- Placeholder club crests -->
+                <span class="crest-pill" title="Atlanta FC">ATL</span>
+                <span class="crest-pill" title="Roswell SC">RSC</span>
+                <span class="crest-pill" title="Norcross United">NOR</span>
+                <span class="crest-pill" title="Duluth FC">DFC</span>
+                <span class="crest-pill" title="Johns Creek">JCK</span>
+                <span class="crest-pill" title="Alpharetta Stars">ALS</span>
+                <span class="crest-pill" title="Suwanee FC">SWN</span>
+                <span class="crest-pill" title="Cumming SC">CUM</span>
+                <span class="crest-pill" title="Peachtree City">PTC</span>
+                <span class="crest-pill" title="Marietta FC">MAR</span>
+                <span class="crest-pill" title="Lawrenceville">LWR</span>
+                <span class="crest-pill" title="Buford FC">BFD</span>
+                <span class="crest-pill" title="Sugar Hill">SHL</span>
+                <span class="crest-pill" title="Flowery Branch">FLB</span>
+                <span class="crest-pill" title="Gainesville SC">GNV</span>
+                <span class="crest-pill" title="Hall County">HLC</span>
+
+            </div>
+        </div>
+    </div><!-- /strip -->
+
+    <!-- ══ ROW 2 — Main navigation (FULL WIDTH) ═════════════ -->
+    <nav class="gysl-header__nav" aria-label="Main navigation">
+
+        <!-- Brand / Logo -->
+        <a href="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/home.html"
+            class="gysl-nav__brand" aria-label="Go to homepage">
+            <img src="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/escudos/gwinnett.svg"
+                alt="Gwinnett Youth Soccer League logo" onerror="this.src=''; this.alt='GYSL';">
+        </a>
+
+        <!-- Nav links (centre) -->
+        <ul class="gysl-nav__links" id="gysl-nav-menu" role="list">
+            <li><a href="#" class="active" data-nav="home">Ligas</a></li>
+            <li><a data-nav="contact" onclick="findContactTrigger();">Contact Us</a></li>
+            <li><a
+                    href="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/gallery.html">Galería</a>
+            </li>
+        </ul>
+
+        <!-- Right actions -->
+        <div class="gysl-nav__actions" role="group" aria-label="User actions">
+
+            <!-- Star / Favourites icon button -->
+            <button class="gysl-btn-icon" id="gysl-btn-fav" aria-label="Favourites" data-tooltip="Favourites"
+                type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+            </button>
+
+
+
+            <!-- User profile button -->
+            <div class="gysl-user-dropdown">
+                <button class="gysl-btn-user" id="gysl-btn-user" aria-label="User account" type="button"
+                    data-auth="false" onclick="findLoginTrigger();">
+                    <span class="gysl-btn-user__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                    </span>
+                    <span class="gysl-btn-user__label">My account</span>
+                </button>
+
+                <!-- mini-menu injected here by sesionactiva.js -->
+                <div id="gysl-mini-menu-host"></div>
+
+            </div><!-- /actions -->
+
+            <!-- Mobile burger -->
+            <button class="gysl-nav__burger" id="gysl-burger" aria-label="Open menu" aria-expanded="false"
+                aria-controls="gysl-nav-menu" type="button">☰</button>
+
+    </nav><!-- /nav -->
+
+</header>

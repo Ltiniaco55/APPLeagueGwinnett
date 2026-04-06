@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL Admin — Dashboard</title>
+    <meta name="description" content="Panel de administración GYSL - Resumen general">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./CSS/global.css">
+    <link rel="stylesheet" href="./CSS/admin.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
+
+    <!-- Scripts -->
+    <script src="./JS/adminNav.js" defer></script>
+</head>
+
+<body>
+
+    <div class="gysl-admin">
+
+        <!-- Header -->
+        <header class="gysl-admin__header">
+            <div>
+                <h1 class="gysl-admin__title">Admin Dashboard</h1>
+                <p class="gysl-admin__subtitle">Resumen general de la plataforma GYSL</p>
+            </div>
+            <nav class="gysl-admin__breadcrumb">
+                <a href="home.html">Inicio</a> / Dashboard
+            </nav>
+        </header>
+
+        <!-- Content -->
+        <div class="gysl-admin__content">
+
+            <!-- Stats -->
+            <div class="gysl-admin-stats" id="admin-stats">
+                <div class="gysl-admin-stat">
+                    <span class="gysl-admin-stat__label">Total Ligas</span>
+                    <span class="gysl-admin-stat__value" id="stat-ligas">—</span>
+                </div>
+                <div class="gysl-admin-stat">
+                    <span class="gysl-admin-stat__label">Total Equipos</span>
+                    <span class="gysl-admin-stat__value" id="stat-equipos">—</span>
+                </div>
+                <div class="gysl-admin-stat">
+                    <span class="gysl-admin-stat__label">Total Jugadores</span>
+                    <span class="gysl-admin-stat__value" id="stat-jugadores">—</span>
+                </div>
+                <div class="gysl-admin-stat">
+                    <span class="gysl-admin-stat__label">Usuarios</span>
+                    <span class="gysl-admin-stat__value" id="stat-usuarios">—</span>
+                </div>
+            </div>
+
+            <!-- Quick links -->
+            <div class="gysl-admin-actions">
+                <h2 class="gysl-admin-actions__title">Accesos rápidos</h2>
+            </div>
+
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <button class="gysl-admin-btn gysl-admin-btn--primary"
+                        onclick="window.location.href='admin-ligas.html'">
+                    ⚽ Gestionar Ligas
+                </button>
+                <button class="gysl-admin-btn gysl-admin-btn--primary"
+                        onclick="window.location.href='admin-equipos.html'">
+                    👥 Gestionar Equipos
+                </button>
+                <button class="gysl-admin-btn gysl-admin-btn--primary"
+                        onclick="window.location.href='admin-jugadores.html'">
+                    🏃 Gestionar Jugadores
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            async function fetchCount(endpoint) {
+                try {
+                    const res = await fetch(API + endpoint, { credentials: "include" });
+                    if (!res.ok) return "—";
+                    const data = await res.json();
+                    if (Array.isArray(data)) return data.length;
+                    if (data.data && Array.isArray(data.data)) return data.data.length;
+                    return "—";
+                } catch (_) {
+                    return "—";
+                }
+            }
+
+            async function loadStats() {
+                const [ligas, equipos, jugadores, usuarios] = await Promise.all([
+                    fetchCount("/ligas"),
+                    fetchCount("/equipos"),
+                    fetchCount("/jugadores"),
+                    fetchCount("/usuarios")
+                ]);
+
+                document.getElementById("stat-ligas").textContent = ligas;
+                document.getElementById("stat-equipos").textContent = equipos;
+                document.getElementById("stat-jugadores").textContent = jugadores;
+                document.getElementById("stat-usuarios").textContent = usuarios;
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", loadStats);
+            } else {
+                loadStats();
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

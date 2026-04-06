@@ -25,6 +25,14 @@ class EntrenadoresModel
         return $row === false ? null : $row;
     }
 
+    public function getByUserId(int $id_usuario): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM entrenadores WHERE id_usuario = :id LIMIT 1');
+        $stmt->execute([':id' => $id_usuario]);
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
+    }
+
     public function insert(?int $id_usuario, string $nombre, string $apellido, ?string $fecha_nacimiento = null, ?string $telefono = null, ?string $email = null): int
     {
         $sql = 'INSERT INTO entrenadores (id_usuario, nombre, apellido, fecha_nacimiento, telefono, email)

@@ -39,7 +39,7 @@ class LigasModel
         );
         $stmt->execute([$nom, $temp, $categ]);
         return (bool) $stmt->fetchColumn();
-    }  
+    }
 
     public function insert(string $nom, string $temp, string $categ): int
     {
@@ -63,5 +63,71 @@ class LigasModel
         );
         $stmt->execute([$nom, $temp, $categ]);
         return $stmt->rowCount();
+    }
+
+
+
+    /**
+     * Actualizar una liga usando su clave natural (nom, temp, categ)
+     * Devuelve el número de filas afectadas.
+     */
+    public function updateByKey(
+        string $nomActual,
+        string $tempActual,
+        string $categActual,
+        string $nomNuevo,
+        string $tempNuevo,
+        string $categNuevo,
+        ?string $descripcion = null
+    ): int {
+
+        $stmt = $this->db->prepare(
+            "UPDATE ligas
+            SET nombre_liga = ?, 
+                temporada = ?, 
+                categoria = ?, 
+                descripcion = ?
+            WHERE nombre_liga = ? 
+            AND temporada = ? 
+            AND categoria = ?"
+        );
+
+        $stmt->execute([
+            $nomNuevo,
+            $tempNuevo,
+            $categNuevo,
+            $descripcion,
+            $nomActual,
+            $tempActual,
+            $categActual
+        ]);
+
+        return $stmt->rowCount();
+    }
+
+    public function getById(int $id): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM ligas WHERE id_liga = ?");
+        $stmt->execute([$id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ?: null;
+    }
+
+    public function guardarEscudoSiNoExiste(int $id, string $ruta): int
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE ligas 
+             SET escudo = ?, escudo_bloqueado = 1 
+             WHERE id_liga = ? AND (escudo_bloqueado = 0 OR escudo_bloqueado IS NULL)"
+        );
+        $stmt->execute([$ruta, $id]);
+        return $stmt->rowCount();
+    }
+
+    public function tieneEscudo(int $id): bool
+    {
+        $stmt = $this->db->prepare("SELECT escudo_bloqueado FROM ligas WHERE id_liga = ?");
+        $stmt->execute([$id]);
+        return (bool) $stmt->fetchColumn();
     }
 }

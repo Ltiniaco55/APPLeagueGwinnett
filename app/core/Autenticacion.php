@@ -49,7 +49,6 @@ class Autenticacion
         ],
         self::ROL_ARBITRO => [
             self::PERM_MODIFICAR_RESULTADO,
-            self::PERM_GESTIONAR_CLASIFICACION,
             self::PERM_VER_DATOS,
         ],
         self::ROL_STAFF => [

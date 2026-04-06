@@ -1,0 +1,250 @@
+/* ==========================================================
+   GYSL — contact.css
+   Modal "Contact Us" (overlay + dialog)
+   ========================================================== */
+
+:root {
+    --gysl-modal-radius: 14px;
+    --gysl-modal-w: 520px;
+    --gysl-modal-shadow: 0 20px 60px rgba(0, 0, 0, .55);
+}
+
+/* Overlay */
+.gysl-contact-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    z-index: 3000;
+
+    background: rgba(0, 0, 0, .55);
+    backdrop-filter: blur(6px);
+}
+
+.gysl-contact-overlay.active {
+    display: flex;
+}
+
+/* Modal box */
+.gysl-contact-modal {
+    width: min(var(--gysl-modal-w), 100%);
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: var(--gysl-modal-radius);
+    box-shadow: var(--gysl-modal-shadow);
+    color: var(--gysl-text);
+
+    position: relative;
+    overflow: hidden;
+
+    /* subtle texture */
+    background-image:
+        radial-gradient(ellipse at 20% 15%, rgba(25, 59, 106, .55) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 70%, rgba(11, 42, 74, .55) 0%, transparent 60%);
+
+    animation: gyslModalIn .22s ease-out;
+}
+
+@keyframes gyslModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Close */
+.gysl-contact-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .12);
+    color: var(--gysl-muted);
+
+    cursor: pointer;
+    transition: var(--gysl-transition);
+}
+
+.gysl-contact-close:hover {
+    color: var(--gysl-yellow);
+    border-color: rgba(241, 184, 45, .55);
+    background: rgba(241, 184, 45, .10);
+}
+
+/* Header */
+.gysl-contact-head {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 12px;
+    padding: 22px 22px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, .10);
+}
+
+.gysl-contact-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+
+    background: rgba(241, 184, 45, .14);
+    border: 1px solid rgba(241, 184, 45, .35);
+    color: var(--gysl-yellow);
+
+    display: grid;
+    place-items: center;
+}
+
+.gysl-contact-badge svg {
+    width: 22px;
+    height: 22px;
+}
+
+.gysl-contact-title {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: .2px;
+    color: var(--gysl-white);
+}
+
+.gysl-contact-subtitle {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--gysl-muted);
+}
+
+/* Form */
+.gysl-contact-form {
+    padding: 16px 28px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.gysl-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.gysl-field-label {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .3px;
+    color: rgba(234, 241, 255, .85);
+    text-transform: uppercase;
+}
+
+/* Inputs */
+.gysl-input,
+.gysl-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: rgba(8, 22, 45, .55);
+    color: var(--gysl-text);
+    padding: 12px;
+
+    outline: none;
+    transition: var(--gysl-transition);
+}
+
+.gysl-textarea {
+    resize: vertical;
+    min-height: 110px;
+}
+
+.gysl-input::placeholder,
+.gysl-textarea::placeholder {
+    color: rgba(175, 193, 230, .75);
+}
+
+.gysl-input:focus,
+.gysl-textarea:focus {
+    border-color: rgba(241, 184, 45, .55);
+    box-shadow: 0 0 0 3px rgba(241, 184, 45, .10);
+}
+
+/* Submit button (usa tu estilo dorado, con sombras bien) */
+.gysl-contact-submit {
+    margin-top: 6px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--gysl-yellow);
+    color: var(--gysl-superdark);
+
+    border-radius: 12px;
+    border: 2px solid #030f14;
+
+    cursor: pointer;
+    font-size: 15px;
+    padding: 14px 18px;
+
+    user-select: none;
+    transition: all .25s ease;
+
+    box-shadow:
+        inset 0 -4px 10px rgba(0, 0, 0, .25),
+        inset 0 2px 4px rgba(255, 255, 255, .25),
+        0 10px 26px rgba(0, 0, 0, .40),
+        0 2px 4px rgba(0, 0, 0, .35);
+}
+
+.gysl-contact-submit__text {
+    font-weight: 900;
+    letter-spacing: .6px;
+}
+
+.gysl-contact-submit:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        inset 0 -6px 14px rgba(0, 0, 0, .35),
+        inset 0 3px 6px rgba(255, 255, 255, .3),
+        0 16px 34px rgba(0, 0, 0, .50),
+        0 4px 8px rgba(0, 0, 0, .35);
+}
+
+.gysl-contact-submit:active {
+    transform: translateY(1px);
+    box-shadow:
+        inset 0 6px 14px rgba(0, 0, 0, .5),
+        inset 0 -3px 6px rgba(255, 255, 255, .2),
+        0 2px 6px rgba(0, 0, 0, .3);
+}
+
+/* Note */
+.gysl-contact-note {
+    margin: 4px 0 0 0;
+    font-size: 12px;
+    color: rgba(175, 193, 230, .85);
+}
+
+.gysl-contact-note strong {
+    color: var(--gysl-yellow);
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+
+    .gysl-contact-head,
+    .gysl-contact-form {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}

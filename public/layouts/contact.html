@@ -1,0 +1,78 @@
+<!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  GYSL — Contact Modal Component                          ║
+  ║  Injected/used by contact.js                             ║
+  ║  Requires: /CSS/contact.css                              ║
+  ╚══════════════════════════════════════════════════════════╝
+
+-->
+
+<link rel="stylesheet" href="./CSS/contact.css">
+
+
+<div class="gysl-contact-overlay" id="gysl-contact-overlay" aria-hidden="true">
+    <div class="gysl-contact-modal" role="dialog" aria-modal="true" aria-labelledby="gysl-contact-title">
+
+        <button class="gysl-contact-close" id="gysl-contact-close" type="button" aria-label="Cerrar">
+            ✕
+        </button>
+
+
+        <div class="gysl-contact-head">
+            <div class="gysl-contact-badge" aria-hidden="true">
+                <!-- simple icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 8a2 2 0 0 0-2-2H7L3 10v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z" />
+                    <path d="M7 6V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2" />
+                </svg>
+            </div>
+
+            <div class="gysl-contact-headtext">
+                <h2 class="gysl-contact-title" id="gysl-contact-title">Contacta con GYSL</h2>
+                <p class="gysl-contact-subtitle">
+                    Cuéntanos lo que necesitas y te respondemos pronto.
+                </p>
+            </div>
+        </div>
+
+        <form class="gysl-contact-form" id="gysl-contact-form" novalidate>
+            <label class="gysl-field">
+                <span class="gysl-field-label">E-mail</span>
+                <input class="gysl-input" type="email" name="email" placeholder="tu@email.com" required>
+            </label>
+
+            <label class="gysl-field">
+                <span class="gysl-field-label">Asunto</span>
+                <input class="gysl-input" type="text" name="subject" placeholder="Ej: Quiero registrar un club"
+                    required>
+            </label>
+
+            <label class="gysl-field">
+                <span class="gysl-field-label">Categoría</span>
+                <select class="gysl-input" name="category" required>
+                    <option value="" selected disabled>Selecciona una opción</option>
+                    <option value="general">General</option>
+                    <option value="ligas">Ligas</option>
+                    <option value="clubes">Clubes</option>
+                    <option value="partidos">Partidos</option>
+                    <option value="soporte">Soporte técnico</option>
+                </select>
+            </label>
+
+            <label class="gysl-field">
+                <span class="gysl-field-label">Mensaje</span>
+                <textarea class="gysl-textarea" name="message" rows="4" placeholder="Escribe tu mensaje..."
+                    required></textarea>
+            </label>
+
+            <button class="gysl-contact-submit" type="submit">
+                <span class="gysl-contact-submit__text">ENVIAR MENSAJE</span>
+            </button>
+
+            <p class="gysl-contact-note">
+                Respondemos normalmente en menos de <strong>24h</strong>.
+            </p>
+        </form>
+
+    </div>
+</div>
