@@ -170,6 +170,26 @@
 
     window.gyslMiniAction = function (action) {
         closeMiniMenu();
+        console.log("Mini menu action:", action);
+        
+        switch (action) {
+            case 'equipos':
+                window.location.href = BASE_PATH + "/staff-equipos.html";
+                break;
+            case 'registrar_jugadores':
+                // Redirección preparada para cuando exista la vista:
+                // window.location.href = BASE_PATH + "/staff-jugadores.html";
+                console.log("Navegación pendiente: staff-jugadores.html");
+                break;
+            case 'incidencias':
+                // Redirección preparada para cuando exista la vista:
+                // window.location.href = BASE_PATH + "/staff-incidencias.html";
+                console.log("Navegación pendiente: staff-incidencias.html");
+                break;
+            default:
+                // Otras acciones globales...
+                break;
+        }
     };
 
     window.gyslLogout = async function () {

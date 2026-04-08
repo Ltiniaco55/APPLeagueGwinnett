@@ -145,11 +145,11 @@
                 <img src="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/escudos/gwinnett.svg" alt="Gwinnett Youth Soccer League logo" style="height: 50px;" onerror="this.src=''; this.alt='GYSL';">
             </a>
             <div style="flex-grow: 1;">
-                <h1 class="gysl-admin__title">Gestión de Equipos</h1>
-                <p class="gysl-admin__subtitle">Crear, editar y eliminar equipos del sistema</p>
+                <h1 class="gysl-admin__title">Mis Equipos</h1>
+                <p class="gysl-admin__subtitle">Consulta de los equipos asignados</p>
             </div>
             <nav class="gysl-admin__breadcrumb">
-                <a href="admin-dashboard.html">Dashboard</a> / Equipos
+                <a href="home.html">Staff</a> / Equipos
             </nav>
         </header>
 
@@ -160,9 +160,6 @@
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="toggleViewMode()" id="view-mode-btn">
                         🗂️ Cards
-                    </button>
-                    <button class="gysl-admin-btn gysl-admin-btn--primary" onclick="openEquipoForm()">
-                        + Nuevo Equipo
                     </button>
                 </div>
             </div>
@@ -195,7 +192,6 @@
                             <th>Club</th>
                             <th>Categoría</th>
                             <th>Descripción</th>
-                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="equipos-tbody"></tbody>
@@ -301,17 +297,15 @@
                 empty.style.display = "none";
 
                 try {
-                    // Cargar ambas colecciones en paralelo
-                    const [resEq, resLig] = await Promise.all([
-                        fetch(API + "/equipos", { credentials: "include" }),
-                        fetch(API + "/ligas", { credentials: "include" })
+                    const [resEq] = await Promise.all([
+                        fetch(API + "/staff/equipos", { credentials: "include" })
                     ]);
 
                     const dataEq = await resEq.json();
                     equiposData = Array.isArray(dataEq) ? dataEq : (dataEq.data || []);
-
-                    const dataLig = await resLig.json();
-                    ligasData = Array.isArray(dataLig) ? dataLig : (dataLig.data || []);
+                    
+                    // Obtener las ligas filtradas desde el endpoint
+                    ligasData = dataEq.ligas_staff || [];
 
                 } catch (err) {
                     console.error("Error cargando datos:", err);
@@ -452,14 +446,6 @@
                         <td>${club}</td>
                         <td>${cat}</td>
                         <td>${desc}</td>
-                        <td onclick="event.stopPropagation()">
-                            <div class="gysl-admin-table__actions">
-                                <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
-                                        onclick="editEquipo(${idEq})">Editar</button>
-                                <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
-                                        onclick="deleteEquipo(${idEq})">Eliminar</button>
-                            </div>
-                        </td>
                     </tr>`;
 
                     cards += `
@@ -473,12 +459,6 @@
                             <span>Cat: ${cat}</span>
                         </div>
                         <p class="gysl-card__desc">${desc}</p>
-                        <div class="gysl-card__actions" onclick="event.stopPropagation()">
-                            <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
-                                    onclick="editEquipo(${idEq})">Editar</button>
-                            <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
-                                    onclick="deleteEquipo(${idEq})">Eliminar</button>
-                        </div>
                     </div>`;
                 });
 

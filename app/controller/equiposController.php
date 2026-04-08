@@ -103,6 +103,82 @@ class EquiposController
     }
 
     // =========================================================================
+    // STAFF (GET /api/staff/equipos)
+    // =========================================================================
+    public function seleccionarStaff(array $entrada = []): void
+    {
+        try {
+            Autenticacion::requerirRol([Autenticacion::ROL_STAFF]);
+            $usuarioActual = Autenticacion::usuario();
+            
+            require_once __DIR__ . '/../model/entrenadoresModel.php';
+            require_once __DIR__ . '/../model/entrenadorEquipoModel.php';
+            require_once __DIR__ . '/../model/ligasModel.php';
+            
+            $entModel = new EntrenadoresModel();
+            $entEqModel = new EntrenadorEquipoModel();
+            $eqModel = new EquiposModel();
+
+            $entrenador = $entModel->getByUserId((int)$usuarioActual['id_usuario']);
+
+            if (!$entrenador) {
+                $this->responder(200, ['success' => true, 'data' => []]);
+            }
+
+            $misEquipos = $entEqModel->getByEntrenador((int)$entrenador['id_entrenador']);
+            
+            if (empty($misEquipos)) {
+                $this->responder(200, ['success' => true, 'data' => []]);
+            }
+
+            $club      = $this->limpiarTexto($entrada['club'] ?? '');
+            $categoria = $this->limpiarTexto($entrada['categoria'] ?? ($entrada['categ'] ?? ''));
+
+            $misIdsMap = [];
+            $misLigasFlatIds = [];
+            foreach ($misEquipos as $me) {
+                $misIdsMap[$me['id_equipo']] = true;
+                if (!in_array($me['id_liga'], $misLigasFlatIds)) {
+                    $misLigasFlatIds[] = $me['id_liga'];
+                }
+            }
+
+            if ($club !== '' || $categoria !== '') {
+                $datos = $eqModel->search($club, $categoria);
+            } else {
+                $datos = $eqModel->getAll();
+            }
+
+            $datos = array_filter($datos, fn($eq) => isset($misIdsMap[$eq['id_equipo']]));
+            $datos = array_values($datos);
+
+            foreach ($datos as &$equipo) {
+                $susLigas = [];
+                foreach ($misEquipos as $me) {
+                    if ($me['id_equipo'] === $equipo['id_equipo']) {
+                        $susLigas[] = $me['id_liga'];
+                    }
+                }
+                $equipo['ligas_ids'] = $susLigas;
+            }
+            unset($equipo);
+            
+            $ligasModel = new LigasModel();
+            $ligasAssoc = [];
+            foreach ($misLigasFlatIds as $lid) {
+                $ligaRaw = $ligasModel->getById($lid);
+                if ($ligaRaw) {
+                    $ligasAssoc[] = $ligaRaw;
+                }
+            }
+
+            $this->responder(200, ['success' => true, 'data' => $datos, 'ligas_staff' => $ligasAssoc]);
+        } catch (Throwable $e) {
+            $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    // =========================================================================
     // LOCALIZAR (GET /api/equipos/{id})
     // =========================================================================
     public function localizar(int $id): void

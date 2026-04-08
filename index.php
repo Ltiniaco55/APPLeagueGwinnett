@@ -123,6 +123,10 @@ $router->add('PUT',    '/equipos/{id}',          'EquiposController', 'modificar
 $router->add('DELETE', '/equipos/{id}',          'EquiposController', 'eliminar');
 $router->add('POST',   '/equipos/{id}/escudo',   'EquiposController', 'subirEscudo');
 
+// ====================== STAFF ======================
+$router->add('GET',    '/staff/equipos',         'EquiposController', 'seleccionarStaff');
+
+
 // ====================== JUGADORES (workflow) ======================
 // OJO: subrutas antes que {id} para evitar colisiones
 $router->add('GET',    '/jugadores',                  'JugadoresController', 'seleccionar');
