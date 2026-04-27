@@ -62,6 +62,8 @@ $requiredFiles = [
     __DIR__ . '/app/model/equiposModel.php',
     __DIR__ . '/app/model/jugadoresModel.php',
     __DIR__ . '/app/model/equipoJugadorModel.php',
+    // Models
+    __DIR__ . '/app/model/partidosModel.php',
     // Controllers (nombres reales de los archivos)
     __DIR__ . '/app/controller/AuthController.php',
     __DIR__ . '/app/controller/userController.php',
@@ -70,6 +72,9 @@ $requiredFiles = [
     __DIR__ . '/app/controller/jugadoresController.php',
     __DIR__ . '/app/controller/equipojugador.php',
     __DIR__ . '/app/controller/incidenciasController.php',
+    __DIR__ . '/app/controller/JugadoresStaffController.php',
+    __DIR__ . '/app/controller/JugadoresAdminController.php',
+    __DIR__ . '/app/controller/PartidosController.php',
 ];
 
 foreach ($requiredFiles as $file) {
@@ -124,7 +129,25 @@ $router->add('DELETE', '/equipos/{id}',          'EquiposController', 'eliminar'
 $router->add('POST',   '/equipos/{id}/escudo',   'EquiposController', 'subirEscudo');
 
 // ====================== STAFF ======================
-$router->add('GET',    '/staff/equipos',         'EquiposController', 'seleccionarStaff');
+$router->add('GET',    '/staff/equipos',                              'EquiposController',        'seleccionarStaff');
+
+// ─── STAFF: Gestión de jugadores ─────────────────────────────────────────
+$router->add('GET',    '/staff/jugadores/pendientes',                 'JugadoresStaffController', 'pendientes');
+$router->add('GET',    '/staff/jugadores/plantilla',                  'JugadoresStaffController', 'plantilla');
+$router->add('POST',   '/staff/jugadores/alta',                       'JugadoresStaffController', 'alta');
+$router->add('POST',   '/staff/jugadores/lote',                       'JugadoresStaffController', 'lote');
+$router->add('PATCH',  '/staff/jugadores/{id}/solicitar-baja',        'JugadoresStaffController', 'solicitarBaja');
+$router->add('POST',   '/staff/jugadores/{id}/foto',                  'JugadoresStaffController', 'subirFoto');
+$router->add('PATCH',  '/staff/jugadores/dorsal',                     'JugadoresStaffController', 'asignarDorsal');
+
+// ─── ADMIN: Gestión de jugadores (nuevas rutas) ───────────────────────────
+$router->add('GET',    '/admin/jugadores/pendientes',                 'JugadoresAdminController', 'pendientes');
+$router->add('POST',   '/admin/jugadores/aprobar-lote',               'JugadoresAdminController', 'aprobarLote');
+$router->add('POST',   '/admin/jugadores/{id}/aprobar',               'JugadoresAdminController', 'aprobar');
+$router->add('POST',   '/admin/jugadores/{id}/rechazar',              'JugadoresAdminController', 'rechazar');
+$router->add('PATCH',  '/admin/jugadores/{id}/editar',                'JugadoresAdminController', 'editarJugador');
+$router->add('PATCH',  '/admin/jugadores/{id}/dorsal',                'JugadoresAdminController', 'corregirDorsal');
+$router->add('POST',   '/admin/jugadores/{id}/foto',                  'JugadoresAdminController', 'subirFoto');
 
 
 // ====================== JUGADORES (workflow) ======================
@@ -148,6 +171,17 @@ $router->add('DELETE', '/plantillas',                 'EquipoJugadorController',
 
 // ====================== INCIDENCIAS ======================
 $router->add('POST',   '/incidencias',                'IncidenciasController', 'abrirIncidencia');
+
+// ====================== ADMIN: PARTIDOS ======================
+// (rutas específicas ANTES que las dinámicas para evitar colisiones)
+$router->add('POST',   '/admin/partidos',              'PartidosController', 'insertar');
+$router->add('PUT',    '/admin/partidos/{id}',         'PartidosController', 'modificar');
+$router->add('PATCH',  '/admin/partidos/{id}/cancelar','PartidosController', 'cancelar');
+$router->add('DELETE', '/admin/partidos/{id}',         'PartidosController', 'eliminar');
+
+// ====================== PARTIDOS ======================
+$router->add('GET',    '/partidos',                    'PartidosController', 'seleccionar');
+$router->add('GET',    '/partidos/{id}',               'PartidosController', 'localizar');
 
 // ====================== Dispatch ======================
 $router->dispatch();

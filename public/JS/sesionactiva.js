@@ -94,8 +94,8 @@
         </li>
 
         <li role="none" data-staff-menu="true">
-            <button class="gysl-mini-menu__item" data-mini="registrar_jugadores" role="menuitem"
-                onclick="gyslMiniAction('registrar_jugadores')">
+            <button class="gysl-mini-menu__item" data-mini="gestion_jugadores" role="menuitem"
+                onclick="gyslMiniAction('gestion_jugadores')">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -103,7 +103,7 @@
                     <line x1="19" y1="8" x2="19" y2="14" />
                     <line x1="22" y1="11" x2="16" y2="11" />
                 </svg>
-                <span>Registrar jugadores</span>
+                <span>Gesti&#xf3;n de jugadores</span>
             </button>
         </li>
 
@@ -171,20 +171,16 @@
     window.gyslMiniAction = function (action) {
         closeMiniMenu();
         console.log("Mini menu action:", action);
-        
+
         switch (action) {
             case 'equipos':
                 window.location.href = BASE_PATH + "/staff-equipos.html";
                 break;
-            case 'registrar_jugadores':
-                // Redirección preparada para cuando exista la vista:
-                // window.location.href = BASE_PATH + "/staff-jugadores.html";
-                console.log("Navegación pendiente: staff-jugadores.html");
+            case 'gestion_jugadores':
+                window.location.href = BASE_PATH + "/staff-jugadores.html";
                 break;
-            case 'incidencias':
-                // Redirección preparada para cuando exista la vista:
-                // window.location.href = BASE_PATH + "/staff-incidencias.html";
-                console.log("Navegación pendiente: staff-incidencias.html");
+            case 'registrar_jugadores':
+                window.location.href = BASE_PATH + "/staff-jugadores.html";
                 break;
             default:
                 // Otras acciones globales...

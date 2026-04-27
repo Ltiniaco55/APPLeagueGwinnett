@@ -1,25 +1,24 @@
 /* ==========================================================
    GYSL — ADMIN FLOATING BOTTOM NAV
-   Basado en Uiverse floating nav, adaptado al sistema GYSL
    ========================================================== */
+
+/* ─── Nav pill ────────────────────────────────────────────── */
 
 .gysl-admin-nav {
     position: fixed;
     bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 8000;
+    z-index: 300;
 
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
 
-    /* Pill shape */
     padding: 8px 16px;
     border-radius: 40px;
 
-    /* GYSL glass style */
     background:
         radial-gradient(ellipse at 25% 40%, rgba(20, 52, 94, .45), transparent 70%),
         radial-gradient(ellipse at 80% 60%, rgba(11, 42, 74, .45), transparent 70%),
@@ -35,7 +34,6 @@
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
 
-    /* Entry animation */
     animation: gyslAdminNavIn .4s ease-out both;
 }
 
@@ -59,16 +57,15 @@
     right: 20%;
     height: 2px;
     border-radius: 2px;
-
     background: linear-gradient(90deg,
-            transparent 0%,
-            var(--gysl-yellow) 50%,
-            transparent 100%);
+        transparent 0%,
+        var(--gysl-yellow) 50%,
+        transparent 100%);
     opacity: .7;
     pointer-events: none;
 }
 
-/* ─── Nav Items ───────────────────────────────────────────── */
+/* ─── Nav items ───────────────────────────────────────────── */
 
 .gysl-admin-nav__item {
     display: flex;
@@ -77,18 +74,15 @@
     justify-content: center;
     gap: 3px;
 
-    /* sizing */
     width: 64px;
     height: 56px;
     padding: 6px 8px;
 
-    /* reset */
     background: transparent;
     border: none;
     border-radius: 14px;
     cursor: pointer;
 
-    /* text */
     color: var(--gysl-muted);
     font-family: var(--gysl-font);
     font-size: 10px;
@@ -98,21 +92,20 @@
     text-decoration: none;
     white-space: nowrap;
 
-    /* animation */
     transition:
         color .2s ease,
         background .2s ease,
-        transform .2s ease;
+        transform .2s ease,
+        border-color .2s ease;
 }
 
 .gysl-admin-nav__item svg {
     width: 22px;
     height: 22px;
     flex-shrink: 0;
-    transition: transform .2s ease;
+    transition: transform .2s ease, filter .2s ease;
 }
 
-/* Hover */
 .gysl-admin-nav__item:hover {
     color: var(--gysl-white);
     background: rgba(255, 255, 255, .06);
@@ -122,7 +115,7 @@
     transform: translateY(-2px);
 }
 
-/* Active state */
+/* Active */
 .gysl-admin-nav__item.is-active {
     color: var(--gysl-yellow);
     background: rgba(241, 184, 45, .12);
@@ -130,10 +123,10 @@
 }
 
 .gysl-admin-nav__item.is-active svg {
-    filter: drop-shadow(0 0 6px rgba(241, 184, 45, .35));
+    filter: drop-shadow(0 0 6px rgba(241, 184, 45, .4));
 }
 
-/* Disabled / coming soon */
+/* Disabled */
 .gysl-admin-nav__item.is-disabled {
     opacity: .4;
     cursor: not-allowed;
@@ -143,31 +136,6 @@
     background: transparent;
     color: var(--gysl-muted);
     transform: none;
-}
-
-/* Tooltip on disabled items */
-.gysl-admin-nav__item.is-disabled::after {
-    content: "Próximamente";
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%) scale(.9);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: var(--fw-semibold);
-    color: var(--gysl-white);
-    background: var(--gysl-superdark);
-    border: 1px solid var(--gysl-line);
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .2s ease, transform .2s ease;
-}
-
-.gysl-admin-nav__item.is-disabled:hover::after {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
 }
 
 /* ─── Responsive ──────────────────────────────────────────── */
@@ -200,4 +168,184 @@
     .gysl-admin-nav__item {
         width: 44px;
     }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   "MÁS" — DROPDOWN / POPOVER
+   ═══════════════════════════════════════════════════════════ */
+
+/* Wrapper: necesario para el posicionamiento relativo del popover */
+.gysl-nav-more {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Popover ─────────────────────────────────────────────── */
+
+.gysl-nav-more__menu {
+    /* Posición: centrado sobre el botón, flotando hacia arriba */
+    position: absolute;
+    bottom: calc(100% + 14px);
+    left: 50%;
+    transform: translateX(-50%) translateY(6px) scale(.97);
+
+    min-width: 172px;
+
+    /* Glass GYSL */
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(20, 52, 94, .6), transparent 65%),
+        rgba(6, 16, 38, .96);
+    border: 1px solid rgba(255, 255, 255, .13);
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, .65),
+        0 6px 18px rgba(0, 0, 0, .4),
+        inset 0 1px 0 rgba(255, 255, 255, .07),
+        /* glow dorado muy sutil */
+        0 0 0 1px rgba(241, 184, 45, .06);
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    padding: 8px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    /* Animación con opacity + visibility (NO display:none para poder animar) */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        opacity .22s ease,
+        transform .22s ease,
+        visibility .22s ease;
+
+    z-index: 400;
+}
+
+/* Estado abierto */
+.gysl-nav-more__menu.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* Accent line superior del popover */
+.gysl-nav-more__menu::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 20%;
+    right: 20%;
+    height: 1.5px;
+    border-radius: 2px;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(241, 184, 45, .55),
+        transparent);
+    pointer-events: none;
+}
+
+/* ── Flecha decorativa ───────────────────────────────────── */
+
+.gysl-nav-more__arrow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 6px;
+    overflow: hidden;
+}
+
+.gysl-nav-more__arrow::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: rgba(6, 16, 38, .96);
+    border: 1px solid rgba(255, 255, 255, .13);
+    border-radius: 2px;
+    transform: translateX(-50%) rotate(45deg);
+    transform-origin: center;
+}
+
+/* ── Items del dropdown ──────────────────────────────────── */
+
+.gysl-nav-more__item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    width: 100%;
+    padding: 10px 13px;
+    border-radius: 10px;
+
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+
+    color: var(--gysl-muted);
+    font-family: var(--gysl-font);
+    font-size: 13px;
+    font-weight: var(--fw-semibold);
+    letter-spacing: .2px;
+    text-align: left;
+    white-space: nowrap;
+
+    transition:
+        background .15s ease,
+        color .15s ease,
+        border-color .15s ease;
+}
+
+.gysl-nav-more__item svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    transition: filter .15s ease;
+}
+
+/* Hover */
+.gysl-nav-more__item:hover {
+    background: rgba(255, 255, 255, .07);
+    color: var(--gysl-white);
+    border-color: rgba(255, 255, 255, .07);
+}
+
+/* Active (página actual) */
+.gysl-nav-more__item.is-active {
+    background: rgba(241, 184, 45, .11);
+    color: var(--gysl-yellow);
+    border-color: rgba(241, 184, 45, .2);
+}
+
+.gysl-nav-more__item.is-active svg {
+    filter: drop-shadow(0 0 5px rgba(241, 184, 45, .35));
+}
+
+/* ── Separador entre items (opcional) ───────────────────── */
+
+.gysl-nav-more__item + .gysl-nav-more__item {
+    border-top: 1px solid rgba(255, 255, 255, .04);
+    border-radius: 0 0 10px 10px;
+    margin-top: 0;
+}
+
+.gysl-nav-more__item:first-of-type {
+    border-radius: 10px 10px 0 0;
+}
+
+/* Override: cuando sea el único elemento */
+.gysl-nav-more__item:only-child {
+    border-radius: 10px;
 }

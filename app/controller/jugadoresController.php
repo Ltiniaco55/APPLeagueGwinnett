@@ -55,7 +55,7 @@ class JugadoresController
                 require_once __DIR__ . '/../model/entrenadorEquipoModel.php';
                 $entModel = new EntrenadoresModel();
                 $entEqModel = new EntrenadorEquipoModel();
-                
+
                 $entrenador = $entModel->getByUserId((int)$usuarioActual['id_usuario']);
                 $misIds = [];
                 if ($entrenador) {
@@ -64,7 +64,7 @@ class JugadoresController
                         $misIds[] = (int)$me['id_equipo'];
                     }
                 }
-                
+
                 if (empty($misIds)) {
                     $datos = [];
                 } else {
@@ -319,16 +319,28 @@ class JugadoresController
                     if ($esAdmin) {
                         // ADMIN → ALTA directa
                         $idNuevo = $modelo->insertAltaAdmin(
-                            $nombre, $apellido, $fecha,
-                            null, null, $id_equipo, $id_usuario_auth, $id_liga
+                            $nombre,
+                            $apellido,
+                            $fecha,
+                            null,
+                            null,
+                            $id_equipo,
+                            $id_usuario_auth,
+                            $id_liga
                         );
                         // Insertar en equipo_jugador
                         $plantilla->insertarRelacion($idNuevo, $id_equipo, $id_liga, null);
                     } else {
                         // STAFF → PENDIENTE
                         $idNuevo = $modelo->insertPendienteStaff(
-                            $nombre, $apellido, $fecha,
-                            null, null, $id_equipo, $id_usuario_auth, $id_liga
+                            $nombre,
+                            $apellido,
+                            $fecha,
+                            null,
+                            null,
+                            $id_equipo,
+                            $id_usuario_auth,
+                            $id_liga
                         );
                         // No insertar en equipo_jugador hasta que admin apruebe
                     }
@@ -395,7 +407,6 @@ class JugadoresController
                 }
 
                 $this->responder(200, ['success' => true, 'message' => 'Alta aprobada y jugador añadido a plantilla']);
-                
             } elseif ($estado === 'PENDIENTE_BAJA') {
                 // Admin aprueba la baja: se elimina la relación de la plantilla y el jugador
                 // Dependiendo del modelo, a veces se borra de la DB por completo si no está en múltiples equipos
@@ -405,7 +416,7 @@ class JugadoresController
                 if ($id_equipo_sol && $id_liga_sol) {
                     $plantilla->eliminarRelacion($id, $id_equipo_sol, $id_liga_sol);
                 }
-                
+
                 // Si el jugador ya no tiene equipos, se elimina de la base de datos central?
                 // Según modelo general, el borrar lo quita
                 $modelo->delete($id);
@@ -414,7 +425,6 @@ class JugadoresController
             } else {
                 $this->responder(400, ['success' => false, 'message' => 'El jugador no está en un estado PENDIENTE válido']);
             }
-
         } catch (Throwable $e) {
             $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
         }
@@ -448,7 +458,6 @@ class JugadoresController
             } else {
                 $this->responder(400, ['success' => false, 'message' => 'El jugador no está en un estado PENDIENTE válido']);
             }
-
         } catch (Throwable $e) {
             $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
         }

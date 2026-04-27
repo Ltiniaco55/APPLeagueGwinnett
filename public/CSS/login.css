@@ -40,7 +40,7 @@
     overflow: hidden;
     width: 800px;
     max-width: 90%;
-    min-height: 540px;
+    min-height: 590px;
     transform: translateY(20px);
     opacity: 0;
     animation: slideUp 0.4s 0.1s ease-out forwards;
@@ -254,7 +254,7 @@
 
 .login-input-group input {
     width: 100%;
-    padding: 12px 48px 12px 15px;
+    padding: 12px 15px;
     border: none;
     border-radius: 8px;
     background: #f4f6fa;
@@ -263,6 +263,10 @@
     color: var(--gysl-superdark);
     box-sizing: border-box;
     transition: outline 0.2s ease;
+}
+
+.login-input-group:has(.pwd-toggle-btn) input {
+    padding-right: 48px;
 }
 
 .login-input-group input:focus {

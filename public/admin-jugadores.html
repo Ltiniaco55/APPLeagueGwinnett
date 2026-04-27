@@ -188,7 +188,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 8000;
+            z-index: 1000;
         }
 
         .gysl-confirm-overlay.is-open {
@@ -405,12 +405,11 @@
                         <h3>Preparar Alta Masiva</h3>
                         <div class="gysl-admin-form-group">
                             <label for="lote-cantidad">Número de jugadores (máx. 25)</label>
-                            <input type="number" id="lote-cantidad" min="1" max="25" value="1"
-                                placeholder="Ej: 5">
+                            <input type="number" id="lote-cantidad" min="1" max="25" value="1" placeholder="Ej: 5">
                         </div>
                         <div class="gysl-admin-form-actions">
-                            <button class="gysl-admin-btn gysl-admin-btn--primary"
-                                onclick="prepararPantalla()">Preparar pantalla</button>
+                            <button class="gysl-admin-btn gysl-admin-btn--primary" onclick="prepararPantalla()">Preparar
+                                pantalla</button>
                         </div>
                     </div>
                 </div>
@@ -445,10 +444,10 @@
                     <div class="gysl-lote-rows" id="lote-rows-container"></div>
 
                     <div class="gysl-admin-form-actions" style="margin-top: 20px;">
-                        <button class="gysl-admin-btn gysl-admin-btn--secondary"
-                            onclick="volverStep1()">← Volver</button>
-                        <button class="gysl-admin-btn gysl-admin-btn--primary"
-                            onclick="validarYConfirmarLote()">Guardar Lote</button>
+                        <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="volverStep1()">←
+                            Volver</button>
+                        <button class="gysl-admin-btn gysl-admin-btn--primary" onclick="validarYConfirmarLote()">Guardar
+                            Lote</button>
                     </div>
                 </div>
             </div>
@@ -508,6 +507,37 @@
             <!-- ═══ TAB 3: PENDIENTES ═══ -->
             <div class="gysl-tab-panel" id="panel-pendientes">
 
+                <!-- Filtros pendientes -->
+                <div class="gysl-filters" style="margin-bottom:20px;">
+                    <div class="gysl-filter-group">
+                        <label for="pend-filter-accion">Acción</label>
+                        <select id="pend-filter-accion" onchange="loadPendientes()">
+                            <option value="">— Todas —</option>
+                            <option value="ALTA">Alta</option>
+                            <option value="BAJA">Baja</option>
+                        </select>
+                    </div>
+                    <div class="gysl-filter-group">
+                        <label for="pend-filter-equipo">Equipo</label>
+                        <select id="pend-filter-equipo" onchange="loadPendientes()">
+                            <option value="">— Todos —</option>
+                        </select>
+                    </div>
+                    <div class="gysl-filter-group">
+                        <label for="pend-filter-categoria">Categoría</label>
+                        <select id="pend-filter-categoria" onchange="loadPendientes()">
+                            <option value="">— Todas —</option>
+                        </select>
+                    </div>
+                    <div class="gysl-filter-group" style="justify-content:flex-end;">
+                        <label>&nbsp;</label>
+                        <button class="gysl-admin-btn gysl-admin-btn--primary" id="btn-aprobar-lote"
+                            style="display:none;" onclick="aprobarSeleccionados()">
+                            ✓ Aprobar seleccionados
+                        </button>
+                    </div>
+                </div>
+
                 <div id="pendientes-loading" class="gysl-admin-loading">Cargando pendientes...</div>
 
                 <div id="pendientes-empty" class="gysl-admin-empty" style="display:none;">
@@ -515,18 +545,24 @@
                         <path d="M12 2v6l3 3"></path>
                         <circle cx="12" cy="12" r="10"></circle>
                     </svg>
-                    <p>No hay jugadores pendientes de aprobación</p>
+                    <p>No hay solicitudes pendientes</p>
                 </div>
 
                 <div class="gysl-admin-table-wrapper" id="pendientes-table-wrapper" style="display:none;">
                     <table class="gysl-admin-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th style="width:36px;">
+                                    <input type="checkbox" id="chk-all-pend" onchange="toggleAllPend(this.checked)"
+                                        title="Seleccionar todos">
+                                </th>
                                 <th>Nombre</th>
                                 <th>Apellido</th>
-                                <th>Equipo Sol.</th>
-                                <th>Estado</th>
+                                <th>Fecha Nac.</th>
+                                <th>Equipo</th>
+                                <th>Liga</th>
+                                <th>Acción</th>
+                                <th>Solicitante</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -546,8 +582,7 @@
                 <!-- Se genera dinámicamente -->
             </div>
             <div class="gysl-admin-form-actions" style="margin-top: 20px;">
-                <button class="gysl-admin-btn gysl-admin-btn--secondary"
-                    onclick="cerrarDetalle()">Cerrar</button>
+                <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="cerrarDetalle()">Cerrar</button>
             </div>
         </div>
     </div>
@@ -558,10 +593,8 @@
             <h3 id="confirm-title">¿Está seguro?</h3>
             <p id="confirm-msg">¿Está seguro de los datos introducidos?</p>
             <div class="gysl-confirm-actions">
-                <button class="gysl-admin-btn gysl-admin-btn--secondary"
-                    id="confirm-cancel">Seguir modificando</button>
-                <button class="gysl-admin-btn gysl-admin-btn--primary"
-                    id="confirm-ok">Sí</button>
+                <button class="gysl-admin-btn gysl-admin-btn--secondary" id="confirm-cancel">Seguir modificando</button>
+                <button class="gysl-admin-btn gysl-admin-btn--primary" id="confirm-ok">Sí</button>
             </div>
         </div>
     </div>
@@ -926,22 +959,46 @@
             };
 
             // ═══════════════════════════════════════
-            //  TAB 3: PENDIENTES
+            //  TAB 3: PENDIENTES (nuevas rutas admin)
             // ═══════════════════════════════════════
+
+            function populatePendFiltros() {
+                const selEq  = document.getElementById("pend-filter-equipo");
+                const selCat = document.getElementById("pend-filter-categoria");
+                if (!selEq || !selCat) return;
+
+                selEq.innerHTML = '<option value="">— Todos —</option>';
+                allEquipos.forEach(e => {
+                    const id  = e.id_equipo ?? e.id;
+                    const nom = e.club ?? e.nombre ?? "Sin nombre";
+                    selEq.innerHTML += `<option value="${id}">${nom}</option>`;
+                });
+
+                const cats = [...new Set(allEquipos.map(e => e.categoria).filter(Boolean))].sort();
+                selCat.innerHTML = '<option value="">— Todas —</option>';
+                cats.forEach(c => selCat.innerHTML += `<option value="${c}">${c}</option>`);
+            }
 
             async function loadPendientes() {
                 document.getElementById("pendientes-loading").style.display = "flex";
                 document.getElementById("pendientes-table-wrapper").style.display = "none";
                 document.getElementById("pendientes-empty").style.display = "none";
+                const loteBtn = document.getElementById("btn-aprobar-lote");
+                if (loteBtn) loteBtn.style.display = "none";
+
+                const accion    = document.getElementById("pend-filter-accion")?.value  || "";
+                const id_equipo = document.getElementById("pend-filter-equipo")?.value  || "";
+                const categoria = document.getElementById("pend-filter-categoria")?.value || "";
+
+                const params = new URLSearchParams();
+                if (accion)    params.append("accion", accion);
+                if (id_equipo) params.append("id_equipo", id_equipo);
+                if (categoria) params.append("categoria", categoria);
 
                 try {
-                    const res = await fetch(API + "/jugadores", { credentials: "include" });
+                    const res = await fetch(API + "/admin/jugadores/pendientes?" + params.toString(), { credentials: "include" });
                     const data = await res.json();
-                    const todos = Array.isArray(data) ? data : (data.data || []);
-                    pendientesData = todos.filter(j => {
-                        const est = (j.estado ?? "").toUpperCase();
-                        return est === "PENDIENTE" || est === "PENDIENTE_BAJA";
-                    });
+                    pendientesData = data.data || [];
                 } catch (err) {
                     console.error("Error:", err);
                     pendientesData = [];
@@ -952,96 +1009,196 @@
             }
 
             function renderPendientes() {
-                const tbody = document.getElementById("pendientes-tbody");
+                const tbody   = document.getElementById("pendientes-tbody");
                 const wrapper = document.getElementById("pendientes-table-wrapper");
-                const empty = document.getElementById("pendientes-empty");
+                const empty   = document.getElementById("pendientes-empty");
 
                 if (pendientesData.length === 0) {
                     wrapper.style.display = "none";
-                    empty.style.display = "block";
+                    empty.style.display   = "block";
                     return;
                 }
 
-                empty.style.display = "none";
+                empty.style.display   = "none";
                 wrapper.style.display = "block";
 
-                // Obtener permisos/roles
-                const isAdmin = window.gyslAdminUserRole === "ADMIN";
+                const hayAltas = pendientesData.some(p => p.accion_solicitada === "ALTA");
+                const loteBtn  = document.getElementById("btn-aprobar-lote");
+                if (loteBtn) loteBtn.style.display = hayAltas ? "inline-flex" : "none";
 
-                tbody.innerHTML = pendientesData.map(j => {
-                    const id = j.id_jugador ?? j.id;
-                    const est = (j.estado ?? "").toUpperCase();
-                    const badgeText = est === "PENDIENTE_BAJA" ? "BAJA PEND." : "ALTA PEND.";
-                    const badgeClass = est === "PENDIENTE_BAJA" ? "gysl-badge--inactive" : "gysl-badge--pending";
-                    
-                    let actionsHtml = "";
-                    if (isAdmin) {
-                        actionsHtml = `
-                            <button class="gysl-admin-table__btn gysl-admin-table__btn--approve"
-                                onclick="aprobarJugador(${id})">Aprobar</button>
-                            <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
-                                onclick="rechazarJugador(${id})">Rechazar</button>
-                        `;
-                    } else {
-                        actionsHtml = `<span style="color:var(--gysl-muted); font-size:12px;">En revisión...</span>`;
-                    }
+                tbody.innerHTML = pendientesData.map(p => {
+                    const accionBadge = p.accion_solicitada === "ALTA"
+                        ? `<span class="gysl-badge gysl-badge--active">Alta</span>`
+                        : `<span class="gysl-badge gysl-badge--inactive">Baja</span>`;
+
+                    const soloAltas = p.accion_solicitada === "ALTA";
 
                     return `
                     <tr>
-                        <td>${id}</td>
-                        <td>${j.nombre ?? "—"}</td>
-                        <td>${j.apellido ?? "—"}</td>
-                        <td>${j.id_equipo_solicitante ?? "—"}</td>
-                        <td><span class="gysl-badge ${badgeClass}">${badgeText}</span></td>
+                        <td>
+                            ${soloAltas ? `<input type="checkbox" class="pend-chk" value="${p.id}" onchange="onPendChkChange()">` : ""}
+                        </td>
+                        <td>${p.nombre ?? "—"}</td>
+                        <td>${p.apellido ?? "—"}</td>
+                        <td>${p.fecha_nacimiento ?? "—"}</td>
+                        <td>${p.nombre_equipo ?? "—"}</td>
+                        <td>${p.nombre_liga ?? "—"}</td>
+                        <td>${accionBadge}</td>
+                        <td style="color:var(--gysl-muted);font-size:12px;">ID #${p.id_usuario_solicitante ?? "?"}</td>
                         <td>
                             <div class="gysl-admin-table__actions">
-                                ${actionsHtml}
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
+                                    onclick="abrirDetallePendiente(${p.id})">Ver</button>
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--approve"
+                                    onclick="aprobarRelacion(${p.id})">✓ Aprobar</button>
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
+                                    onclick="rechazarRelacion(${p.id})">✕ Rechazar</button>
                             </div>
                         </td>
                     </tr>`;
                 }).join("");
             }
 
-            window.aprobarJugador = async function (id) {
-                const confirmado = await showConfirm("Aprobar jugador", "¿Aprobar este jugador y añadirlo a la plantilla?");
+            window.toggleAllPend = function (checked) {
+                document.querySelectorAll(".pend-chk").forEach(chk => chk.checked = checked);
+                onPendChkChange();
+            };
+
+            window.onPendChkChange = function () {
+                const all     = document.querySelectorAll(".pend-chk");
+                const checked = [...all].filter(c => c.checked);
+                const loteBtn = document.getElementById("btn-aprobar-lote");
+                if (loteBtn) loteBtn.style.display = checked.length > 0 ? "inline-flex" : "none";
+                const chkAll = document.getElementById("chk-all-pend");
+                if (chkAll) {
+                    chkAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                    chkAll.checked = checked.length === all.length && all.length > 0;
+                }
+            };
+
+            window.aprobarSeleccionados = async function () {
+                const ids = [...document.querySelectorAll(".pend-chk:checked")].map(c => +c.value);
+                if (ids.length === 0) { showToast("Selecciona al menos uno", "error"); return; }
+
+                const confirmado = await showConfirm("Aprobar en lote", `¿Aprobar ${ids.length} solicitud(es) seleccionada(s)?`);
                 if (!confirmado) return;
 
                 try {
-                    const res = await fetch(API + "/jugadores/" + id + "/aprobar", {
+                    const res = await fetch(API + "/admin/jugadores/aprobar-lote", {
                         method: "POST",
-                        credentials: "include"
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ ids })
                     });
                     const data = await res.json();
-                    if (res.ok) {
-                        showToast("Jugador aprobado", "success");
+                    if (res.ok && data.success) {
+                        showToast(data.message || "Lote aprobado", "success");
                         loadPendientes();
                     } else {
-                        showToast(data.message || "Error al aprobar", "error");
+                        showToast(data.message || "Error", "error");
                     }
                 } catch (err) {
                     showToast("Error de conexión", "error");
                 }
             };
 
-            window.rechazarJugador = async function (id) {
-                const confirmado = await showConfirm("Rechazar jugador", "¿Rechazar y eliminar este jugador?");
+            window.aprobarRelacion = async function (id_relacion) {
+                const p = pendientesData.find(x => x.id == id_relacion);
+                const accion = p?.accion_solicitada || "";
+                const msg = accion === "BAJA"
+                    ? `¿Aprobar BAJA de ${p?.nombre} ${p?.apellido}? Se eliminará del equipo.`
+                    : `¿Aprobar ALTA de ${p?.nombre} ${p?.apellido}?`;
+
+                const confirmado = await showConfirm("Confirmar aprobación", msg);
                 if (!confirmado) return;
 
                 try {
-                    const res = await fetch(API + "/jugadores/" + id + "/rechazar", {
-                        method: "POST",
-                        credentials: "include"
+                    const res = await fetch(`${API}/admin/jugadores/${id_relacion}/aprobar`, {
+                        method: "POST", credentials: "include"
                     });
                     const data = await res.json();
-                    if (res.ok) {
-                        showToast("Jugador rechazado", "success");
+                    if (res.ok && data.success) {
+                        showToast(data.message || "Aprobado", "success");
+                        loadPendientes();
+                    } else {
+                        showToast(data.message || "Error al aprobar", "error");
+                    }
+                } catch (err) { showToast("Error de conexión", "error"); }
+            };
+
+            window.rechazarRelacion = async function (id_relacion) {
+                const p = pendientesData.find(x => x.id == id_relacion);
+                const accion = p?.accion_solicitada || "";
+                const msg = accion === "BAJA"
+                    ? `¿Rechazar BAJA? ${p?.nombre} ${p?.apellido} volverá a ALTA.`
+                    : `¿Rechazar ALTA de ${p?.nombre} ${p?.apellido}? Se eliminará la solicitud.`;
+
+                const confirmado = await showConfirm("Confirmar rechazo", msg);
+                if (!confirmado) return;
+
+                try {
+                    const res = await fetch(`${API}/admin/jugadores/${id_relacion}/rechazar`, {
+                        method: "POST", credentials: "include"
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        showToast(data.message || "Rechazado", "success");
                         loadPendientes();
                     } else {
                         showToast(data.message || "Error al rechazar", "error");
                     }
-                } catch (err) {
-                    showToast("Error de conexión", "error");
-                }
+                } catch (err) { showToast("Error de conexión", "error"); }
+            };
+
+            window.abrirDetallePendiente = function (id_relacion) {
+                const p = pendientesData.find(x => x.id == id_relacion);
+                if (!p) { showToast("Pendiente no encontrado", "error"); return; }
+
+                const foto = p.foto_path ? `<img src="${API}${p.foto_path}" alt="Foto">` : `<span>Sin foto</span>`;
+                const accionBadge = p.accion_solicitada === "ALTA"
+                    ? `<span class="gysl-badge gysl-badge--active">Alta</span>`
+                    : `<span class="gysl-badge gysl-badge--inactive">Baja</span>`;
+                const fechaSol = p.fecha_solicitud ? new Date(p.fecha_solicitud).toLocaleString("es-ES") : "—";
+
+                document.getElementById("detalle-title").textContent = `Detalle — ${p.nombre} ${p.apellido}`;
+                document.getElementById("detalle-content").innerHTML = `
+                    <div class="gysl-detail-photo">${foto}</div>
+                    <div class="gysl-detail-info">
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Nombre</span>
+                            <span class="gysl-detail-row__value">${p.nombre} ${p.apellido}</span>
+                        </div>
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Fecha nac.</span>
+                            <span class="gysl-detail-row__value">${p.fecha_nacimiento ?? "—"}</span>
+                        </div>
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Equipo</span>
+                            <span class="gysl-detail-row__value">${p.nombre_equipo ?? "—"} (${p.categoria ?? "—"})</span>
+                        </div>
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Liga</span>
+                            <span class="gysl-detail-row__value">${p.nombre_liga ?? "—"}</span>
+                        </div>
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Acción solicitada</span>
+                            <span class="gysl-detail-row__value">${accionBadge}</span>
+                        </div>
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Estado</span>
+                            <span class="gysl-detail-row__value">PENDIENTE</span>
+                        </div>
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Solicitante</span>
+                            <span class="gysl-detail-row__value">ID #${p.id_usuario_solicitante ?? "?"}</span>
+                        </div>
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Fecha solicitud</span>
+                            <span class="gysl-detail-row__value">${fechaSol}</span>
+                        </div>
+                    </div>`;
+
+                document.getElementById("detalle-overlay").classList.add("is-open");
             };
 
             // ═══════════════════════════════════════
@@ -1191,24 +1348,25 @@
             // ═══════════════════════════════════════
             async function init() {
                 await loadGlobalData();
+                populatePendFiltros();
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const equipoId = urlParams.get('equipo');
-                
+
                 if (equipoId) {
                     const match = allEquipos.find(e => (e.id_equipo ?? e.id) == equipoId);
                     if (match && match.ligas_ids && match.ligas_ids.length > 0) {
                         document.querySelectorAll(".gysl-tab").forEach(t => t.classList.remove("is-active"));
                         document.querySelectorAll(".gysl-tab-panel").forEach(p => p.classList.remove("is-active"));
-                        
+
                         const tabPlantilla = document.querySelector('[data-tab="plantilla"]');
-                        if(tabPlantilla) tabPlantilla.classList.add("is-active");
+                        if (tabPlantilla) tabPlantilla.classList.add("is-active");
                         document.getElementById("panel-plantilla").classList.add("is-active");
 
                         populateFilterDropdowns();
                         document.getElementById("filtro-liga").value = match.ligas_ids[0];
                         onFiltroLigaChange();
-                        
+
                         setTimeout(() => {
                             document.getElementById("filtro-equipo").value = equipoId;
                             cargarPlantilla();
