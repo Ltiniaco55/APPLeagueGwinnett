@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GYSL Admin — Jugadores y Plantilla</title>
-    <meta name="description" content="Alta masiva de jugadores, gestión de plantilla y ficha individual GYSL">
+    <meta name="description" content="Alta directa de jugadores, gestión de plantilla y solicitudes pendientes GYSL">
 
     <link rel="stylesheet" href="./CSS/global.css">
     <link rel="stylesheet" href="./CSS/admin.css">
@@ -380,10 +380,10 @@
         <header class="gysl-admin__header">
             <div>
                 <h1 class="gysl-admin__title">Gestión de Jugadores</h1>
-                <p class="gysl-admin__subtitle">Alta masiva, plantilla y ficha individual</p>
+                <p class="gysl-admin__subtitle">Alta directa, plantilla y solicitudes pendientes</p>
             </div>
             <nav class="gysl-admin__breadcrumb">
-                <a href="admin-dashboard.html">Dashboard</a> / Jugadores
+                <a href="home.html">Inicio</a> / Jugadores
             </nav>
         </header>
 
@@ -396,58 +396,95 @@
                 <button class="gysl-tab" data-tab="pendientes">Pendientes</button>
             </div>
 
-            <!-- ═══ TAB 1: ALTA MASIVA ═══ -->
+            <!-- ═══ TAB 1: ALTA DIRECTA ═══ -->
             <div class="gysl-tab-panel is-active" id="panel-alta-masiva">
 
-                <!-- PASO 1: Preparar -->
-                <div id="lote-step1">
-                    <div class="gysl-admin-form-card" style="max-width:400px; margin: 0 auto;">
-                        <h3>Preparar Alta Masiva</h3>
-                        <div class="gysl-admin-form-group">
-                            <label for="lote-cantidad">Número de jugadores (máx. 25)</label>
-                            <input type="number" id="lote-cantidad" min="1" max="25" value="1" placeholder="Ej: 5">
-                        </div>
-                        <div class="gysl-admin-form-actions">
-                            <button class="gysl-admin-btn gysl-admin-btn--primary" onclick="prepararPantalla()">Preparar
-                                pantalla</button>
-                        </div>
-                    </div>
-                </div>
+                <div class="gysl-admin-form-card">
+                    <h3>Alta Directa Individual</h3>
 
-                <!-- PASO 2: Formulario masivo -->
-                <div id="lote-step2" style="display:none;">
-                    <!-- Global: liga + equipo -->
-                    <div class="gysl-lote-global">
+                    <!-- Liga + Equipo -->
+                    <div class="gysl-filters" style="margin-bottom:20px;">
                         <div class="gysl-filter-group">
-                            <label for="lote-liga">Liga</label>
-                            <select id="lote-liga" onchange="onLoteLigaChange()">
+                            <label for="alta-liga">Liga <span style="color:var(--gysl-red);">*</span></label>
+                            <select id="alta-liga" onchange="onAltaLigaChange()">
                                 <option value="">— Seleccionar liga —</option>
                             </select>
                         </div>
                         <div class="gysl-filter-group">
-                            <label for="lote-equipo">Equipo</label>
-                            <select id="lote-equipo">
+                            <label for="alta-equipo">Equipo <span style="color:var(--gysl-red);">*</span></label>
+                            <select id="alta-equipo">
                                 <option value="">— Seleccionar equipo —</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Cabecera filas -->
-                    <div class="gysl-lote-header">
-                        <span>#</span>
-                        <span>Nombre</span>
-                        <span>Apellido</span>
-                        <span>Fecha Nac.</span>
+                    <!-- Datos base -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                        <div class="gysl-admin-form-group">
+                            <label for="alta-nombre">Nombre <span style="color:var(--gysl-red);">*</span></label>
+                            <input type="text" id="alta-nombre" placeholder="Nombre del jugador">
+                        </div>
+                        <div class="gysl-admin-form-group">
+                            <label for="alta-apellido">Apellido <span style="color:var(--gysl-red);">*</span></label>
+                            <input type="text" id="alta-apellido" placeholder="Apellido del jugador">
+                        </div>
+                        <div class="gysl-admin-form-group" style="grid-column:1/-1;">
+                            <label for="alta-fecha">Fecha de Nacimiento <span
+                                    style="color:var(--gysl-red);">*</span></label>
+                            <input type="date" id="alta-fecha" onchange="onAltaFechaChange()">
+                        </div>
                     </div>
 
-                    <!-- Filas dinámicas -->
-                    <div class="gysl-lote-rows" id="lote-rows-container"></div>
+                    <!-- Archivos -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                        <div class="gysl-admin-form-group">
+                            <label for="alta-foto">Foto jugador <span
+                                    style="color:var(--gysl-muted);font-weight:normal;">(opcional)</span></label>
+                            <input type="file" id="alta-foto" accept="image/jpeg,image/png,image/webp"
+                                style="padding:7px 10px;">
+                        </div>
+                        <div class="gysl-admin-form-group">
+                            <label for="alta-documento">Documento de identidad <span
+                                    style="color:var(--gysl-red);">*</span></label>
+                            <input type="file" id="alta-documento" accept="image/jpeg,image/png,image/webp"
+                                style="padding:7px 10px;">
+                        </div>
+                    </div>
 
-                    <div class="gysl-admin-form-actions" style="margin-top: 20px;">
-                        <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="volverStep1()">←
-                            Volver</button>
-                        <button class="gysl-admin-btn gysl-admin-btn--primary" onclick="validarYConfirmarLote()">Guardar
-                            Lote</button>
+                    <!-- Bloque responsable (solo menores de 18) -->
+                    <div id="alta-padres-section" style="display:none;margin-top:4px;margin-bottom:16px;
+                        padding:16px;border-radius:10px;
+                        background:rgba(241,184,45,.06);border:1px solid rgba(241,184,45,.25);">
+                        <p style="margin:0 0 14px;font-size:12px;font-weight:700;
+                            text-transform:uppercase;letter-spacing:.5px;color:var(--gysl-yellow);">
+                            ⚠ Jugador menor de 18 — datos del padre/madre/tutor obligatorios
+                        </p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                            <div class="gysl-admin-form-group" style="grid-column:1/-1;">
+                                <label for="alta-nombres-padres">Nombre padre/madre/tutor <span
+                                        style="color:var(--gysl-red);">*</span></label>
+                                <input type="text" id="alta-nombres-padres" placeholder="Nombre completo del tutor">
+                            </div>
+                            <div class="gysl-admin-form-group">
+                                <label for="alta-email-padres">Email del tutor <span
+                                        style="color:var(--gysl-red);">*</span></label>
+                                <input type="email" id="alta-email-padres" placeholder="email@ejemplo.com">
+                            </div>
+                            <div class="gysl-admin-form-group">
+                                <label for="alta-telefono-padres">Teléfono del tutor <span
+                                        style="color:var(--gysl-red);">*</span></label>
+                                <input type="tel" id="alta-telefono-padres" placeholder="+34 600 000 000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="alta-aviso" style="display:none;padding:12px 16px;border-radius:8px;
+                        background:rgba(241,184,45,.08);border:1px solid rgba(241,184,45,.2);
+                        font-size:13px;color:var(--gysl-yellow);margin-bottom:16px;"></div>
+
+                    <div class="gysl-admin-form-actions">
+                        <button class="gysl-admin-btn gysl-admin-btn--primary" id="btn-dar-alta"
+                            onclick="enviarAltaDirecta()">Dar de Alta</button>
                     </div>
                 </div>
             </div>
@@ -690,10 +727,13 @@
             function populateLigaSelect(selectEl) {
                 selectEl.innerHTML = '<option value="">— Seleccionar liga —</option>';
                 allLigas.forEach(l => {
+                    // Backend devuelve: id_liga, nom, temp, categ
                     const id = l.id_liga ?? l.id;
-                    const nom = l.nombre_liga ?? l.nombre ?? "Sin nombre";
-                    const cat = l.categoria ?? "";
-                    selectEl.innerHTML += `<option value="${id}">${nom} (${cat})</option>`;
+                    const nom = l.nom ?? l.nombre_liga ?? l.nombre ?? 'Sin nombre';
+                    const cat = l.categ ?? l.categoria ?? '';
+                    const tmp = l.temp ?? l.temporada ?? '';
+                    const label = cat ? `${nom} (${cat})` : (tmp ? `${nom} - ${tmp}` : nom);
+                    selectEl.innerHTML += `<option value="${id}">${label}</option>`;
                 });
             }
 
@@ -703,124 +743,134 @@
 
                 const lid = parseInt(idLiga, 10);
                 const filtrados = allEquipos.filter(e => {
-                    const ligas = e.ligas_ids || [];
-                    return ligas.map(Number).includes(lid);
+                    // ligas_ids viene como array de enteros desde backend
+                    let ids = e.ligas_ids || [];
+                    // Normalizar: si viene como string CSV (fallback)
+                    if (typeof ids === 'string') ids = ids.split(',').map(s => s.trim());
+                    return ids.map(Number).includes(lid);
                 });
 
                 filtrados.forEach(e => {
+                    // Backend devuelve: id_equipo, club, categoria
                     const id = e.id_equipo ?? e.id;
-                    const nom = e.club ?? e.nombre ?? "Sin nombre";
-                    const cat = e.categoria ?? "";
-                    selectEl.innerHTML += `<option value="${id}">${nom} (${cat})</option>`;
+                    const nom = e.club ?? e.nombre ?? 'Sin nombre';
+                    const cat = e.categoria ?? '';
+                    selectEl.innerHTML += `<option value="${id}">${nom}${cat ? ' (' + cat + ')' : ''}</option>`;
                 });
             }
 
             function populateFilterDropdowns() {
-                populateLigaSelect(document.getElementById("filtro-liga"));
+                // Plantilla filters
+                const filtroLiga = document.getElementById('filtro-liga');
+                if (filtroLiga) populateLigaSelect(filtroLiga);
+                // Alta directa
+                const altaLiga = document.getElementById('alta-liga');
+                if (altaLiga) populateLigaSelect(altaLiga);
             }
 
             // ═══════════════════════════════════════
-            //  TAB 1: ALTA MASIVA
+            //  TAB 1: ALTA DIRECTA
             // ═══════════════════════════════════════
 
-            window.prepararPantalla = function () {
-                const n = parseInt(document.getElementById("lote-cantidad").value, 10);
-                if (!n || n < 1 || n > 25) {
-                    showToast("Introduce un número entre 1 y 25", "error");
-                    return;
+            window.onAltaLigaChange = function () {
+                populateEquipoSelect(document.getElementById('alta-equipo'),
+                    document.getElementById('alta-liga').value);
+            };
+
+            window.onAltaFechaChange = function () {
+                const val = document.getElementById('alta-fecha').value;
+                if (!val) return;
+                const hoy = new Date(), nac = new Date(val);
+                let edad = hoy.getFullYear() - nac.getFullYear();
+                const m = hoy.getMonth() - nac.getMonth();
+                if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+                document.getElementById('alta-padres-section').style.display = edad < 18 ? 'block' : 'none';
+            };
+
+            window.enviarAltaDirecta = async function () {
+                const id_liga = document.getElementById('alta-liga').value;
+                const id_equipo = document.getElementById('alta-equipo').value;
+                const nombre = document.getElementById('alta-nombre').value.trim();
+                const apellido = document.getElementById('alta-apellido').value.trim();
+                const fecha = document.getElementById('alta-fecha').value;
+                const fotoFile = document.getElementById('alta-foto').files[0];
+                const docFile = document.getElementById('alta-documento').files[0];
+
+                if (!id_liga || !id_equipo || !nombre || !apellido || !fecha) {
+                    showToast('Rellena todos los campos obligatorios', 'error'); return;
+                }
+                if (!docFile) {
+                    showToast('El documento de identidad es obligatorio', 'error'); return;
                 }
 
-                // Populate liga/equipo
-                populateLigaSelect(document.getElementById("lote-liga"));
+                // Calcular edad para menores
+                const hoy = new Date(), nac = new Date(fecha);
+                let edad = hoy.getFullYear() - nac.getFullYear();
+                const m = hoy.getMonth() - nac.getMonth();
+                if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+                const esmenor = edad < 18;
 
-                // Generate rows
-                const container = document.getElementById("lote-rows-container");
-                container.innerHTML = "";
-                for (let i = 0; i < n; i++) {
-                    container.innerHTML += `
-                    <div class="gysl-lote-row">
-                        <span class="gysl-lote-row__num">${i + 1}</span>
-                        <input type="text" placeholder="Nombre" data-field="nombre">
-                        <input type="text" placeholder="Apellido" data-field="apellido">
-                        <input type="date" data-field="fecha_nacimiento">
-                    </div>`;
+                if (esmenor) {
+                    const np = document.getElementById('alta-nombres-padres').value.trim();
+                    const ep = document.getElementById('alta-email-padres').value.trim();
+                    const tp = document.getElementById('alta-telefono-padres').value.trim();
+                    if (!np || !ep || !tp) {
+                        showToast('Jugador menor de 18: completa los datos del tutor', 'error'); return;
+                    }
                 }
 
-                document.getElementById("lote-step1").style.display = "none";
-                document.getElementById("lote-step2").style.display = "block";
-            };
+                document.getElementById('alta-aviso').style.display = 'none';
+                const btn = document.getElementById('btn-dar-alta');
+                btn.disabled = true;
+                btn.textContent = 'Procesando...';
 
-            window.volverStep1 = function () {
-                document.getElementById("lote-step1").style.display = "block";
-                document.getElementById("lote-step2").style.display = "none";
-            };
-
-            window.onLoteLigaChange = function () {
-                const ligaId = document.getElementById("lote-liga").value;
-                populateEquipoSelect(document.getElementById("lote-equipo"), ligaId);
-            };
-
-            window.validarYConfirmarLote = async function () {
-                const id_liga = document.getElementById("lote-liga").value;
-                const id_equipo = document.getElementById("lote-equipo").value;
-
-                if (!id_liga) { showToast("Selecciona una liga", "error"); return; }
-                if (!id_equipo) { showToast("Selecciona un equipo", "error"); return; }
-
-                const rows = document.querySelectorAll(".gysl-lote-row");
-                const jugadores = [];
-
-                for (const row of rows) {
-                    const nombre = row.querySelector('[data-field="nombre"]').value.trim();
-                    const apellido = row.querySelector('[data-field="apellido"]').value.trim();
-                    const fecha = row.querySelector('[data-field="fecha_nacimiento"]').value;
-
-                    if (!nombre || !apellido || !fecha) {
-                        showToast("Te faltan campos por rellenar", "error");
-                        return;
+                try {
+                    const fd = new FormData();
+                    fd.append('id_liga', id_liga);
+                    fd.append('id_equipo', id_equipo);
+                    fd.append('nombre', nombre);
+                    fd.append('apellido', apellido);
+                    fd.append('fecha_nacimiento', fecha);
+                    fd.append('documento_identidad', docFile);
+                    if (fotoFile) fd.append('foto', fotoFile);
+                    if (esmenor) {
+                        fd.append('nombres_padres', document.getElementById('alta-nombres-padres').value.trim());
+                        fd.append('email_padres', document.getElementById('alta-email-padres').value.trim());
+                        fd.append('telefono_padres', document.getElementById('alta-telefono-padres').value.trim());
                     }
 
-                    jugadores.push({ nombre, apellido, fecha_nacimiento: fecha });
-                }
-
-                const confirmado = await showConfirm(
-                    "Confirmar alta masiva",
-                    `¿Está seguro de los datos introducidos? Se registrarán ${jugadores.length} jugador(es).`
-                );
-
-                if (!confirmado) return;
-
-                // Enviar al backend
-                try {
-                    const res = await fetch(API + "/jugadores/lote", {
-                        method: "POST",
-                        credentials: "include",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            id_equipo: parseInt(id_equipo, 10),
-                            id_liga: parseInt(id_liga, 10),
-                            jugadores: jugadores
-                        })
+                    const res = await fetch(API + '/admin/jugadores/alta-directa', {
+                        method: 'POST', credentials: 'include', body: fd
                     });
-
                     const data = await res.json();
 
                     if (res.ok && data.success) {
-                        showToast(data.message || "Jugadores registrados correctamente", "success");
+                        showToast(data.message || 'Jugador dado de alta correctamente', 'success');
+                        // Limpiar formulario
+                        ['alta-nombre', 'alta-apellido', 'alta-fecha',
+                            'alta-nombres-padres', 'alta-email-padres', 'alta-telefono-padres'
+                        ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+                        document.getElementById('alta-foto').value = '';
+                        document.getElementById('alta-documento').value = '';
+                        document.getElementById('alta-padres-section').style.display = 'none';
 
                         if (data.avisos && data.avisos.length > 0) {
-                            setTimeout(() => {
-                                showToast("⚠ Algunos jugadores coinciden con registros en otros equipos", "warning");
-                            }, 1000);
+                            const box = document.getElementById('alta-aviso');
+                            box.innerHTML = '⚠️ ' + (data.aviso_msg || '') + '<br>' +
+                                data.avisos.map(a => `<strong>${a.nombre} ${a.apellido}</strong> ya está en otro equipo`).join('<br>');
+                            box.style.display = 'block';
                         }
-
-                        volverStep1();
+                    } else if (res.status === 409) {
+                        showToast(data.message || 'El jugador ya está registrado en este equipo/liga', 'error');
                     } else {
-                        showToast(data.message || "Error al registrar", "error");
+                        showToast(data.message || 'Error al dar de alta', 'error');
                     }
                 } catch (err) {
-                    console.error("Error en alta masiva:", err);
-                    showToast("Error de conexión", "error");
+                    console.error('Error alta directa:', err);
+                    showToast('Error de conexión', 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Dar de Alta';
                 }
             };
 
@@ -963,13 +1013,13 @@
             // ═══════════════════════════════════════
 
             function populatePendFiltros() {
-                const selEq  = document.getElementById("pend-filter-equipo");
+                const selEq = document.getElementById("pend-filter-equipo");
                 const selCat = document.getElementById("pend-filter-categoria");
                 if (!selEq || !selCat) return;
 
                 selEq.innerHTML = '<option value="">— Todos —</option>';
                 allEquipos.forEach(e => {
-                    const id  = e.id_equipo ?? e.id;
+                    const id = e.id_equipo ?? e.id;
                     const nom = e.club ?? e.nombre ?? "Sin nombre";
                     selEq.innerHTML += `<option value="${id}">${nom}</option>`;
                 });
@@ -980,83 +1030,92 @@
             }
 
             async function loadPendientes() {
-                document.getElementById("pendientes-loading").style.display = "flex";
-                document.getElementById("pendientes-table-wrapper").style.display = "none";
-                document.getElementById("pendientes-empty").style.display = "none";
-                const loteBtn = document.getElementById("btn-aprobar-lote");
-                if (loteBtn) loteBtn.style.display = "none";
+                document.getElementById('pendientes-loading').style.display = 'block';
+                document.getElementById('pendientes-table-wrapper').style.display = 'none';
+                document.getElementById('pendientes-empty').style.display = 'none';
+                const loteBtn = document.getElementById('btn-aprobar-lote');
+                if (loteBtn) loteBtn.style.display = 'none';
 
-                const accion    = document.getElementById("pend-filter-accion")?.value  || "";
-                const id_equipo = document.getElementById("pend-filter-equipo")?.value  || "";
-                const categoria = document.getElementById("pend-filter-categoria")?.value || "";
+                const accion     = document.getElementById('pend-filter-accion')?.value || '';
+                const id_equipo  = document.getElementById('pend-filter-equipo')?.value || '';
+                const categoria  = document.getElementById('pend-filter-categoria')?.value || '';
 
                 const params = new URLSearchParams();
-                if (accion)    params.append("accion", accion);
-                if (id_equipo) params.append("id_equipo", id_equipo);
-                if (categoria) params.append("categoria", categoria);
+                if (accion)    params.append('accion',    accion);
+                if (id_equipo) params.append('id_equipo', id_equipo);
+                if (categoria) params.append('categoria', categoria);
 
                 try {
-                    const res = await fetch(API + "/admin/jugadores/pendientes?" + params.toString(), { credentials: "include" });
-                    const data = await res.json();
-                    pendientesData = data.data || [];
+                    const res  = await fetch(API + '/admin/jugadores/pendientes?' + params.toString(), { credentials: 'include' });
+                    const json = await res.json();
+                    // DEBUG — eliminar tras verificar
+                    console.log('[pendientes] respuesta raw:', json);
+                    pendientesData = Array.isArray(json) ? json : (json.data || []);
+                    console.log('[pendientes] array renderizado:', pendientesData);
                 } catch (err) {
-                    console.error("Error:", err);
+                    console.error('[pendientes] Error fetch:', err);
                     pendientesData = [];
                 }
 
-                document.getElementById("pendientes-loading").style.display = "none";
+                document.getElementById('pendientes-loading').style.display = 'none';
                 renderPendientes();
             }
 
             function renderPendientes() {
-                const tbody   = document.getElementById("pendientes-tbody");
-                const wrapper = document.getElementById("pendientes-table-wrapper");
-                const empty   = document.getElementById("pendientes-empty");
+                const tbody   = document.getElementById('pendientes-tbody');
+                const wrapper = document.getElementById('pendientes-table-wrapper');
+                const empty   = document.getElementById('pendientes-empty');
 
-                if (pendientesData.length === 0) {
-                    wrapper.style.display = "none";
-                    empty.style.display   = "block";
+                if (!pendientesData || pendientesData.length === 0) {
+                    wrapper.style.display = 'none';
+                    empty.style.display = 'block';
                     return;
                 }
 
-                empty.style.display   = "none";
-                wrapper.style.display = "block";
+                empty.style.display = 'none';
+                wrapper.style.display = 'block';
 
-                const hayAltas = pendientesData.some(p => p.accion_solicitada === "ALTA");
-                const loteBtn  = document.getElementById("btn-aprobar-lote");
-                if (loteBtn) loteBtn.style.display = hayAltas ? "inline-flex" : "none";
+                const hayAltas = pendientesData.some(p => p.accion_solicitada === 'ALTA');
+                const loteBtn = document.getElementById('btn-aprobar-lote');
+                if (loteBtn) loteBtn.style.display = hayAltas ? 'inline-flex' : 'none';
 
                 tbody.innerHTML = pendientesData.map(p => {
-                    const accionBadge = p.accion_solicitada === "ALTA"
+                    const accionBadge = p.accion_solicitada === 'ALTA'
                         ? `<span class="gysl-badge gysl-badge--active">Alta</span>`
                         : `<span class="gysl-badge gysl-badge--inactive">Baja</span>`;
 
-                    const soloAltas = p.accion_solicitada === "ALTA";
+                    const soloAltas = p.accion_solicitada === 'ALTA';
+
+                    // Nombre solicitante: usar campos del JOIN si existen
+                    const solNom = (p.solicitante_nombre && p.solicitante_apellido)
+                        ? `${p.solicitante_nombre} ${p.solicitante_apellido}`
+                        : (p.solicitante_nombre || p.nombre_solicitante
+                            || (p.id_usuario_solicitante ? `ID #${p.id_usuario_solicitante}` : '—'));
 
                     return `
                     <tr>
                         <td>
-                            ${soloAltas ? `<input type="checkbox" class="pend-chk" value="${p.id}" onchange="onPendChkChange()">` : ""}
+                            ${soloAltas ? `<input type="checkbox" class="pend-chk" value="${p.id}" onchange="onPendChkChange()">` : ''}
                         </td>
-                        <td>${p.nombre ?? "—"}</td>
-                        <td>${p.apellido ?? "—"}</td>
-                        <td>${p.fecha_nacimiento ?? "—"}</td>
-                        <td>${p.nombre_equipo ?? "—"}</td>
-                        <td>${p.nombre_liga ?? "—"}</td>
+                        <td>${p.nombre ?? '—'}</td>
+                        <td>${p.apellido ?? '—'}</td>
+                        <td>${p.fecha_nacimiento ?? '—'}</td>
+                        <td>${p.nombre_equipo ?? '—'}</td>
+                        <td>${p.nombre_liga ?? '—'}</td>
                         <td>${accionBadge}</td>
-                        <td style="color:var(--gysl-muted);font-size:12px;">ID #${p.id_usuario_solicitante ?? "?"}</td>
+                        <td style="color:var(--gysl-muted);font-size:12px;">${solNom}</td>
                         <td>
                             <div class="gysl-admin-table__actions">
                                 <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
                                     onclick="abrirDetallePendiente(${p.id})">Ver</button>
                                 <button class="gysl-admin-table__btn gysl-admin-table__btn--approve"
-                                    onclick="aprobarRelacion(${p.id})">✓ Aprobar</button>
+                                    onclick="aprobarRelacion(${p.id})">&#10003; Aprobar</button>
                                 <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
-                                    onclick="rechazarRelacion(${p.id})">✕ Rechazar</button>
+                                    onclick="rechazarRelacion(${p.id})">&#10005; Rechazar</button>
                             </div>
                         </td>
                     </tr>`;
-                }).join("");
+                }).join('');
             }
 
             window.toggleAllPend = function (checked) {
@@ -1065,7 +1124,7 @@
             };
 
             window.onPendChkChange = function () {
-                const all     = document.querySelectorAll(".pend-chk");
+                const all = document.querySelectorAll(".pend-chk");
                 const checked = [...all].filter(c => c.checked);
                 const loteBtn = document.getElementById("btn-aprobar-lote");
                 if (loteBtn) loteBtn.style.display = checked.length > 0 ? "inline-flex" : "none";
@@ -1152,33 +1211,66 @@
 
             window.abrirDetallePendiente = function (id_relacion) {
                 const p = pendientesData.find(x => x.id == id_relacion);
-                if (!p) { showToast("Pendiente no encontrado", "error"); return; }
+                if (!p) { showToast('Pendiente no encontrado', 'error'); return; }
 
-                const foto = p.foto_path ? `<img src="${API}${p.foto_path}" alt="Foto">` : `<span>Sin foto</span>`;
-                const accionBadge = p.accion_solicitada === "ALTA"
+                // Calcular si es menor
+                let esmenor = false;
+                if (p.fecha_nacimiento) {
+                    const hoy = new Date(), nac = new Date(p.fecha_nacimiento);
+                    let edad = hoy.getFullYear() - nac.getFullYear();
+                    const m = hoy.getMonth() - nac.getMonth();
+                    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+                    esmenor = edad < 18;
+                }
+
+                const accionBadge = p.accion_solicitada === 'ALTA'
                     ? `<span class="gysl-badge gysl-badge--active">Alta</span>`
                     : `<span class="gysl-badge gysl-badge--inactive">Baja</span>`;
-                const fechaSol = p.fecha_solicitud ? new Date(p.fecha_solicitud).toLocaleString("es-ES") : "—";
 
-                document.getElementById("detalle-title").textContent = `Detalle — ${p.nombre} ${p.apellido}`;
-                document.getElementById("detalle-content").innerHTML = `
-                    <div class="gysl-detail-photo">${foto}</div>
-                    <div class="gysl-detail-info">
+                // Documento
+                const docHtml = p.documento_identidad_path
+                    ? `<a href="${API}${p.documento_identidad_path}" target="_blank"
+                        style="color:var(--gysl-yellow);text-decoration:underline;">Ver documento</a>`
+                    : `<span style="color:var(--gysl-muted);">Sin documento</span>`;
+
+                // Solicitante
+                const solicitanteNombre = (p.solicitante_nombre && p.solicitante_apellido)
+                    ? `${p.solicitante_nombre} ${p.solicitante_apellido}`
+                    : (p.solicitante_nombre || 'Solicitante no disponible');
+
+                // Bloque responsable (solo si menor)
+                const responsableHtml = esmenor ? `
+                    <div class="gysl-detail-row">
+                        <span class="gysl-detail-row__label">Tutor legal</span>
+                        <span class="gysl-detail-row__value">${p.nombres_padres || '—'}</span>
+                    </div>
+                    <div class="gysl-detail-row">
+                        <span class="gysl-detail-row__label">Email tutor</span>
+                        <span class="gysl-detail-row__value">${p.email_padres || '—'}</span>
+                    </div>
+                    <div class="gysl-detail-row">
+                        <span class="gysl-detail-row__label">Teléfono tutor</span>
+                        <span class="gysl-detail-row__value">${p.telefono_padres || '—'}</span>
+                    </div>` : '';
+
+                document.getElementById('detalle-title').textContent = `Detalle — ${p.nombre} ${p.apellido}`;
+                document.getElementById('detalle-content').innerHTML = `
+                    <div class="gysl-detail-info" style="grid-column:1/-1;">
                         <div class="gysl-detail-row">
                             <span class="gysl-detail-row__label">Nombre</span>
                             <span class="gysl-detail-row__value">${p.nombre} ${p.apellido}</span>
                         </div>
                         <div class="gysl-detail-row">
                             <span class="gysl-detail-row__label">Fecha nac.</span>
-                            <span class="gysl-detail-row__value">${p.fecha_nacimiento ?? "—"}</span>
+                            <span class="gysl-detail-row__value">${p.fecha_nacimiento ?? '—'}</span>
                         </div>
                         <div class="gysl-detail-row">
                             <span class="gysl-detail-row__label">Equipo</span>
-                            <span class="gysl-detail-row__value">${p.nombre_equipo ?? "—"} (${p.categoria ?? "—"})</span>
+                            <span class="gysl-detail-row__value">${p.nombre_equipo ?? '—'} (${p.categoria ?? '—'})</span>
                         </div>
                         <div class="gysl-detail-row">
                             <span class="gysl-detail-row__label">Liga</span>
-                            <span class="gysl-detail-row__value">${p.nombre_liga ?? "—"}</span>
+                            <span class="gysl-detail-row__value">${p.nombre_liga ?? '—'}</span>
                         </div>
                         <div class="gysl-detail-row">
                             <span class="gysl-detail-row__label">Acción solicitada</span>
@@ -1189,16 +1281,17 @@
                             <span class="gysl-detail-row__value">PENDIENTE</span>
                         </div>
                         <div class="gysl-detail-row">
-                            <span class="gysl-detail-row__label">Solicitante</span>
-                            <span class="gysl-detail-row__value">ID #${p.id_usuario_solicitante ?? "?"}</span>
+                            <span class="gysl-detail-row__label">Documento identidad</span>
+                            <span class="gysl-detail-row__value">${docHtml}</span>
                         </div>
+                        ${responsableHtml}
                         <div class="gysl-detail-row">
-                            <span class="gysl-detail-row__label">Fecha solicitud</span>
-                            <span class="gysl-detail-row__value">${fechaSol}</span>
+                            <span class="gysl-detail-row__label">Solicitante</span>
+                            <span class="gysl-detail-row__value">${solicitanteNombre}</span>
                         </div>
                     </div>`;
 
-                document.getElementById("detalle-overlay").classList.add("is-open");
+                document.getElementById('detalle-overlay').classList.add('is-open');
             };
 
             // ═══════════════════════════════════════
@@ -1207,26 +1300,60 @@
 
             window.abrirDetalle = async function (id_jugador, id_equipo, id_liga) {
                 try {
-                    const res = await fetch(
+                    const res  = await fetch(
                         API + `/plantillas/detalle?id_jugador=${id_jugador}&id_equipo=${id_equipo}&id_liga=${id_liga}`,
-                        { credentials: "include" }
+                        { credentials: 'include' }
                     );
                     const data = await res.json();
 
                     if (!res.ok || !data.data) {
-                        showToast(data.message || "Error cargando detalle", "error");
+                        showToast(data.message || 'Error cargando detalle', 'error');
                         return;
                     }
 
                     const j = data.data;
-                    const tieneFoto = j.foto_path && j.foto_path !== "";
+                    console.log('[detalle plantilla] objeto:', j);
+
+                    const tieneFoto   = j.foto_path && j.foto_path !== '';
                     const tieneDorsal = j.dorsal && parseInt(j.dorsal, 10) > 0;
+
+                    // Calcular menor de edad
+                    let esmenor = false;
+                    if (j.fecha_nacimiento) {
+                        const hoy = new Date(), nac = new Date(j.fecha_nacimiento);
+                        let edad = hoy.getFullYear() - nac.getFullYear();
+                        const m = hoy.getMonth() - nac.getMonth();
+                        if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+                        esmenor = edad < 18;
+                    }
+
+                    // Documento
+                    const docHtml = j.documento_identidad_path
+                        ? `<a href="${API}${j.documento_identidad_path}" target="_blank"
+                            style="color:var(--gysl-yellow);text-decoration:underline;">Ver documento</a>`
+                        : `<span style="color:var(--gysl-muted);">Sin documento</span>`;
+
+                    // Bloque tutor (solo si menor)
+                    const tutorHtml = esmenor ? `
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Tutor legal</span>
+                            <span class="gysl-detail-row__value">${j.nombres_padres || '—'}</span>
+                        </div>
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Email tutor</span>
+                            <span class="gysl-detail-row__value">${j.email_padres || '—'}</span>
+                        </div>
+                        <div class="gysl-detail-row">
+                            <span class="gysl-detail-row__label">Teléfono tutor</span>
+                            <span class="gysl-detail-row__value">${j.telefono_padres || '—'}</span>
+                        </div>` : '';
 
                     const fotoHtml = tieneFoto
                         ? `<img src="${API}${j.foto_path}" alt="Foto">`
                         : `<span>Sin foto</span>`;
 
-                    document.getElementById("detalle-content").innerHTML = `
+                    document.getElementById('detalle-title').textContent = `Ficha — ${j.nombre} ${j.apellido}`;
+                    document.getElementById('detalle-content').innerHTML = `
                         <div class="gysl-detail-photo">${fotoHtml}</div>
                         <div class="gysl-detail-info">
                             <div class="gysl-detail-row">
@@ -1235,26 +1362,31 @@
                             </div>
                             <div class="gysl-detail-row">
                                 <span class="gysl-detail-row__label">Fecha Nac.</span>
-                                <span class="gysl-detail-row__value">${j.fecha_nacimiento ?? "—"}</span>
+                                <span class="gysl-detail-row__value">${j.fecha_nacimiento ?? '—'}</span>
                             </div>
                             <div class="gysl-detail-row">
                                 <span class="gysl-detail-row__label">Estado</span>
-                                <span class="gysl-detail-row__value">${j.estado ?? "—"}</span>
+                                <span class="gysl-detail-row__value">${j.estado ?? '—'}</span>
                             </div>
                             <div class="gysl-detail-row">
                                 <span class="gysl-detail-row__label">Dorsal</span>
-                                <span class="gysl-detail-row__value" id="detalle-dorsal-val">${tieneDorsal ? j.dorsal : "Sin asignar"}</span>
+                                <span class="gysl-detail-row__value" id="detalle-dorsal-val">${tieneDorsal ? j.dorsal : 'Sin asignar'}</span>
                             </div>
+                            <div class="gysl-detail-row">
+                                <span class="gysl-detail-row__label">Documento identidad</span>
+                                <span class="gysl-detail-row__value">${docHtml}</span>
+                            </div>
+                            ${tutorHtml}
 
                             <!-- Asignar dorsal (solo si no tiene) -->
                             ${!tieneDorsal ? `
-                            <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+                            <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
                                 <input type="number" id="detalle-dorsal-input" placeholder="Nº dorsal" min="1" max="99"
-                                    style="width:80px; padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:var(--gysl-white); font-family:var(--gysl-font); font-size:14px;">
-                                <button class="gysl-admin-btn gysl-admin-btn--primary" style="padding:8px 16px; font-size:13px;"
-                                    onclick="guardarDorsal(${j.id_jugador}, ${id_equipo}, ${id_liga})">Asignar</button>
+                                    style="width:80px;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:var(--gysl-white);font-family:var(--gysl-font);font-size:14px;">
+                                <button class="gysl-admin-btn gysl-admin-btn--primary" style="padding:8px 16px;font-size:13px;"
+                                    onclick="guardarDorsal(${j.id_jugador},${id_equipo},${id_liga})">Asignar</button>
                             </div>` : `
-                            <div style="font-size:12px; color:var(--gysl-muted); margin-top:4px;">
+                            <div style="font-size:12px;color:var(--gysl-muted);margin-top:4px;">
                                 El dorsal ya fue asignado y no se puede modificar.
                             </div>`}
 
@@ -1266,17 +1398,17 @@
                                 <label for="detalle-foto-input" class="gysl-file-btn">
                                     📷 Subir foto
                                 </label>` : `
-                                <div style="font-size:12px; color:var(--gysl-muted);">
+                                <div style="font-size:12px;color:var(--gysl-muted);">
                                     La foto ya fue asignada y no se puede modificar.
                                 </div>`}
                             </div>
                         </div>
                     `;
 
-                    document.getElementById("detalle-overlay").classList.add("is-open");
+                    document.getElementById('detalle-overlay').classList.add('is-open');
                 } catch (err) {
-                    console.error("Error en detalle:", err);
-                    showToast("Error cargando ficha", "error");
+                    console.error('Error en detalle:', err);
+                    showToast('Error cargando ficha', 'error');
                 }
             };
 
@@ -1348,6 +1480,8 @@
             // ═══════════════════════════════════════
             async function init() {
                 await loadGlobalData();
+                // Poblar SIEMPRE los filtros y los selects del alta directa
+                populateFilterDropdowns();
                 populatePendFiltros();
 
                 const urlParams = new URLSearchParams(window.location.search);
@@ -1355,20 +1489,20 @@
 
                 if (equipoId) {
                     const match = allEquipos.find(e => (e.id_equipo ?? e.id) == equipoId);
-                    if (match && match.ligas_ids && match.ligas_ids.length > 0) {
-                        document.querySelectorAll(".gysl-tab").forEach(t => t.classList.remove("is-active"));
-                        document.querySelectorAll(".gysl-tab-panel").forEach(p => p.classList.remove("is-active"));
+                    const ids = match?.ligas_ids || [];
+                    if (match && ids.length > 0) {
+                        document.querySelectorAll('.gysl-tab').forEach(t => t.classList.remove('is-active'));
+                        document.querySelectorAll('.gysl-tab-panel').forEach(p => p.classList.remove('is-active'));
 
                         const tabPlantilla = document.querySelector('[data-tab="plantilla"]');
-                        if (tabPlantilla) tabPlantilla.classList.add("is-active");
-                        document.getElementById("panel-plantilla").classList.add("is-active");
+                        if (tabPlantilla) tabPlantilla.classList.add('is-active');
+                        document.getElementById('panel-plantilla').classList.add('is-active');
 
-                        populateFilterDropdowns();
-                        document.getElementById("filtro-liga").value = match.ligas_ids[0];
+                        document.getElementById('filtro-liga').value = ids[0];
                         onFiltroLigaChange();
 
                         setTimeout(() => {
-                            document.getElementById("filtro-equipo").value = equipoId;
+                            document.getElementById('filtro-equipo').value = equipoId;
                             cargarPlantilla();
                         }, 100);
                     }

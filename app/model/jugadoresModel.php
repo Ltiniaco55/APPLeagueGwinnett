@@ -57,19 +57,18 @@ class JugadoresModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-
     public function search(string $nombre = '', string $apellido = ''): array
     {
-        $sql = "SELECT * FROM jugador WHERE 1=1";
+        $sql    = "SELECT * FROM jugador WHERE 1=1";
         $params = [];
 
         if ($nombre !== '') {
-            $sql .= " AND nombre LIKE ?";
+            $sql      .= " AND nombre LIKE ?";
             $params[] = "%$nombre%";
         }
 
         if ($apellido !== '') {
-            $sql .= " AND apellido LIKE ?";
+            $sql      .= " AND apellido LIKE ?";
             $params[] = "%$apellido%";
         }
 
@@ -100,7 +99,7 @@ class JugadoresModel
     }
 
     /**
-     * Obtener un jugador por su clave natural (nombre+apellido+fecha).
+     * Obtener jugador por clave natural (nombre + apellido + fecha).
      * Útil para reutilizar una persona global existente.
      */
     public function getByKey(string $nombre, string $apellido, string $fecha_nacimiento): ?array
@@ -113,7 +112,7 @@ class JugadoresModel
         return $result ?: null;
     }
 
-    // — Staff-filtered search (backward compat) —
+    // — Búsqueda filtrada por equipos del staff —
     public function getAllStaff(array $equipoIds): array
     {
         if (empty($equipoIds)) return [];
@@ -132,11 +131,11 @@ class JugadoresModel
         if (empty($equipoIds)) return [];
         $placeholders = implode(',', array_fill(0, count($equipoIds), '?'));
         $params = $equipoIds;
-        $sql = "SELECT DISTINCT j.* FROM jugador j
-                INNER JOIN equipo_jugador ej ON j.id_jugador = ej.id_jugador
-                WHERE ej.id_equipo IN ($placeholders)";
-        if ($nombre !== '') { $sql .= " AND j.nombre LIKE ?"; $params[] = "%$nombre%"; }
-        if ($apellido !== '') { $sql .= " AND j.apellido LIKE ?"; $params[] = "%$apellido%"; }
+        $sql    = "SELECT DISTINCT j.* FROM jugador j
+                   INNER JOIN equipo_jugador ej ON j.id_jugador = ej.id_jugador
+                   WHERE ej.id_equipo IN ($placeholders)";
+        if ($nombre   !== '') { $sql .= " AND j.nombre LIKE ?";   $params[] = "%$nombre%"; }
+        if ($apellido !== '') { $sql .= " AND j.apellido LIKE ?";  $params[] = "%$apellido%"; }
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -148,7 +147,6 @@ class JugadoresModel
 
     /**
      * ¿Existe un jugador con ese nombre+apellido+fecha en el MISMO equipo+liga?
-     * Hace JOIN jugador ↔ equipo_jugador.
      */
     public function existeEnMismoEquipo(
         string $nombre,
@@ -173,8 +171,7 @@ class JugadoresModel
     }
 
     /**
-     * Buscar coincidencias en OTROS equipos (aviso, no bloqueo).
-     * Devuelve array con datos del jugador y equipo donde ya está.
+     * Buscar coincidencias en OTROS equipos (aviso, no bloquea).
      */
     public function buscarCoincidenciasEnOtrosEquipos(
         string $nombre,
@@ -202,7 +199,7 @@ class JugadoresModel
     // =====================================================
 
     /**
-     * Crear jugador NORMAL (sin estado especial)
+     * Crear jugador mínimo (solo datos de identidad, sin archivos ni padres).
      */
     public function insert(
         string $nombre,
@@ -215,16 +212,91 @@ class JugadoresModel
             "INSERT INTO jugador (nombre, apellido, fecha_nacimiento, foto_path, id_usuario)
              VALUES (?, ?, ?, ?, ?)"
         );
+        $stmt->execute([$nombre, $apellido, $fecha_nacimiento, $foto_path, $id_usuario]);
+        return (int) $this->db->lastInsertId();
+    }
 
+    /**
+     * Crear jugador con todos los campos ampliados:
+     * foto, documento, datos de padres/tutor.
+     *
+     * Usado por alta directa ADMIN y alta STAFF con archivos.
+     */
+    public function insertConDatos(
+        string  $nombre,
+        string  $apellido,
+        string  $fecha_nacimiento,
+        ?string $foto_path                 = null,
+        ?string $documento_identidad_path  = null,
+        ?string $nombres_padres            = null,
+        ?string $email_padres              = null,
+        ?string $telefono_padres           = null,
+        ?int    $id_usuario                = null
+    ): int {
+        $stmt = $this->db->prepare(
+            "INSERT INTO jugador
+                (nombre, apellido, fecha_nacimiento, foto_path,
+                 documento_identidad_path, nombres_padres, email_padres, telefono_padres, id_usuario)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        );
         $stmt->execute([
             $nombre,
             $apellido,
             $fecha_nacimiento,
             $foto_path,
-            $id_usuario
+            $documento_identidad_path,
+            $nombres_padres,
+            $email_padres,
+            $telefono_padres,
+            $id_usuario,
         ]);
-
         return (int) $this->db->lastInsertId();
+    }
+
+    /**
+     * Actualizar rutas de archivos y datos de padres sobre un jugador existente.
+     * Solo sobreescribe los campos no nulos recibidos.
+     * Usado cuando el jugador ya existía globalmente y se le añade documentación.
+     */
+    public function actualizarDocumentos(
+        int     $id_jugador,
+        ?string $foto_path                = null,
+        ?string $documento_identidad_path = null,
+        ?string $nombres_padres           = null,
+        ?string $email_padres             = null,
+        ?string $telefono_padres          = null
+    ): int {
+        $sets   = [];
+        $params = [];
+
+        if ($foto_path !== null) {
+            $sets[]   = "foto_path = ?";
+            $params[] = $foto_path;
+        }
+        if ($documento_identidad_path !== null) {
+            $sets[]   = "documento_identidad_path = ?";
+            $params[] = $documento_identidad_path;
+        }
+        if ($nombres_padres !== null) {
+            $sets[]   = "nombres_padres = ?";
+            $params[] = $nombres_padres;
+        }
+        if ($email_padres !== null) {
+            $sets[]   = "email_padres = ?";
+            $params[] = $email_padres;
+        }
+        if ($telefono_padres !== null) {
+            $sets[]   = "telefono_padres = ?";
+            $params[] = $telefono_padres;
+        }
+
+        if (empty($sets)) return 0;
+
+        $params[] = $id_jugador;
+        $sql      = "UPDATE jugador SET " . implode(', ', $sets) . " WHERE id_jugador = ?";
+        $stmt     = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->rowCount();
     }
 
     // =====================================================
@@ -244,16 +316,7 @@ class JugadoresModel
              SET nombre = ?, apellido = ?, fecha_nacimiento = ?, foto_path = ?, id_usuario = ?
              WHERE id_jugador = ?"
         );
-
-        $stmt->execute([
-            $nombre,
-            $apellido,
-            $fecha_nacimiento,
-            $foto_path,
-            $id_usuario,
-            $id
-        ]);
-
+        $stmt->execute([$nombre, $apellido, $fecha_nacimiento, $foto_path, $id_usuario, $id]);
         return $stmt->rowCount();
     }
 
@@ -293,5 +356,18 @@ class JugadoresModel
         $stmt->execute([$id_jugador]);
         $fp = $stmt->fetchColumn();
         return ($fp !== false && $fp !== null && $fp !== '');
+    }
+
+    /**
+     * ¿Ya tiene documento de identidad este jugador?
+     */
+    public function tieneDocumento(int $id_jugador): bool
+    {
+        $stmt = $this->db->prepare(
+            "SELECT documento_identidad_path FROM jugador WHERE id_jugador = ?"
+        );
+        $stmt->execute([$id_jugador]);
+        $dp = $stmt->fetchColumn();
+        return ($dp !== false && $dp !== null && $dp !== '');
     }
 }

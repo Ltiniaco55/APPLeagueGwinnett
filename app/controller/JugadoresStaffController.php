@@ -7,15 +7,16 @@ declare(strict_types=1);
  *  JugadoresStaffController
  * ============================================================================
  *  Rutas STAFF para gestión de jugadores.
- *  La lógica de estado vive en equipo_jugador (NO en jugador).
+ *  Estado de solicitudes y aprobaciones vive en equipo_jugador.
  *
- *  GET  /staff/jugadores/pendientes
- *  GET  /staff/jugadores/plantilla
- *  POST /staff/jugadores/alta
- *  POST /staff/jugadores/lote
- *  PATCH /staff/jugadores/{id_relacion}/solicitar-baja
- *  POST  /staff/jugadores/{id_jugador}/foto
- *  PATCH /staff/jugadores/dorsal
+ *  GET   /staff/jugadores/pendientes              → pendientes()
+ *  GET   /staff/jugadores/plantilla               → plantilla()
+ *  POST  /staff/jugadores/alta                    → alta()
+ *  PATCH /staff/jugadores/{id}/solicitar-baja     → solicitarBaja()
+ *  POST  /staff/jugadores/{id}/foto               → subirFoto()
+ *  PATCH /staff/jugadores/dorsal                  → asignarDorsal()
+ *
+ *  ELIMINADO: POST /staff/jugadores/lote  (alta masiva)
  * ============================================================================
  */
 
@@ -42,7 +43,6 @@ class JugadoresStaffController
 
     /**
      * Obtiene los IDs de equipo asignados al staff actual.
-     * Devuelve array vacío si no es staff o no tiene equipos.
      */
     private function getMisEquipoIds(): array
     {
@@ -57,6 +57,43 @@ class JugadoresStaffController
 
         $misEquipos = $entEqModel->getByEntrenador((int)$entrenador['id_entrenador']);
         return array_map(fn($me) => (int)$me['id_equipo'], $misEquipos);
+    }
+
+    /**
+     * Sube un archivo al directorio del jugador.
+     * $clave = 'foto' | 'documento_identidad'
+     * Devuelve ruta relativa pública o null si no llegó archivo.
+     */
+    private function subirArchivo(string $clave, int $id_jugador): ?string
+    {
+        if (!isset($_FILES[$clave]) || $_FILES[$clave]['error'] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $file    = $_FILES[$clave];
+        $ext     = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+
+        if (!in_array($ext, $allowed)) {
+            throw new \InvalidArgumentException(
+                "Formato no permitido para «{$clave}». Usar: jpg, jpeg, png, webp."
+            );
+        }
+
+        $uploadDir = __DIR__ . '/../../public/uploads/jugadores/' . $id_jugador;
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $filename = $clave . '.' . $ext;
+        $destPath = $uploadDir . '/' . $filename;
+        $dbPath   = '/public/uploads/jugadores/' . $id_jugador . '/' . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+            throw new \RuntimeException("Error al guardar el archivo «{$clave}».");
+        }
+
+        return $dbPath;
     }
 
     // =====================================================
@@ -87,23 +124,19 @@ class JugadoresStaffController
             Autenticacion::requerirRol([Autenticacion::ROL_STAFF, Autenticacion::ROL_ADMIN]);
 
             $misIds       = $this->getMisEquipoIds();
-            $nombreFiltro = $this->limpiar($entrada['nombre'] ?? '');
+            $nombreFiltro = $this->limpiar($entrada['nombre']    ?? '');
             $catFiltro    = $this->limpiar($entrada['categoria'] ?? '');
-
-            // Si viene id_equipo concreto, verificar que pertenece al staff
-            $id_equipo = (int)($entrada['id_equipo'] ?? 0);
-            $id_liga   = (int)($entrada['id_liga'] ?? 0);
+            $id_equipo    = (int)($entrada['id_equipo']          ?? 0);
+            $id_liga      = (int)($entrada['id_liga']            ?? 0);
 
             $modelo = new EquipoJugadorModel();
 
             if ($id_equipo && $id_liga) {
-                // Verificar que el equipo es del staff
                 if (!in_array($id_equipo, $misIds, true)) {
                     $this->responder(403, ['success' => false, 'message' => 'No autorizado para este equipo']);
                 }
                 $datos = $modelo->getPlantillaConJugadores($id_equipo, $id_liga, $nombreFiltro);
             } else {
-                // Devolver plantilla de todos sus equipos
                 $datos = $modelo->getPlantillaStaff($misIds, $nombreFiltro, $catFiltro);
             }
 
@@ -114,77 +147,17 @@ class JugadoresStaffController
     }
 
     // =====================================================
-    // POST /staff/jugadores/alta  (alta individual)
+    // POST /staff/jugadores/alta
+    //
+    // Alta individual con documentación.
+    // Genera solicitud PENDIENTE/ALTA en equipo_jugador.
+    // multipart/form-data:
+    //   nombre, apellido, fecha_nacimiento, id_equipo, id_liga
+    //   documento_identidad (archivo obligatorio)
+    //   foto                (archivo opcional)
+    //   nombres_padres, email_padres, telefono_padres (si menor 18)
     // =====================================================
     public function alta(array $entrada): void
-    {
-        try {
-            Autenticacion::requerirRol([Autenticacion::ROL_STAFF, Autenticacion::ROL_ADMIN]);
-
-            $usuario = Autenticacion::usuario();
-            $id_usuario = (int)$usuario['id_usuario'];
-
-            $nombre    = $this->limpiar($entrada['nombre'] ?? '');
-            $apellido  = $this->limpiar($entrada['apellido'] ?? '');
-            $fecha     = $this->limpiar($entrada['fecha_nacimiento'] ?? '');
-            $id_equipo = (int)($entrada['id_equipo'] ?? 0);
-            $id_liga   = (int)($entrada['id_liga'] ?? 0);
-
-            if (!$nombre || !$apellido || !$fecha || !$id_equipo || !$id_liga) {
-                $this->responder(400, ['success' => false, 'message' => 'Faltan campos obligatorios']);
-            }
-
-            // Verificar pertenencia al equipo
-            Autenticacion::requerirStaffDeEquipo($id_equipo);
-
-            $jugModel = new JugadoresModel();
-            $ejModel  = new EquipoJugadorModel();
-
-            // Buscar si ya existe como persona global
-            $jugadorExistente = $jugModel->getByKey($nombre, $apellido, $fecha);
-
-            if ($jugadorExistente) {
-                $id_jugador = (int)$jugadorExistente['id_jugador'];
-
-                // Verificar que no existe ya la relación (activa o pendiente)
-                if ($ejModel->existeRelacion($id_jugador, $id_equipo, $id_liga)) {
-                    $this->responder(409, [
-                        'success' => false,
-                        'message' => 'Este jugador ya tiene una solicitud activa o está dado de alta en este equipo/liga'
-                    ]);
-                }
-            } else {
-                // Crear persona global
-                $id_jugador = $jugModel->insert($nombre, $apellido, $fecha, null, null);
-            }
-
-            // Crear relación pendiente en equipo_jugador
-            $ejModel->insertarPendiente($id_jugador, $id_equipo, $id_liga, $id_usuario);
-
-            // Avisos coincidencias en otros equipos
-            $avisos = $jugModel->buscarCoincidenciasEnOtrosEquipos($nombre, $apellido, $fecha, $id_equipo, $id_liga);
-
-            $response = [
-                'success' => true,
-                'message' => 'Solicitud de alta enviada correctamente',
-                'data'    => ['id_jugador' => $id_jugador]
-            ];
-
-            if (!empty($avisos)) {
-                $response['avisos']    = $avisos;
-                $response['aviso_msg'] = 'Este jugador ya existe en otros equipos. La solicitud igualmente fue enviada a revisión.';
-            }
-
-            $this->responder(201, $response);
-        } catch (Throwable $e) {
-            $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
-        }
-    }
-
-    // =====================================================
-    // POST /staff/jugadores/lote  (alta masiva, todo-o-nada)
-    // =====================================================
-    public function lote(array $entrada): void
     {
         try {
             Autenticacion::requerirRol([Autenticacion::ROL_STAFF, Autenticacion::ROL_ADMIN]);
@@ -192,109 +165,116 @@ class JugadoresStaffController
             $usuario    = Autenticacion::usuario();
             $id_usuario = (int)$usuario['id_usuario'];
 
-            $id_equipo = (int)($entrada['id_equipo'] ?? 0);
-            $id_liga   = (int)($entrada['id_liga'] ?? 0);
-            $jugadores = $entrada['jugadores'] ?? [];
+            // 1. Campos base
+            $nombre    = $this->limpiar($entrada['nombre']           ?? '');
+            $apellido  = $this->limpiar($entrada['apellido']         ?? '');
+            $fecha     = $this->limpiar($entrada['fecha_nacimiento'] ?? '');
+            $id_equipo = (int)($entrada['id_equipo']                 ?? 0);
+            $id_liga   = (int)($entrada['id_liga']                   ?? 0);
 
-            if (!$id_equipo || !$id_liga) {
-                $this->responder(400, ['success' => false, 'message' => 'Faltan id_equipo e id_liga']);
-            }
-            if (!is_array($jugadores) || empty($jugadores)) {
-                $this->responder(400, ['success' => false, 'message' => 'No hay jugadores para insertar']);
-            }
-            if (count($jugadores) > 25) {
-                $this->responder(400, ['success' => false, 'message' => 'Máximo 25 jugadores por lote']);
+            if (!$nombre || !$apellido || !$fecha || !$id_equipo || !$id_liga) {
+                $this->responder(400, ['success' => false, 'message' => 'Faltan campos obligatorios']);
             }
 
+            // 2. Documento de identidad obligatorio
+            if (!isset($_FILES['documento_identidad'])
+                || $_FILES['documento_identidad']['error'] !== UPLOAD_ERR_OK) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'El documento de identidad es obligatorio (jpg, jpeg, png, webp)'
+                ]);
+            }
+
+            // 3. Verificar pertenencia al equipo
             Autenticacion::requerirStaffDeEquipo($id_equipo);
+
+            // 4. Validar datos de padres si menor de 18
+            $hoy        = new \DateTime();
+            $nacimiento = new \DateTime($fecha);
+            $edad       = (int)$hoy->diff($nacimiento)->y;
+            $esmenor    = ($edad < 18);
+
+            $nombres_padres  = null;
+            $email_padres    = null;
+            $telefono_padres = null;
+
+            if ($esmenor) {
+                $nombres_padres  = $this->limpiar($entrada['nombres_padres']  ?? '');
+                $email_padres    = $this->limpiar($entrada['email_padres']    ?? '');
+                $telefono_padres = $this->limpiar($entrada['telefono_padres'] ?? '');
+
+                if (!$nombres_padres || !$email_padres || !$telefono_padres) {
+                    $this->responder(400, [
+                        'success' => false,
+                        'message' => 'Jugador menor de 18: nombres_padres, email_padres y telefono_padres son obligatorios'
+                    ]);
+                }
+            }
 
             $jugModel = new JugadoresModel();
             $ejModel  = new EquipoJugadorModel();
-            $db       = $jugModel->getDb();
 
-            // Validación previa — todo o nada
-            $avisosTotales = [];
-            foreach ($jugadores as $i => $jug) {
-                $nombre   = $this->limpiar($jug['nombre'] ?? '');
-                $apellido = $this->limpiar($jug['apellido'] ?? '');
-                $fecha    = $this->limpiar($jug['fecha_nacimiento'] ?? '');
+            // 5 & 6. Buscar o crear jugador global
+            $jugadorExistente = $jugModel->getByKey($nombre, $apellido, $fecha);
 
-                if (!$nombre || !$apellido || !$fecha) {
-                    $this->responder(400, [
+            if ($jugadorExistente) {
+                $id_jugador = (int)$jugadorExistente['id_jugador'];
+
+                // Verificar que no existe relación activa o pendiente
+                if ($ejModel->existeRelacion($id_jugador, $id_equipo, $id_liga)) {
+                    $this->responder(409, [
                         'success' => false,
-                        'message' => "Fila " . ($i + 1) . ": faltan campos obligatorios"
+                        'message' => 'Este jugador ya tiene una solicitud activa o está dado de alta en este equipo/liga'
                     ]);
                 }
-
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
-                    $this->responder(400, [
-                        'success' => false,
-                        'message' => "Fila " . ($i + 1) . ": formato de fecha inválido (usar YYYY-MM-DD)"
-                    ]);
-                }
-
-                // Verificar si el jugador ya existe como persona global
-                $jugExistente = $jugModel->getByKey($nombre, $apellido, $fecha);
-                if ($jugExistente) {
-                    $id_j = (int)$jugExistente['id_jugador'];
-                    if ($ejModel->existeRelacion($id_j, $id_equipo, $id_liga)) {
-                        $this->responder(409, [
-                            'success' => false,
-                            'message' => "Fila " . ($i + 1) . ": $nombre $apellido ya tiene solicitud activa en este equipo/liga"
-                        ]);
-                    }
-                }
-
-                // Avisos de coincidencias en otros equipos (no bloquea)
-                $coinc = $jugModel->buscarCoincidenciasEnOtrosEquipos($nombre, $apellido, $fecha, $id_equipo, $id_liga);
-                if (!empty($coinc)) {
-                    $avisosTotales[] = ['fila' => $i + 1, 'jugador' => "$nombre $apellido", 'coincidencias' => $coinc];
-                }
+            } else {
+                // Crear persona global (snapshot de solicitud)
+                $id_jugador = $jugModel->insert($nombre, $apellido, $fecha);
             }
 
-            // Transacción todo-o-nada
-            $db->beginTransaction();
-            try {
-                $insertados = [];
-                foreach ($jugadores as $jug) {
-                    $nombre   = $this->limpiar($jug['nombre']);
-                    $apellido = $this->limpiar($jug['apellido']);
-                    $fecha    = $this->limpiar($jug['fecha_nacimiento']);
+            // Subir archivos y guardar snapshot de documentación
+            // IMPORTANTE: cuando queda PENDIENTE no se modifica automáticamente
+            $foto_path = $this->subirArchivo('foto',                $id_jugador);
+            $doc_path  = $this->subirArchivo('documento_identidad', $id_jugador);
 
-                    $jugExistente = $jugModel->getByKey($nombre, $apellido, $fecha);
-                    if ($jugExistente) {
-                        $id_jugador = (int)$jugExistente['id_jugador'];
-                    } else {
-                        $id_jugador = $jugModel->insert($nombre, $apellido, $fecha, null, null);
-                    }
+            $jugModel->actualizarDocumentos(
+                $id_jugador,
+                $foto_path,
+                $doc_path,
+                $esmenor ? $nombres_padres  : null,
+                $esmenor ? $email_padres    : null,
+                $esmenor ? $telefono_padres : null
+            );
 
-                    $ejModel->insertarPendiente($id_jugador, $id_equipo, $id_liga, $id_usuario);
-                    $insertados[] = ['id_jugador' => $id_jugador, 'nombre' => $nombre, 'apellido' => $apellido];
-                }
+            // Crear relación PENDIENTE/ALTA
+            $ejModel->insertarPendiente($id_jugador, $id_equipo, $id_liga, $id_usuario);
 
-                $db->commit();
+            // Avisos coincidencias en otros equipos
+            $avisos = $jugModel->buscarCoincidenciasEnOtrosEquipos(
+                $nombre, $apellido, $fecha, $id_equipo, $id_liga
+            );
 
-                $response = [
-                    'success' => true,
-                    'message' => count($insertados) . ' jugador(es) enviados a aprobación',
-                    'data'    => $insertados
-                ];
-                if (!empty($avisosTotales)) {
-                    $response['avisos'] = $avisosTotales;
-                }
+            $respuesta = [
+                'success' => true,
+                'message' => 'Solicitud de alta enviada correctamente',
+                'data'    => ['id_jugador' => $id_jugador],
+            ];
 
-                $this->responder(201, $response);
-            } catch (Throwable $txErr) {
-                $db->rollBack();
-                throw $txErr;
+            if (!empty($avisos)) {
+                $respuesta['avisos']    = $avisos;
+                $respuesta['aviso_msg'] = 'Este jugador ya existe en otros equipos. La solicitud fue enviada a revisión.';
             }
+
+            $this->responder(201, $respuesta);
+        } catch (\InvalidArgumentException $e) {
+            $this->responder(400, ['success' => false, 'message' => $e->getMessage()]);
         } catch (Throwable $e) {
             $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
     // =====================================================
-    // PATCH /staff/jugadores/{id_relacion}/solicitar-baja
+    // PATCH /staff/jugadores/{id}/solicitar-baja
     // =====================================================
     public function solicitarBaja(int $id_relacion): void
     {
@@ -311,7 +291,6 @@ class JugadoresStaffController
                 $this->responder(404, ['success' => false, 'message' => 'Relación no encontrada']);
             }
 
-            // Verificar que el staff puede gestionar este equipo
             Autenticacion::requerirStaffDeEquipo((int)$relacion['id_equipo']);
 
             if ($relacion['estado'] !== 'ALTA' || $relacion['accion_solicitada'] !== null) {
@@ -327,15 +306,18 @@ class JugadoresStaffController
                 $this->responder(409, ['success' => false, 'message' => 'No se pudo procesar la solicitud de baja']);
             }
 
-            $this->responder(200, ['success' => true, 'message' => 'Baja solicitada. Pendiente de aprobación por el administrador.']);
+            $this->responder(200, [
+                'success' => true,
+                'message' => 'Baja solicitada. Pendiente de aprobación por el administrador.'
+            ]);
         } catch (Throwable $e) {
             $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
     // =====================================================
-    // POST /staff/jugadores/{id_jugador}/foto
-    // Solo si no existe foto
+    // POST /staff/jugadores/{id}/foto
+    // Solo si no existe foto previa
     // =====================================================
     public function subirFoto(int $id_jugador): void
     {
@@ -404,7 +386,7 @@ class JugadoresStaffController
     // =====================================================
     // PATCH /staff/jugadores/dorsal
     // Body: {id_jugador, id_equipo, id_liga, dorsal}
-    // Solo si no existe dorsal
+    // Solo si no existe dorsal previo
     // =====================================================
     public function asignarDorsal(array $entrada): void
     {
@@ -412,9 +394,9 @@ class JugadoresStaffController
             Autenticacion::requerirRol([Autenticacion::ROL_STAFF, Autenticacion::ROL_ADMIN]);
 
             $id_jugador = (int)($entrada['id_jugador'] ?? 0);
-            $id_equipo  = (int)($entrada['id_equipo'] ?? 0);
-            $id_liga    = (int)($entrada['id_liga'] ?? 0);
-            $dorsal     = (int)($entrada['dorsal'] ?? 0);
+            $id_equipo  = (int)($entrada['id_equipo']  ?? 0);
+            $id_liga    = (int)($entrada['id_liga']    ?? 0);
+            $dorsal     = (int)($entrada['dorsal']     ?? 0);
 
             if (!$id_jugador || !$id_equipo || !$id_liga || $dorsal < 1) {
                 $this->responder(400, ['success' => false, 'message' => 'Faltan campos obligatorios o dorsal inválido']);

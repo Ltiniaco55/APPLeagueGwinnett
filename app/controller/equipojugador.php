@@ -2,6 +2,26 @@
 
 declare(strict_types=1);
 
+/**
+ * ============================================================================
+ *  EquipoJugadorController
+ * ============================================================================
+ *  Gestión de la relación equipo ↔ jugador (plantilla).
+ *
+ *  GET    /plantillas               → seleccionar()      Ver plantilla de un equipo
+ *  GET    /plantillas/detalle       → detalle()          Detalle individual
+ *  POST   /plantillas               → insertar()         Añadir jugador EXISTENTE a plantilla
+ *  PATCH  /plantillas/dorsal        → actualizarDorsal() Asignar dorsal (una sola vez)
+ *  DELETE /plantillas               → eliminar()         Baja directa (admin) / solicitar baja (staff)
+ *
+ *  NOTA IMPORTANTE:
+ *  insertar() NO crea jugadores. Solo vincula un jugador global ya existente
+ *  a un equipo/liga. Para crear jugadores nuevos usar:
+ *    - POST /admin/jugadores/alta-directa  (ADMIN, alta directa con documentación)
+ *    - POST /staff/jugadores/alta          (STAFF, genera solicitud pendiente)
+ * ============================================================================
+ */
+
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/equipoJugadorModel.php';
 

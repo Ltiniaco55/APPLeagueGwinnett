@@ -310,12 +310,17 @@ class EquipoJugadorModel
                        ej.estado, ej.accion_solicitada, ej.id_usuario_solicitante,
                        ej.fecha_solicitud,
                        j.nombre, j.apellido, j.fecha_nacimiento, j.foto_path,
+                       j.documento_identidad_path,
+                       j.nombres_padres, j.email_padres, j.telefono_padres,
                        e.club AS nombre_equipo, e.categoria,
-                       l.nombre_liga
+                       l.nombre_liga,
+                       u.nombre  AS solicitante_nombre,
+                       u.apellido AS solicitante_apellido
                 FROM equipo_jugador ej
-                INNER JOIN jugador j ON ej.id_jugador = j.id_jugador
-                INNER JOIN equipos e ON ej.id_equipo = e.id_equipo
-                INNER JOIN ligas l ON ej.id_liga = l.id_liga
+                INNER JOIN jugador j  ON ej.id_jugador = j.id_jugador
+                INNER JOIN equipos e  ON ej.id_equipo  = e.id_equipo
+                INNER JOIN ligas l    ON ej.id_liga    = l.id_liga
+                LEFT  JOIN usuarios u ON ej.id_usuario_solicitante = u.id_usuario
                 WHERE ej.estado = 'PENDIENTE'";
         $params = [];
 

@@ -397,104 +397,88 @@
             <!-- ═══════════════════════════════════════════ -->
             <div class="gysl-tab-panel is-active" id="panel-solicitar-alta">
 
-                <!-- Alta individual -->
                 <div class="gysl-alta-card" style="margin-bottom: 32px;">
-                    <h3>Alta Individual</h3>
+                    <h3>Solicitar Alta Individual</h3>
 
+                    <!-- Selector de liga y equipo (filtrados al staff) -->
                     <div class="gysl-filters" style="margin-bottom: 20px;">
                         <div class="gysl-filter-group">
-                            <label for="alta-liga">Liga</label>
+                            <label for="alta-liga">Liga <span style="color:var(--gysl-red);">*</span></label>
                             <select id="alta-liga" onchange="onAltaLigaChange()">
                                 <option value="">— Seleccionar liga —</option>
                             </select>
                         </div>
                         <div class="gysl-filter-group">
-                            <label for="alta-equipo">Equipo</label>
+                            <label for="alta-equipo">Equipo <span style="color:var(--gysl-red);">*</span></label>
                             <select id="alta-equipo">
                                 <option value="">— Seleccionar equipo —</option>
                             </select>
                         </div>
                     </div>
 
+                    <!-- Datos base del jugador -->
                     <div class="gysl-alta-form-grid">
                         <div class="gysl-admin-form-group">
-                            <label for="alta-nombre">Nombre</label>
+                            <label for="alta-nombre">Nombre <span style="color:var(--gysl-red);">*</span></label>
                             <input type="text" id="alta-nombre" placeholder="Nombre del jugador">
                         </div>
                         <div class="gysl-admin-form-group">
-                            <label for="alta-apellido">Apellido</label>
+                            <label for="alta-apellido">Apellido <span style="color:var(--gysl-red);">*</span></label>
                             <input type="text" id="alta-apellido" placeholder="Apellido del jugador">
                         </div>
                         <div class="gysl-admin-form-group" style="grid-column: 1/-1;">
-                            <label for="alta-fecha">Fecha de Nacimiento</label>
-                            <input type="date" id="alta-fecha">
+                            <label for="alta-fecha">Fecha de Nacimiento <span style="color:var(--gysl-red);">*</span></label>
+                            <input type="date" id="alta-fecha" onchange="onAltaFechaChange()">
+                        </div>
+                    </div>
+
+                    <!-- Archivos -->
+                    <div class="gysl-alta-form-grid" style="margin-top: 16px;">
+                        <div class="gysl-admin-form-group">
+                            <label for="alta-foto">Foto jugador <span style="color:var(--gysl-muted);font-weight:normal;">(opcional)</span></label>
+                            <input type="file" id="alta-foto" accept="image/jpeg,image/png,image/webp"
+                                style="padding:7px 10px;">
+                        </div>
+                        <div class="gysl-admin-form-group">
+                            <label for="alta-documento">Documento de identidad <span style="color:var(--gysl-red);">*</span></label>
+                            <input type="file" id="alta-documento" accept="image/jpeg,image/png,image/webp"
+                                style="padding:7px 10px;">
+                        </div>
+                    </div>
+
+                    <!-- Datos de padres/tutor (visibles solo si menor de 18) -->
+                    <div id="alta-padres-section" style="display:none; margin-top:20px;
+                        padding:16px; border-radius:10px;
+                        background:rgba(241,184,45,.06); border:1px solid rgba(241,184,45,.2);">
+                        <p style="margin:0 0 14px; font-size:12px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:.5px; color:var(--gysl-yellow);">
+                            ⚠ Jugador menor de 18 — Datos del padre/madre/tutor obligatorios
+                        </p>
+                        <div class="gysl-alta-form-grid">
+                            <div class="gysl-admin-form-group" style="grid-column:1/-1;">
+                                <label for="alta-nombres-padres">Nombre padre/madre/tutor <span style="color:var(--gysl-red);">*</span></label>
+                                <input type="text" id="alta-nombres-padres" placeholder="Nombre completo del tutor">
+                            </div>
+                            <div class="gysl-admin-form-group">
+                                <label for="alta-email-padres">Email del tutor <span style="color:var(--gysl-red);">*</span></label>
+                                <input type="email" id="alta-email-padres" placeholder="email@ejemplo.com">
+                            </div>
+                            <div class="gysl-admin-form-group">
+                                <label for="alta-telefono-padres">Teléfono del tutor <span style="color:var(--gysl-red);">*</span></label>
+                                <input type="tel" id="alta-telefono-padres" placeholder="+34 600 000 000">
+                            </div>
                         </div>
                     </div>
 
                     <div id="alta-aviso" class="gysl-aviso-box" style="display:none;"></div>
 
                     <div class="gysl-admin-form-actions" style="margin-top: 20px;">
-                        <button class="gysl-admin-btn gysl-admin-btn--primary" onclick="enviarAltaIndividual()">
+                        <button class="gysl-admin-btn gysl-admin-btn--primary" id="btn-solicitar-alta"
+                            onclick="enviarAltaIndividual()">
                             Solicitar Alta
                         </button>
                     </div>
                 </div>
-
-                <!--
-                ============================================================
-                TODO BORRAR — ALTA MASIVA DESACTIVADA
-                ============================================================
-
-                <div class="gysl-alta-card">
-                    <h3>Alta Masiva <span style="font-size:13px;font-weight:normal;color:var(--gysl-muted);">(máx. 25 · todo o nada)</span></h3>
-
-                    <div class="gysl-filters" style="margin-bottom: 16px;">
-                        <div class="gysl-filter-group">
-                            <label for="lote-liga">Liga</label>
-                            <select id="lote-liga" onchange="onLoteLigaChange()">
-                                <option value="">— Seleccionar liga —</option>
-                            </select>
-                        </div>
-                        <div class="gysl-filter-group">
-                            <label for="lote-equipo">Equipo</label>
-                            <select id="lote-equipo">
-                                <option value="">— Seleccionar equipo —</option>
-                            </select>
-                        </div>
-                        <div class="gysl-filter-group">
-                            <label for="lote-cantidad">Nº filas</label>
-                            <input type="number" id="lote-cantidad" min="1" max="25" value="3" style="min-width:80px;">
-                        </div>
-                        <div class="gysl-filter-group" style="justify-content:flex-end;">
-                            <label>&nbsp;</label>
-                            <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="prepararFilasLote()">
-                                Preparar filas
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="gysl-lote-header-row">
-                        <span>#</span>
-                        <span>Nombre</span>
-                        <span>Apellido</span>
-                        <span>Fecha Nac.</span>
-                        <span></span>
-                    </div>
-
-                    <div class="gysl-lote-rows" id="lote-rows-container">
-                        <div style="color:var(--gysl-muted);font-size:13px;padding:12px 0;">
-                            Configura la liga, equipo y número de filas, luego pulsa "Preparar filas".
-                        </div>
-                    </div>
-
-                    <div class="gysl-admin-form-actions" style="margin-top: 18px;">
-                        <button class="gysl-admin-btn gysl-admin-btn--primary" id="btn-enviar-lote"
-                            style="display:none;" onclick="enviarLote()">
-                            Enviar Lote a Aprobación
-                        </button>
-                    </div>
-                </div>
-                -->
             </div>
 
             <!-- ═══════════════════════════════════════════ -->
@@ -665,15 +649,35 @@
             // ─────────────────── LOAD GLOBALS ─────────────
             async function loadGlobalData() {
                 try {
-                    const [ligasRes, equiposRes] = await Promise.all([
-                        fetch(API + "/ligas", { credentials: "include" }),
+                    const [equiposRes] = await Promise.all([
                         fetch(API + "/staff/equipos", { credentials: "include" })
                     ]);
-                    const ligasJson = await ligasRes.json();
                     const equiposJson = await equiposRes.json();
-
-                    allLigas = Array.isArray(ligasJson) ? ligasJson : (ligasJson.data || []);
                     allEquipos = Array.isArray(equiposJson) ? equiposJson : (equiposJson.data || []);
+
+                    // Derivar ligas únicas de los propios equipos del staff
+                    const ligasMap = {};
+                    allEquipos.forEach(e => {
+                        (e.ligas || []).forEach(l => {
+                            if (l && l.id_liga) ligasMap[l.id_liga] = l;
+                        });
+                        // Compatibilidad: si el equipo trae ligas_ids + nombre_liga
+                        if (e.ligas_ids && e.nombre_liga) {
+                            e.ligas_ids.forEach((id, i) => {
+                                if (!ligasMap[id]) {
+                                    ligasMap[id] = { id_liga: id, nombre_liga: Array.isArray(e.nombre_liga) ? e.nombre_liga[i] : e.nombre_liga, categoria: e.categoria || '' };
+                                }
+                            });
+                        }
+                    });
+                    allLigas = Object.values(ligasMap);
+
+                    // Si allLigas vacío, cargar global (fallback)
+                    if (allLigas.length === 0) {
+                        const ligasRes = await fetch(API + "/ligas", { credentials: "include" });
+                        const ligasJson = await ligasRes.json();
+                        allLigas = Array.isArray(ligasJson) ? ligasJson : (ligasJson.data || []);
+                    }
                 } catch (err) {
                     console.error("Error cargando datos globales:", err);
                 }
@@ -698,11 +702,12 @@
             function populateLigaSelect(sel) {
                 const cur = sel.value;
                 sel.innerHTML = '<option value="">— Seleccionar liga —</option>';
+                // Solo ligas de los equipos del staff
                 allLigas.forEach(l => {
-                    const id = l.id_liga ?? l.id;
-                    const nom = l.nombre_liga ?? l.nombre ?? "Sin nombre";
-                    const cat = l.categoria ?? "";
-                    sel.innerHTML += `<option value="${id}">${nom} (${cat})</option>`;
+                    const id  = l.id_liga ?? l.id;
+                    const nom = l.nombre_liga ?? l.nombre ?? 'Sin nombre';
+                    const cat = l.categoria ?? '';
+                    sel.innerHTML += `<option value="${id}">${nom}${cat ? ' (' + cat + ')' : ''}</option>`;
                 });
                 if (cur) sel.value = cur;
             }
@@ -712,11 +717,16 @@
                 sel.innerHTML = '<option value="">— Seleccionar equipo —</option>';
                 if (!id_liga) return;
                 const lid = parseInt(id_liga, 10);
+                // Solo equipos del staff que participen en esa liga
                 allEquipos
-                    .filter(e => (e.ligas_ids || []).map(Number).includes(lid))
+                    .filter(e => {
+                        const ids = (e.ligas_ids || []).map(Number);
+                        const objIds = (e.ligas || []).map(l => Number(l.id_liga));
+                        return ids.includes(lid) || objIds.includes(lid);
+                    })
                     .forEach(e => {
-                        const id = e.id_equipo ?? e.id;
-                        const nom = e.club ?? e.nombre ?? "Sin nombre";
+                        const id  = e.id_equipo ?? e.id;
+                        const nom = e.club ?? e.nombre ?? 'Sin nombre';
                         sel.innerHTML += `<option value="${id}">${nom}</option>`;
                     });
                 if (cur) sel.value = cur;
@@ -759,48 +769,105 @@
             };
             */
 
+            // ─────────────────── CAMBIO FECHA (menor/mayor) ───
+            window.onAltaFechaChange = function () {
+                const fechaVal = document.getElementById('alta-fecha').value;
+                if (!fechaVal) return;
+                const hoy    = new Date();
+                const nac    = new Date(fechaVal);
+                let edad     = hoy.getFullYear() - nac.getFullYear();
+                const m      = hoy.getMonth() - nac.getMonth();
+                if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+                const seccion = document.getElementById('alta-padres-section');
+                seccion.style.display = (edad < 18) ? 'block' : 'none';
+            };
+
             // ─────────────────── TAB 1: ALTA INDIVIDUAL ───
             window.enviarAltaIndividual = async function () {
-                const id_liga = document.getElementById("alta-liga").value;
-                const id_equipo = document.getElementById("alta-equipo").value;
-                const nombre = document.getElementById("alta-nombre").value.trim();
-                const apellido = document.getElementById("alta-apellido").value.trim();
-                const fecha = document.getElementById("alta-fecha").value;
+                const id_liga   = document.getElementById('alta-liga').value;
+                const id_equipo = document.getElementById('alta-equipo').value;
+                const nombre    = document.getElementById('alta-nombre').value.trim();
+                const apellido  = document.getElementById('alta-apellido').value.trim();
+                const fecha     = document.getElementById('alta-fecha').value;
+                const fotoFile  = document.getElementById('alta-foto').files[0];
+                const docFile   = document.getElementById('alta-documento').files[0];
 
                 if (!id_liga || !id_equipo || !nombre || !apellido || !fecha) {
-                    showToast("Por favor rellena todos los campos", "error"); return;
+                    showToast('Por favor rellena todos los campos obligatorios', 'error'); return;
+                }
+                if (!docFile) {
+                    showToast('El documento de identidad es obligatorio', 'error'); return;
                 }
 
-                document.getElementById("alta-aviso").style.display = "none";
+                // Validar si menor y faltan datos de padres
+                const hoy  = new Date();
+                const nac  = new Date(fecha);
+                let edad   = hoy.getFullYear() - nac.getFullYear();
+                const mo   = hoy.getMonth() - nac.getMonth();
+                if (mo < 0 || (mo === 0 && hoy.getDate() < nac.getDate())) edad--;
+                const esmenor = edad < 18;
+
+                if (esmenor) {
+                    const np = document.getElementById('alta-nombres-padres').value.trim();
+                    const ep = document.getElementById('alta-email-padres').value.trim();
+                    const tp = document.getElementById('alta-telefono-padres').value.trim();
+                    if (!np || !ep || !tp) {
+                        showToast('Jugador menor de 18: completa los datos del tutor', 'error'); return;
+                    }
+                }
+
+                document.getElementById('alta-aviso').style.display = 'none';
+                document.getElementById('btn-solicitar-alta').disabled = true;
+                document.getElementById('btn-solicitar-alta').textContent = 'Enviando...';
 
                 try {
-                    const res = await fetch(API + "/staff/jugadores/alta", {
-                        method: "POST",
-                        credentials: "include",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ id_liga: +id_liga, id_equipo: +id_equipo, nombre, apellido, fecha_nacimiento: fecha })
+                    const fd = new FormData();
+                    fd.append('id_liga',           id_liga);
+                    fd.append('id_equipo',         id_equipo);
+                    fd.append('nombre',            nombre);
+                    fd.append('apellido',          apellido);
+                    fd.append('fecha_nacimiento',  fecha);
+                    fd.append('documento_identidad', docFile);
+                    if (fotoFile) fd.append('foto', fotoFile);
+                    if (esmenor) {
+                        fd.append('nombres_padres',  document.getElementById('alta-nombres-padres').value.trim());
+                        fd.append('email_padres',    document.getElementById('alta-email-padres').value.trim());
+                        fd.append('telefono_padres', document.getElementById('alta-telefono-padres').value.trim());
+                    }
+
+                    const res  = await fetch(API + '/staff/jugadores/alta', {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: fd    // multipart/form-data — NO enviar Content-Type manual
                     });
                     const data = await res.json();
 
                     if (res.ok && data.success) {
-                        showToast(data.message || "Solicitud enviada correctamente", "success");
-                        document.getElementById("alta-nombre").value = "";
-                        document.getElementById("alta-apellido").value = "";
-                        document.getElementById("alta-fecha").value = "";
+                        showToast(data.message || 'Solicitud enviada correctamente', 'success');
+                        // Limpiar formulario
+                        ['alta-nombre','alta-apellido','alta-fecha',
+                         'alta-nombres-padres','alta-email-padres','alta-telefono-padres'
+                        ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+                        document.getElementById('alta-foto').value     = '';
+                        document.getElementById('alta-documento').value = '';
+                        document.getElementById('alta-padres-section').style.display = 'none';
 
                         if (data.avisos && data.avisos.length > 0) {
-                            const avisosHtml = data.avisos.map(a =>
-                                `<strong>${a.nombre} ${a.apellido}</strong> ya está en: ${a.equipo}`
-                            ).join("<br>");
-                            const box = document.getElementById("alta-aviso");
-                            box.innerHTML = "⚠ " + (data.aviso_msg || "") + "<br>" + avisosHtml;
-                            box.style.display = "block";
+                            const html = data.avisos.map(a =>
+                                `<strong>${a.nombre} ${a.apellido}</strong> ya está en otro equipo`
+                            ).join('<br>');
+                            const box = document.getElementById('alta-aviso');
+                            box.innerHTML = '⚠ ' + (data.aviso_msg || '') + '<br>' + html;
+                            box.style.display = 'block';
                         }
                     } else {
-                        showToast(data.message || "Error al enviar la solicitud", "error");
+                        showToast(data.message || 'Error al enviar la solicitud', 'error');
                     }
                 } catch (err) {
-                    showToast("Error de conexión", "error");
+                    showToast('Error de conexión', 'error');
+                } finally {
+                    document.getElementById('btn-solicitar-alta').disabled = false;
+                    document.getElementById('btn-solicitar-alta').textContent = 'Solicitar Alta';
                 }
             };
 

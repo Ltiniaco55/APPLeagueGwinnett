@@ -135,13 +135,13 @@ $router->add('GET',    '/staff/equipos',                              'EquiposCo
 $router->add('GET',    '/staff/jugadores/pendientes',                 'JugadoresStaffController', 'pendientes');
 $router->add('GET',    '/staff/jugadores/plantilla',                  'JugadoresStaffController', 'plantilla');
 $router->add('POST',   '/staff/jugadores/alta',                       'JugadoresStaffController', 'alta');
-$router->add('POST',   '/staff/jugadores/lote',                       'JugadoresStaffController', 'lote');
 $router->add('PATCH',  '/staff/jugadores/{id}/solicitar-baja',        'JugadoresStaffController', 'solicitarBaja');
 $router->add('POST',   '/staff/jugadores/{id}/foto',                  'JugadoresStaffController', 'subirFoto');
 $router->add('PATCH',  '/staff/jugadores/dorsal',                     'JugadoresStaffController', 'asignarDorsal');
 
-// ─── ADMIN: Gestión de jugadores (nuevas rutas) ───────────────────────────
+// ─── ADMIN: Gestión de jugadores ─────────────────────────────────────────
 $router->add('GET',    '/admin/jugadores/pendientes',                 'JugadoresAdminController', 'pendientes');
+$router->add('POST',   '/admin/jugadores/alta-directa',               'JugadoresAdminController', 'altaDirecta');
 $router->add('POST',   '/admin/jugadores/aprobar-lote',               'JugadoresAdminController', 'aprobarLote');
 $router->add('POST',   '/admin/jugadores/{id}/aprobar',               'JugadoresAdminController', 'aprobar');
 $router->add('POST',   '/admin/jugadores/{id}/rechazar',              'JugadoresAdminController', 'rechazar');
@@ -149,15 +149,8 @@ $router->add('PATCH',  '/admin/jugadores/{id}/editar',                'Jugadores
 $router->add('PATCH',  '/admin/jugadores/{id}/dorsal',                'JugadoresAdminController', 'corregirDorsal');
 $router->add('POST',   '/admin/jugadores/{id}/foto',                  'JugadoresAdminController', 'subirFoto');
 
-
-// ====================== JUGADORES (workflow) ======================
-// OJO: subrutas antes que {id} para evitar colisiones
+// ====================== JUGADORES (genérico) ======================
 $router->add('GET',    '/jugadores',                  'JugadoresController', 'seleccionar');
-$router->add('POST',   '/jugadores/pendiente',        'JugadoresController', 'insertarStaff');
-$router->add('POST',   '/jugadores/alta-directa',     'JugadoresController', 'insertarAdmin');
-$router->add('POST',   '/jugadores/lote',             'JugadoresController', 'insertarLote');
-$router->add('POST',   '/jugadores/{id}/aprobar',     'JugadoresController', 'adminAprueba');
-$router->add('POST',   '/jugadores/{id}/rechazar',    'JugadoresController', 'adminRechaza');
 $router->add('POST',   '/jugadores/{id}/foto',        'JugadoresController', 'subirFoto');
 $router->add('GET',    '/jugadores/{id}',             'JugadoresController', 'localizar');
 $router->add('DELETE', '/jugadores/{id}',             'JugadoresController', 'eliminar');
