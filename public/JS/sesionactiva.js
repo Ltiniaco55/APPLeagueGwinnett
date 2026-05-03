@@ -65,63 +65,49 @@
             closeMiniMenu();
         }
 
-        aplicarMenuStaff(usuario);
+        renderMiniMenuPorRol(usuario);
     };
 
-    function aplicarMenuStaff(usuario) {
+    function renderMiniMenuPorRol(usuario) {
         const menuList = document.querySelector(".gysl-mini-menu__list");
         const miniMenu = document.getElementById("btn-mini-menu");
 
         if (!menuList || !miniMenu) return;
 
-        const bloquesPrevios = miniMenu.querySelectorAll('[data-staff-menu="true"]');
+        const bloquesPrevios = miniMenu.querySelectorAll('[data-dynamic-menu="true"]');
         bloquesPrevios.forEach(el => el.remove());
 
-        const rolNormalizado = String(usuario?.rol || "").trim().toUpperCase();
+        const rol = String(usuario?.rol || "").trim().toUpperCase();
 
-        if (!usuario || rolNormalizado !== "STAFF") return;
+        let dynamicItems = '';
 
-        const staffItems = `
-        <li role="none" data-staff-menu="true">
-            <button class="gysl-mini-menu__item" data-mini="equipos" role="menuitem"
-                onclick="gyslMiniAction('equipos')">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
-                </svg>
-                <span>Equipos</span>
-            </button>
-        </li>
+        if (rol === "STAFF") {
+            dynamicItems += `
+            <li role="none" data-dynamic-menu="true">
+                <button class="gysl-mini-menu__item" onclick="gyslMiniAction('equipos')">
+                    <span>Mis equipos</span>
+                </button>
+            </li>
 
-        <li role="none" data-staff-menu="true">
-            <button class="gysl-mini-menu__item" data-mini="gestion_jugadores" role="menuitem"
-                onclick="gyslMiniAction('gestion_jugadores')">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <line x1="19" y1="8" x2="19" y2="14" />
-                    <line x1="22" y1="11" x2="16" y2="11" />
-                </svg>
-                <span>Gesti&#xf3;n de jugadores</span>
-            </button>
-        </li>
-
-        <li role="none" data-staff-menu="true">
-            <button class="gysl-mini-menu__item" data-mini="incidencias" role="menuitem"
-                onclick="gyslMiniAction('incidencias')">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-                <span>Incidencias</span>
-            </button>
-        </li>
+            <li role="none" data-dynamic-menu="true">
+                <button class="gysl-mini-menu__item" onclick="gyslMiniAction('gestion_jugadores')">
+                    <span>Gestión de jugadores</span>
+                </button>
+            </li>
         `;
+        }
 
-        menuList.insertAdjacentHTML("beforeend", staffItems);
+        if (rol === "ADMIN") {
+            dynamicItems += `
+            <li role="none" data-dynamic-menu="true">
+                <button class="gysl-mini-menu__item" onclick="gyslMiniAction('panel_admin')">
+                    <span>Panel admin</span>
+                </button>
+            </li>
+        `;
+        }
+
+        menuList.insertAdjacentHTML("beforeend", dynamicItems);
     }
 
     async function comprobarSesionActiva() {

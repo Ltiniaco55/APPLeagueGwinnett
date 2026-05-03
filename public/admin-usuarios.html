@@ -180,6 +180,63 @@
             border-bottom: none;
         }
 
+
+        .gysl-gestion-equipos-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .gysl-gestion-equipo-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.045);
+            cursor: pointer;
+            transition: border-color .18s ease, background .18s ease, transform .18s ease;
+        }
+
+        .gysl-gestion-equipo-item:hover {
+            border-color: rgba(241, 184, 45, .55);
+            background: rgba(241, 184, 45, .08);
+        }
+
+        .gysl-gestion-equipo-item:has(input:checked) {
+            border-color: var(--gysl-yellow);
+            background: rgba(241, 184, 45, .13);
+        }
+
+        .gysl-gestion-equipo-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            accent-color: var(--gysl-yellow);
+            cursor: pointer;
+        }
+
+        .gysl-gestion-equipo-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .gysl-gestion-equipo-nombre {
+            color: var(--gysl-white);
+            font-size: 14px;
+            font-weight: var(--fw-bold);
+            line-height: 1.2;
+        }
+
+        .gysl-gestion-equipo-categoria {
+            color: var(--gysl-muted);
+            font-size: 12px;
+            font-weight: var(--fw-semibold);
+        }
+
         @media (max-width: 600px) {
             .gysl-detail-row {
                 flex-direction: column;
@@ -335,6 +392,47 @@
         </div>
     </div>
 
+    <!-- ═══ MODAL GESTIONAR EQUIPOS USUARIO ═══ -->
+    <div class="gysl-admin-form-overlay" id="gestion-equipos-overlay">
+        <div class="gysl-admin-form-card" style="width:min(620px, 95%); max-height:85vh; overflow-y:auto;">
+            <h3>Gestionar equipos</h3>
+
+            <div style="color: var(--gysl-muted); font-size: 13px; margin-bottom: 15px;" id="gestion-equipos-user-info">
+                Usuario
+            </div>
+
+            <input type="hidden" id="gestion-equipos-user-id">
+
+            <div class="gysl-admin-form-group">
+                <label>Equipos asociados como entrenador</label>
+
+                <div style="display:flex; gap:12px; margin-bottom:10px;">
+                    <select id="gestion-filter-liga"
+                        style="flex:1; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:#fff;"
+                        onchange="filtrarGestionEquipos()">
+                        <option value="">— Todas las ligas —</option>
+                    </select>
+
+                    <input type="text" id="gestion-filter-search" placeholder="Buscar equipo..."
+                        oninput="filtrarGestionEquipos()"
+                        style="flex:1; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:#fff;">
+                </div>
+
+                <div id="gestion-equipos-container" class="gysl-gestion-equipos-list" style="max-height:300px; overflow-y:auto; padding:10px; border:1px solid rgba(255,255,255,0.12);
+                    border-radius:12px; background:rgba(255,255,255,0.04);">
+                </div>
+            </div>
+
+            <div class="gysl-admin-form-actions">
+                <button type="button" class="gysl-admin-btn gysl-admin-btn--secondary"
+                    onclick="closeGestionEquiposUsuario()">Cancelar</button>
+
+                <button type="button" class="gysl-admin-btn gysl-admin-btn--primary"
+                    onclick="guardarGestionEquiposUsuario()">Guardar equipos</button>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST NOTIFICATIONS -->
     <div id="toast-container"
         style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
@@ -412,22 +510,8 @@
                         const rol = (usuario.rol || "").toUpperCase();
                         const idUsuario = usuario.id_usuario ?? usuario.id;
 
-                        console.log("LOADDATA USUARIO:", {
-                            idUsuario,
-                            rol,
-                            nombre: usuario.nombre,
-                            email: usuario.email
-                        });
-
                         if (rol === "STAFF" || rol === "ADMIN") {
-                            console.log("CARGANDO EQUIPOS PARA:", idUsuario, rol);
-
                             usuario.equipos_staff = await obtenerEquiposStaff(idUsuario);
-
-                            console.log("EQUIPOS ASIGNADOS RECIBIDOS:", {
-                                idUsuario,
-                                equipos_staff: usuario.equipos_staff
-                            });
                         }
                     }
 
@@ -611,16 +695,11 @@
             async function obtenerEquiposStaff(idUsuario) {
                 try {
 
-                    console.log("OBTENER EQUIPOS STAFF PARA USUARIO:", idUsuario);
-                    console.log("URL GET EQUIPOS STAFF:", API_REAL + "/usuarios/" + idUsuario + "/equipos-staff");
                     const res = await fetch(API_REAL + "/usuarios/" + idUsuario + "/equipos-staff", {
                         credentials: "include"
                     });
 
                     const data = await res.json();
-                    console.log("GET EQUIPOS STAFF STATUS:", res.status);
-                    console.log("GET EQUIPOS STAFF OK?:", res.ok);
-                    console.log("GET EQUIPOS STAFF DATA:", data);
 
                     if (!res.ok || !data.success) {
                         console.warn("No se pudieron obtener los equipos del staff:", data);
@@ -733,8 +812,6 @@
                         equiposStaff = await obtenerEquiposStaff(id);
                         usuario.equipos_staff = equiposStaff;
                     }
-                    console.log("EQUIPOS STAFF CRUDOS FICHA:", equiposStaff);
-                    console.log("EQUIPOS DATA CRUDOS:", equiposData);
                 }
 
 
@@ -789,7 +866,7 @@
                             <div style="margin-top:12px;">
                                 <button type="button"
                                     class="gysl-admin-btn gysl-admin-btn--primary"
-                                    onclick="cerrarFichaUsuario(); openRolForm(${id});">
+                                    onclick="cerrarFichaUsuario(); openGestionEquiposUsuario(${id});">
                                     Gestionar equipos
                                 </button>
                             </div>
@@ -934,6 +1011,184 @@
                 actualizarVisibilidadPasswordAdmin();
             };
 
+            function popularFiltroLigasGestion() {
+                const select = document.getElementById("gestion-filter-liga");
+                if (!select) return;
+
+                const ligasUnicas = new Map();
+
+                equiposData.forEach(eq => {
+                    let ligasIds = [];
+
+                    if (Array.isArray(eq.ligas_ids)) {
+                        ligasIds = eq.ligas_ids;
+                    } else if (typeof eq.ligas_ids === "string") {
+                        ligasIds = eq.ligas_ids.split(",").map(id => id.trim()).filter(Boolean);
+                    } else if (eq.id_liga) {
+                        ligasIds = [eq.id_liga];
+                    }
+
+                    ligasIds.forEach(idLiga => {
+                        ligasUnicas.set(String(idLiga), `Liga ID: ${idLiga}`);
+                    });
+                });
+
+                select.innerHTML = `<option value="">— Todas las ligas —</option>`;
+
+                ligasUnicas.forEach((nombre, id) => {
+                    select.innerHTML += `<option value="${id}">${nombre}</option>`;
+                });
+            }
+
+            function renderGestionEquiposCheckboxes(equiposSeleccionados = []) {
+                const container = document.getElementById("gestion-equipos-container");
+                if (!container) return;
+
+                const filtroLiga = document.getElementById("gestion-filter-liga")?.value || "";
+                const filtroSearch = (document.getElementById("gestion-filter-search")?.value || "").toLowerCase();
+
+                if (!equiposData.length) {
+                    container.innerHTML = `
+            <p style="color:var(--gysl-muted); font-size:13px;">
+                No hay equipos disponibles.
+            </p>
+        `;
+                    return;
+                }
+
+                const html = equiposData.map(eq => {
+                    const idEquipo = eq.id_equipo ?? eq.id;
+                    const nombre = eq.club ?? eq.nombre ?? "Sin club";
+                    const categoria = eq.categoria ?? "";
+
+                    if (filtroSearch && !nombre.toLowerCase().includes(filtroSearch)) {
+                        return "";
+                    }
+
+                    let ligasIds = [];
+
+                    if (Array.isArray(eq.ligas_ids)) {
+                        ligasIds = eq.ligas_ids;
+                    } else if (typeof eq.ligas_ids === "string") {
+                        ligasIds = eq.ligas_ids.split(",").map(id => id.trim()).filter(Boolean);
+                    } else if (eq.id_liga) {
+                        ligasIds = [eq.id_liga];
+                    }
+
+                    if (ligasIds.length === 0) return "";
+
+                    return ligasIds.map(idLiga => {
+                        if (filtroLiga && String(idLiga) !== String(filtroLiga)) {
+                            return "";
+                        }
+
+                        const checked = equiposSeleccionados.some(rel =>
+                            Number(rel.id_equipo) === Number(idEquipo) &&
+                            Number(rel.id_liga) === Number(idLiga)
+                        ) ? "checked" : "";
+
+                        return `
+                <label class="gysl-gestion-equipo-item">
+                    <input type="checkbox"
+                        class="gestion-equipo-checkbox"
+                        value="${idEquipo}"
+                        data-id-liga="${idLiga}"
+                        ${checked}>
+
+                    <span class="gysl-gestion-equipo-info">
+                        <span class="gysl-gestion-equipo-nombre">${nombre}</span>
+                        ${categoria ? `<span class="gysl-gestion-equipo-categoria">${categoria}</span>` : ""}
+                    </span>
+                </label>
+            `;
+                    }).join("");
+                }).join("");
+
+                container.innerHTML = html || `
+        <p style="color:var(--gysl-muted); font-size:13px;">
+            No se encontraron equipos.
+        </p>
+    `;
+            }
+
+            window.filtrarGestionEquipos = function () {
+                renderGestionEquiposCheckboxes(equiposStaffActual);
+            };
+
+            window.openGestionEquiposUsuario = async function (id) {
+                const usuario = usuariosData.find(u => (u.id_usuario ?? u.id) == id);
+
+                if (!usuario) {
+                    showToast("Usuario no encontrado", "error");
+                    return;
+                }
+
+                document.getElementById("gestion-equipos-user-id").value = id;
+                document.getElementById("gestion-equipos-user-info").textContent =
+                    `${usuario.nombre || ""} ${usuario.apellido || ""} - ${usuario.email || ""}`;
+
+                equiposStaffActual = [];
+
+                const equiposAsignados = await obtenerEquiposStaff(id);
+
+                equiposStaffActual = equiposAsignados.map(eq => ({
+                    id_equipo: Number(eq.id_equipo),
+                    id_liga: Number(eq.id_liga),
+                    estado: eq.estado || "ACTIVO"
+                }));
+
+                popularFiltroLigasGestion();
+
+                document.getElementById("gestion-filter-liga").value = "";
+                document.getElementById("gestion-filter-search").value = "";
+
+                renderGestionEquiposCheckboxes(equiposStaffActual);
+
+                document.getElementById("gestion-equipos-overlay").classList.add("is-open");
+            };
+
+            window.closeGestionEquiposUsuario = function () {
+                document.getElementById("gestion-equipos-overlay").classList.remove("is-open");
+            };
+
+            window.guardarGestionEquiposUsuario = async function () {
+                const id = document.getElementById("gestion-equipos-user-id").value;
+
+                const relaciones = Array.from(
+                    document.querySelectorAll(".gestion-equipo-checkbox:checked")
+                ).map(chk => ({
+                    id_equipo: parseInt(chk.value, 10),
+                    id_liga: parseInt(chk.dataset.idLiga, 10),
+                    estado: "ACTIVO"
+                }));
+
+                try {
+                    const res = await fetch(API_REAL + "/usuarios/" + id + "/equipos-staff", {
+                        method: "PATCH",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ relaciones })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || !data.success) {
+                        showToast(data.message || "Error al guardar equipos", "error");
+                        return;
+                    }
+
+                    showToast("Equipos actualizados correctamente", "success");
+
+                    closeGestionEquiposUsuario();
+                    await loadData();
+                    abrirFichaUsuario(id);
+
+                } catch (err) {
+                    console.error(err);
+                    showToast("Error de conexión", "error");
+                }
+            };
+
             window.submitRol = async function () {
                 const id = document.getElementById("rol-edit-id").value;
                 const rol = document.getElementById("rol-select").value;
@@ -972,12 +1227,6 @@
                     estado: "ACTIVO"
                 }));
 
-                console.log("CHECKBOXES MARCADOS:", document.querySelectorAll(".rol-equipo-checkbox:checked"));
-
-                console.log("RELACIONES GENERADAS FRONT:", relaciones);
-
-                console.log("RELACIONES JSON:", JSON.stringify({ relaciones: relaciones }));
-
                 if (rol === "STAFF" && relaciones.length === 0) {
                     showToast("Debes seleccionar al menos un equipo para el rol STAFF", "warning");
                     return;
@@ -996,9 +1245,6 @@
 
                     const dataRol = await resRol.json();
 
-                    console.log("RESPUESTA ROL STATUS:", resRol.status);
-                    console.log("RESPUESTA ROL DATA:", dataRol);
-
                     if (!resRol.ok) {
                         showToast(dataRol.message || "Error al actualizar rol", "error");
                         return;
@@ -1009,13 +1255,7 @@
 
 
                     if (rol === "STAFF") {
-                        console.log("ENTRANDO A GUARDAR EQUIPOS STAFF/ADMIN");
 
-                        console.log("URL EQUIPOS STAFF:", API_REAL + "/usuarios/" + id + "/equipos-staff");
-
-                        console.log("BODY ENVIADO EQUIPOS STAFF:", {
-                            relaciones: relaciones
-                        });
                         const resEq = await fetch(API_REAL + "/usuarios/" + id + "/equipos-staff", {
                             method: "PATCH",
                             credentials: "include",
@@ -1024,10 +1264,6 @@
                         });
 
                         const dataEq = await resEq.json();
-
-                        console.log("RESPUESTA EQUIPOS STAFF OK?:", resEq.ok);
-                        console.log("RESPUESTA EQUIPOS STAFF STATUS:", resEq.status);
-                        console.log("RESPUESTA EQUIPOS STAFF DATA COMPLETA:", dataEq);
 
                         if (!resEq.ok) {
                             showToast(dataEq.message || "Rol guardado, pero falló al asignar equipo", "error");
