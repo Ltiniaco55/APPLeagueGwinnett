@@ -152,7 +152,29 @@ class UsuariosController
     public function modificar(int $id, array $entrada): void
     {
         try {
-            Autenticacion::requerirRol([Autenticacion::ROL_ADMIN]);
+            Autenticacion::requerirAutenticacion();
+
+            $usuarioSesion = Autenticacion::usuario();
+
+            if (!$usuarioSesion) {
+                $this->responder(401, [
+                    'success' => false,
+                    'message' => 'No autenticado'
+                ]);
+            }
+
+            $idSesion = (int)($usuarioSesion['id_usuario'] ?? $usuarioSesion['id'] ?? 0);
+            $rolSesion = strtoupper((string)($usuarioSesion['rol'] ?? ''));
+
+            $esAdmin = $rolSesion === Autenticacion::ROL_ADMIN;
+            $esPropietario = $idSesion === $id;
+
+            if (!$esAdmin && !$esPropietario) {
+                $this->responder(403, [
+                    'success' => false,
+                    'message' => 'No tienes permiso para modificar este usuario'
+                ]);
+            }
 
             if ($id <= 0) {
                 $this->responder(400, ['success' => false, 'message' => 'Falta el campo obligatorio: id']);
@@ -513,6 +535,140 @@ class UsuariosController
             $this->responder(200, [
                 'success' => true,
                 'data' => $relaciones
+            ]);
+        } catch (Throwable $e) {
+            $this->responder(500, [
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+
+    public function subirFotoEntrenador(int $id): void
+    {
+        try {
+            Autenticacion::requerirAutenticacion();
+
+            $usuarioSesion = Autenticacion::usuario();
+
+            if (!$usuarioSesion) {
+                $this->responder(401, [
+                    'success' => false,
+                    'message' => 'No autenticado'
+                ]);
+            }
+
+            $idSesion = (int)($usuarioSesion['id_usuario'] ?? $usuarioSesion['id'] ?? 0);
+            $rolSesion = strtoupper((string)($usuarioSesion['rol'] ?? ''));
+
+            $esAdmin = $rolSesion === Autenticacion::ROL_ADMIN;
+            $esPropietario = $idSesion === $id;
+
+            if (!$esAdmin && !$esPropietario) {
+                $this->responder(403, [
+                    'success' => false,
+                    'message' => 'No autorizado para modificar esta foto'
+                ]);
+            }
+
+            if (
+                !isset($_FILES['foto']) ||
+                $_FILES['foto']['error'] !== UPLOAD_ERR_OK
+            ) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'No se recibió una imagen válida'
+                ]);
+            }
+
+            $usuariosModel = new UsuariosModel();
+            $entrenadoresModel = new EntrenadoresModel();
+
+            $usuario = $usuariosModel->getById($id);
+
+            if (!$usuario) {
+                $this->responder(404, [
+                    'success' => false,
+                    'message' => 'Usuario no encontrado'
+                ]);
+            }
+
+            $rolUsuario = strtoupper((string)($usuario['rol'] ?? ''));
+
+            if (!in_array($rolUsuario, [Autenticacion::ROL_STAFF, Autenticacion::ROL_ADMIN], true)) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Solo usuarios STAFF o ADMIN pueden tener foto de entrenador'
+                ]);
+            }
+
+            $entrenador = $entrenadoresModel->getByUserId($id);
+
+            if (!$entrenador) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Este usuario todavía no existe como entrenador'
+                ]);
+            }
+
+            $file = $_FILES['foto'];
+
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $permitidas = ['jpg', 'jpeg', 'png', 'webp'];
+
+            if (!in_array($ext, $permitidas, true)) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Formato no permitido. Usa JPG, JPEG, PNG o WEBP'
+                ]);
+            }
+
+            $mime = mime_content_type($file['tmp_name']);
+            $mimesPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
+
+            if (!in_array($mime, $mimesPermitidos, true)) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'El archivo no es una imagen válida'
+                ]);
+            }
+
+            $uploadDir = __DIR__ . '/../../public/uploads/entrenadores/' . $id;
+
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $fotoAnterior = (string)($entrenador['foto'] ?? '');
+
+            if ($fotoAnterior !== '') {
+                $rutaAnteriorFisica = __DIR__ . '/../..' . $fotoAnterior;
+
+                if (is_file($rutaAnteriorFisica)) {
+                    @unlink($rutaAnteriorFisica);
+                }
+            }
+
+            $filename = 'perfil_' . time() . '.' . $ext;
+            $destPath = $uploadDir . '/' . $filename;
+            $dbPath = '/public/uploads/entrenadores/' . $id . '/' . $filename;
+
+            if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+                $this->responder(500, [
+                    'success' => false,
+                    'message' => 'Error al guardar la imagen'
+                ]);
+            }
+
+            $entrenadoresModel->update((int)$entrenador['id_entrenador'], [
+                'foto' => $dbPath
+            ]);
+
+            $this->responder(200, [
+                'success' => true,
+                'message' => 'Foto actualizada correctamente',
+                'foto' => $dbPath
             ]);
         } catch (Throwable $e) {
             $this->responder(500, [

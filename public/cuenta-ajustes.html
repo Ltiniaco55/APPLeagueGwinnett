@@ -642,10 +642,15 @@
                         }
                     }
 
-                    usuarioOriginal = data.data || payload;
+                    usuarioOriginal = data.data || {
+                        ...usuarioOriginal,
+                        ...payload
+                    };
+
+                    pintarUsuario(usuarioOriginal);
+
                     showToast("Perfil actualizado correctamente", "success");
                     cancelarEdicion();
-                    await cargarPerfil();
 
                 } catch (err) {
                     showToast("Error de conexión", "error");

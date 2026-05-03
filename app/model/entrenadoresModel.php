@@ -71,7 +71,15 @@ class EntrenadoresModel
 
     public function update(int $id, array $data): bool
     {
-        $allowed = ['id_usuario', 'nombre', 'apellido', 'fecha_nacimiento', 'telefono', 'email'];
+        $allowed = [
+            'id_usuario',
+            'nombre',
+            'apellido',
+            'fecha_nacimiento',
+            'telefono',
+            'email',
+            'foto'
+        ];
         $sets = [];
         $params = [':id' => $id];
 

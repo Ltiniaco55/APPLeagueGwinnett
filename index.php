@@ -102,6 +102,7 @@ $router->add('DELETE', '/usuarios/{id}',         'UsuariosController', 'eliminar
 $router->add('PATCH',  '/usuarios/{id}/rol',     'UsuariosController', 'actualizarRol');
 $router->add('PATCH', '/usuarios/{id}/equipos-staff', 'UsuariosController', 'actualizarEquiposStaff');
 $router->add('GET', '/usuarios/{id}/equipos-staff', 'UsuariosController', 'obtenerEquiposStaff');
+$router->add('POST', '/usuarios/{id}/foto-entrenador', 'UsuariosController', 'subirFotoEntrenador');
 
 // ====================== AUTH ======================
 $router->add('POST',   '/auth/register',                 'AuthController', 'register');

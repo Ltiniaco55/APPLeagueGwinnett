@@ -83,9 +83,9 @@ class Autenticacion
         }
 
         // Devolver los datos cacheados si ya se consultaron en esta petición
-        if (isset($_SESSION['_usuario_cache'])) {
-            return $_SESSION['_usuario_cache'];
-        }
+        // Evitamos usar cache persistente de sesión para que los cambios de perfil
+        // se reflejen siempre al consultar /auth/me.
+        unset($_SESSION['_usuario_cache']);
 
         // Consultar datos actualizados del usuario en la base de datos
         try {
@@ -103,8 +103,18 @@ class Autenticacion
             // No exponer la contraseña
             unset($usuario['pwd']);
 
-            // Cachear para no repetir consultas en la misma petición
-            $_SESSION['_usuario_cache'] = $usuario;
+            // Adjuntar foto de entrenador si existe
+            $stmtFoto = $db->prepare(
+                "SELECT foto 
+                    FROM entrenadores 
+                    WHERE id_usuario = ? 
+                    LIMIT 1"
+            );
+            $stmtFoto->execute([(int)$usuario['id_usuario']]);
+
+            $fotoEntrenador = $stmtFoto->fetchColumn();
+
+            $usuario['foto_entrenador'] = $fotoEntrenador ?: null;
 
             return $usuario;
         } catch (Exception $e) {
@@ -265,10 +275,9 @@ class Autenticacion
         $_SESSION['id_usuario'] = $id_usuario;
 
         // Cachear datos si se proporcionan
-        if (!empty($datosUsuario)) {
-            unset($datosUsuario['pwd']); // nunca guardar contraseña en sesión
-            $_SESSION['_usuario_cache'] = $datosUsuario;
-        }
+        // No cacheamos datos completos del usuario en sesión.
+        // Solo guardamos id_usuario para consultar siempre datos actualizados.
+        unset($_SESSION['_usuario_cache']);
     }
 
     /**
