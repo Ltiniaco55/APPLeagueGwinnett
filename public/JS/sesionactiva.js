@@ -68,7 +68,7 @@
         renderMiniMenuPorRol(usuario);
     };
 
-    function renderMiniMenuPorRol(usuario) {
+    async function renderMiniMenuPorRol(usuario) {
         const menuList = document.querySelector(".gysl-mini-menu__list");
         const miniMenu = document.getElementById("btn-mini-menu");
 
@@ -78,19 +78,54 @@
         bloquesPrevios.forEach(el => el.remove());
 
         const rol = String(usuario?.rol || "").trim().toUpperCase();
+        const idUsuario = usuario?.id_usuario ?? usuario?.id;
 
-        let dynamicItems = '';
+        let tieneEquiposAsignados = false;
 
-        if (rol === "STAFF") {
+        if ((rol === "ADMIN" || rol === "STAFF") && idUsuario) {
+            try {
+                const res = await fetch(
+                    "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/usuarios/" + idUsuario + "/equipos-staff",
+                    { credentials: "include" }
+                );
+
+                const data = await res.json();
+
+                tieneEquiposAsignados = res.ok
+                    && data.success
+                    && Array.isArray(data.data)
+                    && data.data.length > 0;
+
+            } catch (err) {
+                console.warn("No se pudieron comprobar equipos asignados:", err);
+            }
+        }
+
+        let dynamicItems = "";
+
+        if (rol === "STAFF" || (rol === "ADMIN" && tieneEquiposAsignados)) {
             dynamicItems += `
             <li role="none" data-dynamic-menu="true">
-                <button class="gysl-mini-menu__item" onclick="gyslMiniAction('equipos')">
+                <button class="gysl-mini-menu__item" data-mini="equipos" role="menuitem"
+                    onclick="gyslMiniAction('equipos')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" />
+                    </svg>
                     <span>Mis equipos</span>
                 </button>
             </li>
 
             <li role="none" data-dynamic-menu="true">
-                <button class="gysl-mini-menu__item" onclick="gyslMiniAction('gestion_jugadores')">
+                <button class="gysl-mini-menu__item" data-mini="gestion_jugadores" role="menuitem"
+                    onclick="gyslMiniAction('gestion_jugadores')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <line x1="19" y1="8" x2="19" y2="14" />
+                        <line x1="22" y1="11" x2="16" y2="11" />
+                    </svg>
                     <span>Gestión de jugadores</span>
                 </button>
             </li>
@@ -100,7 +135,15 @@
         if (rol === "ADMIN") {
             dynamicItems += `
             <li role="none" data-dynamic-menu="true">
-                <button class="gysl-mini-menu__item" onclick="gyslMiniAction('panel_admin')">
+                <button class="gysl-mini-menu__item" data-mini="panel_admin" role="menuitem"
+                    onclick="gyslMiniAction('panel_admin')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                    </svg>
                     <span>Panel admin</span>
                 </button>
             </li>
@@ -156,20 +199,30 @@
 
     window.gyslMiniAction = function (action) {
         closeMiniMenu();
-        console.log("Mini menu action:", action);
 
         switch (action) {
-            case 'equipos':
+            case "account":
+                window.location.href = BASE_PATH + "/cuenta-ajustes.html";
+                break;
+
+            case "favoritos":
+                window.location.href = BASE_PATH + "/favoritos.html";
+                break;
+
+            case "equipos":
                 window.location.href = BASE_PATH + "/staff-equipos.html";
                 break;
-            case 'gestion_jugadores':
+
+            case "gestion_jugadores":
                 window.location.href = BASE_PATH + "/staff-jugadores.html";
                 break;
-            case 'registrar_jugadores':
-                window.location.href = BASE_PATH + "/staff-jugadores.html";
+
+            case "panel_admin":
+                window.location.href = BASE_PATH + "/admin-dashboard.html";
                 break;
+
             default:
-                // Otras acciones globales...
+                console.warn("Acción mini menú no implementada:", action);
                 break;
         }
     };

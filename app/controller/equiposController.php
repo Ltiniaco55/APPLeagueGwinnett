@@ -111,38 +111,64 @@ class EquiposController
     public function seleccionarStaff(array $entrada = []): void
     {
         try {
-            Autenticacion::requerirRol([Autenticacion::ROL_STAFF]);
+            Autenticacion::requerirRol([
+                Autenticacion::ROL_STAFF,
+                Autenticacion::ROL_ADMIN
+            ]);
+
             $usuarioActual = Autenticacion::usuario();
 
-            require_once __DIR__ . '/../model/entrenadoresModel.php';
-            require_once __DIR__ . '/../model/entrenadorEquipoModel.php';
             require_once __DIR__ . '/../model/ligasModel.php';
 
             $entModel = new EntrenadoresModel();
             $entEqModel = new EntrenadorEquipoModel();
             $eqModel = new EquiposModel();
 
-            $entrenador = $entModel->getByUserId((int)$usuarioActual['id_usuario']);
+            $idUsuario = (int)($usuarioActual['id_usuario'] ?? $usuarioActual['id'] ?? 0);
+
+            if ($idUsuario <= 0) {
+                $this->responder(401, [
+                    'success' => false,
+                    'message' => 'Usuario no autenticado'
+                ]);
+            }
+
+            $entrenador = $entModel->getByUserId($idUsuario);
 
             if (!$entrenador) {
-                $this->responder(200, ['success' => true, 'data' => []]);
+                $this->responder(200, [
+                    'success' => true,
+                    'data' => [],
+                    'ligas_staff' => []
+                ]);
             }
 
             $misEquipos = $entEqModel->getByEntrenador((int)$entrenador['id_entrenador']);
 
             if (empty($misEquipos)) {
-                $this->responder(200, ['success' => true, 'data' => []]);
+                $this->responder(200, [
+                    'success' => true,
+                    'data' => [],
+                    'ligas_staff' => []
+                ]);
             }
 
-            $club      = $this->limpiarTexto($entrada['club'] ?? '');
+            $club = $this->limpiarTexto($entrada['club'] ?? '');
             $categoria = $this->limpiarTexto($entrada['categoria'] ?? ($entrada['categ'] ?? ''));
 
             $misIdsMap = [];
             $misLigasFlatIds = [];
+
             foreach ($misEquipos as $me) {
-                $misIdsMap[$me['id_equipo']] = true;
-                if (!in_array($me['id_liga'], $misLigasFlatIds)) {
-                    $misLigasFlatIds[] = $me['id_liga'];
+                $idEquipo = (int)($me['id_equipo'] ?? 0);
+                $idLiga = (int)($me['id_liga'] ?? 0);
+
+                if ($idEquipo > 0) {
+                    $misIdsMap[$idEquipo] = true;
+                }
+
+                if ($idLiga > 0 && !in_array($idLiga, $misLigasFlatIds, true)) {
+                    $misLigasFlatIds[] = $idLiga;
                 }
             }
 
@@ -152,32 +178,48 @@ class EquiposController
                 $datos = $eqModel->getAll();
             }
 
-            $datos = array_filter($datos, fn($eq) => isset($misIdsMap[$eq['id_equipo']]));
+            $datos = array_filter($datos, function ($eq) use ($misIdsMap) {
+                return isset($misIdsMap[(int)($eq['id_equipo'] ?? 0)]);
+            });
+
             $datos = array_values($datos);
 
             foreach ($datos as &$equipo) {
+                $idEquipoActual = (int)($equipo['id_equipo'] ?? 0);
                 $susLigas = [];
+
                 foreach ($misEquipos as $me) {
-                    if ($me['id_equipo'] === $equipo['id_equipo']) {
-                        $susLigas[] = $me['id_liga'];
+                    if ((int)($me['id_equipo'] ?? 0) === $idEquipoActual) {
+                        $susLigas[] = (int)($me['id_liga'] ?? 0);
                     }
                 }
-                $equipo['ligas_ids'] = $susLigas;
+
+                $equipo['ligas_ids'] = array_values(array_filter(array_unique($susLigas)));
             }
+
             unset($equipo);
 
             $ligasModel = new LigasModel();
             $ligasAssoc = [];
+
             foreach ($misLigasFlatIds as $lid) {
-                $ligaRaw = $ligasModel->getById($lid);
+                $ligaRaw = $ligasModel->getById((int)$lid);
+
                 if ($ligaRaw) {
                     $ligasAssoc[] = $ligaRaw;
                 }
             }
 
-            $this->responder(200, ['success' => true, 'data' => $datos, 'ligas_staff' => $ligasAssoc]);
+            $this->responder(200, [
+                'success' => true,
+                'data' => $datos,
+                'ligas_staff' => $ligasAssoc
+            ]);
         } catch (Throwable $e) {
-            $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
+            $this->responder(500, [
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
     }
 

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - GYSL</title>
+
+    <link rel="stylesheet" href="./CSS/global.css">
+    <link rel="stylesheet" href="./CSS/admin.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
+
+    <script src="./JS/adminNav.js" defer></script>
+
+    <style>
+        .gysl-profile-card {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 28px;
+            border-radius: 18px;
+            border: 1px solid var(--gysl-line);
+            background: radial-gradient(ellipse at 20% 15%, rgba(20, 52, 94, .35), transparent 60%), rgba(8, 22, 45, .72);
+        }
+
+        .gysl-profile-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .gysl-profile-title {
+            margin: 0;
+            color: var(--gysl-white);
+            font-size: 26px;
+            font-weight: var(--fw-black);
+        }
+
+        .gysl-profile-subtitle {
+            margin: 6px 0 0;
+            color: var(--gysl-muted);
+            font-size: 14px;
+        }
+
+        .gysl-profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .gysl-profile-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .gysl-profile-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .gysl-profile-group label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--gysl-muted);
+            font-weight: var(--fw-bold);
+        }
+
+        .gysl-profile-group input {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 9px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(255, 255, 255, .06);
+            color: var(--gysl-white);
+            font-family: var(--gysl-font);
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .gysl-profile-group input:disabled {
+            opacity: .72;
+            cursor: not-allowed;
+        }
+
+        .gysl-profile-readonly {
+            padding: 11px 12px;
+            border-radius: 9px;
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .035);
+            color: var(--gysl-white);
+            font-weight: var(--fw-bold);
+            min-height: 20px;
+        }
+
+        .gysl-profile-teams {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .gysl-profile-team {
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background: rgba(255, 255, 255, .04);
+            color: var(--gysl-white);
+            font-weight: var(--fw-bold);
+        }
+
+        .gysl-profile-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .gysl-profile-passwords {
+            display: none;
+            grid-column: 1 / -1;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .gysl-profile-passwords.is-open {
+            display: grid;
+        }
+
+        .gysl-toast {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-weight: var(--fw-bold);
+            color: #fff;
+            background: #10b981;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+            transform: translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: .2s ease;
+            z-index: 9999;
+        }
+
+        .gysl-toast.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .gysl-toast.error {
+            background: #ef4444;
+        }
+
+        .gysl-profile-user-head {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .gysl-profile-avatar {
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            border: 2px solid rgba(241, 184, 45, .55);
+            background: radial-gradient(circle at 50% 32%, #ffffff 0 38%, #d9dde5 39% 100%);
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            cursor: pointer;
+            padding: 0;
+            flex-shrink: 0;
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .gysl-profile-avatar:hover {
+            transform: scale(1.03);
+            border-color: var(--gysl-yellow);
+            box-shadow: 0 0 0 4px rgba(241, 184, 45, .10);
+        }
+
+        .gysl-profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gysl-profile-avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at 50% 34%, #8d94a3 0 16%, transparent 17%),
+                radial-gradient(circle at 50% 95%, #8d94a3 0 38%, transparent 39%),
+                #f4f6f9;
+        }
+
+        .gysl-profile-avatar-placeholder svg {
+            display: none;
+        }
+
+        .gysl-profile-avatar.is-disabled {
+            cursor: default;
+        }
+
+        .gysl-profile-avatar.is-disabled:hover {
+            transform: none;
+            border-color: rgba(241, 184, 45, .55);
+            box-shadow: none;
+        }
+
+        @media (max-width: 700px) {
+
+            .gysl-profile-grid,
+            .gysl-profile-passwords {
+                grid-template-columns: 1fr;
+            }
+
+            .gysl-profile-head {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="gysl-admin">
+        <header class="gysl-admin__header">
+            <div>
+                <h1 class="gysl-admin__title">Mi Perfil</h1>
+                <p class="gysl-admin__subtitle">Consulta y edita los datos de tu cuenta</p>
+            </div>
+            <nav class="gysl-admin__breadcrumb">
+                <a href="home.html">Inicio</a> / Perfil
+            </nav>
+        </header>
+
+        <div class="gysl-admin__content">
+            <section class="gysl-profile-card">
+                <div class="gysl-profile-head">
+                    <div class="gysl-profile-user-head">
+                        <button type="button" class="gysl-profile-avatar is-disabled" id="perfil-avatar-btn"
+                            onclick="seleccionarFotoEntrenador()" title="Cambiar foto">
+                            <span id="perfil-avatar-preview" class="gysl-profile-avatar-placeholder">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="12" cy="8" r="4"></circle>
+                                    <path d="M4 21a8 8 0 0 1 16 0"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div>
+                            <h2 class="gysl-profile-title" id="perfil-nombre-titulo">Mi Perfil</h2>
+                            <p class="gysl-profile-subtitle" id="perfil-email-titulo">Cargando datos...</p>
+                        </div>
+                    </div>
+
+                    <span class="gysl-badge gysl-badge--active" id="perfil-rol-badge">—</span>
+                </div>
+
+                <form id="perfil-form" onsubmit="return false;">
+                    <input type="hidden" id="perfil-id">
+
+                    <div class="gysl-profile-grid">
+                        <div class="gysl-profile-group">
+                            <label>Nombre</label>
+                            <input type="text" id="perfil-nombre" disabled>
+                        </div>
+
+                        <div class="gysl-profile-group">
+                            <label>Apellido</label>
+                            <input type="text" id="perfil-apellido" disabled>
+                        </div>
+
+                        <div class="gysl-profile-group">
+                            <label>Correo</label>
+                            <input type="email" id="perfil-email" disabled>
+                        </div>
+
+                        <div class="gysl-profile-group">
+                            <label>Teléfono</label>
+                            <input type="text" id="perfil-telefono" disabled>
+                        </div>
+
+                        <div class="gysl-profile-group">
+                            <label>Rol</label>
+                            <div class="gysl-profile-readonly" id="perfil-rol">—</div>
+                        </div>
+
+                        <div class="gysl-profile-group">
+                            <label>Fecha nacimiento</label>
+                            <input type="date" id="perfil-fecha" disabled>
+                        </div>
+
+                        <div class="gysl-profile-passwords" id="perfil-passwords">
+                            <div class="gysl-profile-group">
+                                <label>Nueva contraseña</label>
+                                <input type="password" id="perfil-password" placeholder="Opcional">
+                            </div>
+
+                            <div class="gysl-profile-group">
+                                <label>Confirmar contraseña</label>
+                                <input type="password" id="perfil-password-confirm" placeholder="Repite la contraseña">
+                            </div>
+                        </div>
+
+                        <div class="gysl-profile-group full">
+                            <label>Equipos asociados</label>
+                            <div class="gysl-profile-teams" id="perfil-equipos">
+                                <div class="gysl-profile-team">Cargando equipos...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="file" id="perfil-foto" accept="image/jpeg,image/jpg,image/png,image/webp"
+                        style="display:none;" onchange="previewFotoEntrenador()">
+
+                    <div class="gysl-profile-actions">
+                        <button type="button" class="gysl-admin-btn gysl-admin-btn--secondary" id="btn-cancelar"
+                            style="display:none;" onclick="cancelarEdicion()">
+                            Cancelar
+                        </button>
+
+                        <button type="button" class="gysl-admin-btn gysl-admin-btn--primary" id="btn-editar"
+                            onclick="activarEdicion()">
+                            Editar perfil
+                        </button>
+
+                        <button type="button" class="gysl-admin-btn gysl-admin-btn--primary" id="btn-guardar"
+                            style="display:none;" onclick="guardarPerfil()">
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <div class="gysl-toast" id="toast"></div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+            const BASE_PATH = API + "/public";
+
+            let usuarioOriginal = null;
+            let modoEdicion = false;
+
+            function showToast(msg, type = "success") {
+                const toast = document.getElementById("toast");
+                toast.textContent = msg;
+                toast.className = "gysl-toast is-visible" + (type === "error" ? " error" : "");
+                setTimeout(() => toast.classList.remove("is-visible"), 3000);
+            }
+
+            async function cargarPerfil() {
+                try {
+                    const res = await fetch(API + "/auth/me", { credentials: "include" });
+
+                    if (!res.ok) {
+                        window.location.href = BASE_PATH + "/home.html";
+                        return;
+                    }
+
+                    const data = await res.json();
+
+                    if (!data.success || !data.data) {
+                        window.location.href = BASE_PATH + "/home.html";
+                        return;
+                    }
+
+                    usuarioOriginal = data.data;
+                    pintarUsuario(usuarioOriginal);
+                    await cargarEquiposUsuario(usuarioOriginal);
+
+                } catch (err) {
+                    showToast("Error cargando perfil", "error");
+                }
+            }
+
+            function pintarUsuario(usuario) {
+                const nombreCompleto = `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim();
+
+                document.getElementById("perfil-id").value = usuario.id_usuario ?? usuario.id ?? "";
+                document.getElementById("perfil-nombre").value = usuario.nombre || "";
+                document.getElementById("perfil-apellido").value = usuario.apellido || "";
+                document.getElementById("perfil-email").value = usuario.email || "";
+                document.getElementById("perfil-telefono").value = usuario.telefono || "";
+                document.getElementById("perfil-fecha").value = usuario.fecha_nacimiento || "";
+
+                document.getElementById("perfil-rol").textContent = usuario.rol || "USUARIO";
+                document.getElementById("perfil-rol-badge").textContent = usuario.rol || "USUARIO";
+                document.getElementById("perfil-nombre-titulo").textContent = nombreCompleto || "Mi Perfil";
+                document.getElementById("perfil-email-titulo").textContent = usuario.email || "";
+
+                const rolFoto = String(usuario.rol || "").toUpperCase();
+                const avatarBtn = document.getElementById("perfil-avatar-btn");
+                const avatarPreview = document.getElementById("perfil-avatar-preview");
+
+                const puedeTenerFoto = ["STAFF", "ADMIN"].includes(rolFoto);
+
+                if (avatarBtn && avatarPreview) {
+                    avatarBtn.style.display = puedeTenerFoto ? "grid" : "none";
+
+                    const fotoPath = usuario.foto_entrenador || usuario.foto_path || usuario.foto || "";
+
+                    if (fotoPath) {
+                        avatarPreview.className = "";
+                        avatarPreview.innerHTML = `
+                            <img src="${API}${fotoPath}" alt="Foto entrenador">
+                        `;
+                    } else {
+                        avatarPreview.className = "gysl-profile-avatar-placeholder";
+                        avatarPreview.innerHTML = "";
+                    }
+
+                    avatarBtn.classList.toggle("is-disabled", !modoEdicion);
+                }
+            }
+
+            async function cargarEquiposUsuario(usuario) {
+                const cont = document.getElementById("perfil-equipos");
+                const rol = String(usuario.rol || "").toUpperCase();
+
+                if (!["STAFF", "ADMIN"].includes(rol)) {
+                    cont.innerHTML = `
+                            <div class="gysl-profile-team" style="color:var(--gysl-muted);">
+                                Sin equipos asociados
+                            </div>
+                        `;
+                    return;
+                }
+
+                try {
+                    console.log("CARGANDO EQUIPOS PERFIL DESDE /staff/equipos");
+
+                    const res = await fetch(API + "/staff/equipos", {
+                        credentials: "include"
+                    });
+
+                    const data = await res.json();
+
+                    console.log("STATUS /staff/equipos:", res.status);
+                    console.log("DATA /staff/equipos:", data);
+
+                    const equipos = Array.isArray(data) ? data : (data.data || []);
+
+                    if (!res.ok || !data.success || equipos.length === 0) {
+                        cont.innerHTML = `
+                            <div class="gysl-profile-team" style="color:var(--gysl-muted);">
+                                Sin equipos asociados
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    cont.innerHTML = equipos.map(eq => {
+                        const nombre = eq.club ?? eq.nombre ?? eq.nombre_equipo ?? "Equipo sin nombre";
+                        const categoria = eq.categoria ? ` (${eq.categoria})` : "";
+
+                        return `
+                            <div class="gysl-profile-team">
+                                ${nombre}${categoria}
+                            </div>
+                        `;
+                    }).join("");
+
+                } catch (err) {
+                    console.error("ERROR CARGANDO EQUIPOS PERFIL:", err);
+
+                    cont.innerHTML = `
+                            <div class="gysl-profile-team" style="color:var(--gysl-muted);">
+                                No se pudieron cargar los equipos
+                            </div>
+                        `;
+                }
+            }
+
+            window.seleccionarFotoEntrenador = function () {
+                if (!modoEdicion) {
+                    showToast("Pulsa Editar perfil antes de cambiar la foto", "error");
+                    return;
+                }
+
+                const input = document.getElementById("perfil-foto");
+                if (input) input.click();
+            };
+
+            window.previewFotoEntrenador = function () {
+                const input = document.getElementById("perfil-foto");
+                const preview = document.getElementById("perfil-avatar-preview");
+
+                if (!input || !preview || !input.files || input.files.length === 0) return;
+
+                const archivo = input.files[0];
+
+                const formatosPermitidos = [
+                    "image/jpeg",
+                    "image/jpg",
+                    "image/png",
+                    "image/webp"
+                ];
+
+                if (!formatosPermitidos.includes(archivo.type)) {
+                    input.value = "";
+                    showToast("Formato de imagen no permitido", "error");
+                    return;
+                }
+
+                const urlTemporal = URL.createObjectURL(archivo);
+
+                preview.innerHTML = `
+                    <img src="${urlTemporal}" alt="Vista previa foto entrenador">
+                `;
+            };
+
+            window.activarEdicion = function () {
+                modoEdicion = true;
+
+                ["perfil-nombre", "perfil-apellido", "perfil-email", "perfil-telefono", "perfil-fecha"]
+                    .forEach(id => document.getElementById(id).disabled = false);
+
+                document.getElementById("perfil-passwords").classList.add("is-open");
+
+                const avatarBtn = document.getElementById("perfil-avatar-btn");
+                if (avatarBtn) avatarBtn.classList.remove("is-disabled");
+
+                document.getElementById("btn-editar").style.display = "none";
+                document.getElementById("btn-guardar").style.display = "inline-flex";
+                document.getElementById("btn-cancelar").style.display = "inline-flex";
+            };
+
+            window.cancelarEdicion = function () {
+                modoEdicion = false;
+
+                if (usuarioOriginal) pintarUsuario(usuarioOriginal);
+
+                ["perfil-nombre", "perfil-apellido", "perfil-email", "perfil-telefono", "perfil-fecha"]
+                    .forEach(id => document.getElementById(id).disabled = true);
+
+                document.getElementById("perfil-password").value = "";
+                document.getElementById("perfil-password-confirm").value = "";
+                document.getElementById("perfil-passwords").classList.remove("is-open");
+
+                const fotoInput = document.getElementById("perfil-foto");
+                if (fotoInput) {
+                    fotoInput.value = "";
+                }
+                const avatarBtn = document.getElementById("perfil-avatar-btn");
+                if (avatarBtn) avatarBtn.classList.add("is-disabled");
+
+                document.getElementById("btn-editar").style.display = "inline-flex";
+                document.getElementById("btn-guardar").style.display = "none";
+                document.getElementById("btn-cancelar").style.display = "none";
+            };
+
+            window.guardarPerfil = async function () {
+                const id = document.getElementById("perfil-id").value;
+
+                const payload = {
+                    nombre: document.getElementById("perfil-nombre").value.trim(),
+                    apellido: document.getElementById("perfil-apellido").value.trim(),
+                    email: document.getElementById("perfil-email").value.trim(),
+                    telefono: document.getElementById("perfil-telefono").value.trim(),
+                    fecha_nacimiento: document.getElementById("perfil-fecha").value
+                };
+
+                const password = document.getElementById("perfil-password").value;
+                const confirm = document.getElementById("perfil-password-confirm").value;
+
+                if (!payload.nombre || !payload.apellido || !payload.email || !payload.fecha_nacimiento) {
+                    showToast("Completa los campos obligatorios", "error");
+                    return;
+                }
+
+                if (password || confirm) {
+                    if (password.length < 6) {
+                        showToast("La contraseña debe tener al menos 6 caracteres", "error");
+                        return;
+                    }
+
+                    if (password !== confirm) {
+                        showToast("Las contraseñas no coinciden", "error");
+                        return;
+                    }
+
+                    payload.pwd = password;
+                }
+
+                try {
+                    const res = await fetch(API + "/usuarios/" + id, {
+                        method: "PUT",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || !data.success) {
+                        showToast(data.message || "Error al guardar perfil", "error");
+                        return;
+                    }
+
+                    const fotoInput = document.getElementById("perfil-foto");
+
+                    if (fotoInput && fotoInput.files && fotoInput.files.length > 0) {
+                        const archivo = fotoInput.files[0];
+
+                        const formatosPermitidos = [
+                            "image/jpeg",
+                            "image/jpg",
+                            "image/png",
+                            "image/webp"
+                        ];
+
+                        if (!formatosPermitidos.includes(archivo.type)) {
+                            showToast("Formato de imagen no permitido", "error");
+                            return;
+                        }
+
+                        const fd = new FormData();
+                        fd.append("foto", archivo);
+
+                        const resFoto = await fetch(API + "/usuarios/" + id + "/foto-entrenador", {
+                            method: "POST",
+                            credentials: "include",
+                            body: fd
+                        });
+
+                        const dataFoto = await resFoto.json();
+
+                        if (!resFoto.ok || !dataFoto.success) {
+                            showToast(dataFoto.message || "Perfil guardado, pero falló la foto", "error");
+                            return;
+                        }
+                    }
+
+                    usuarioOriginal = data.data || payload;
+                    showToast("Perfil actualizado correctamente", "success");
+                    cancelarEdicion();
+                    await cargarPerfil();
+
+                } catch (err) {
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", cargarPerfil);
+            } else {
+                cargarPerfil();
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

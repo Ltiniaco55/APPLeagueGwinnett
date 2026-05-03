@@ -613,8 +613,11 @@
                 const res = await fetch(API + "/auth/me", { credentials: "include" }).catch(() => null);
                 if (!res || !res.ok) { window.location.href = BASE_PATH + "/home.html"; return; }
                 const data = await res.json().catch(() => ({}));
-                const rol = data?.data?.rol?.toUpperCase() || "";
-                if (rol !== "STAFF" && rol !== "ADMIN") {
+
+                usuarioActual = data?.data || null;
+                rolActual = String(usuarioActual?.rol || "").toUpperCase();
+
+                if (rolActual !== "STAFF" && rolActual !== "ADMIN") {
                     // Devolver 404-like: redirigir a home con error
                     document.body.innerHTML = `
                         <div style="display:flex;align-items:center;justify-content:center;height:100vh;
@@ -627,9 +630,12 @@
             })();
 
             let allLigas = [];
-            let allEquipos = [];      // equipos del staff
+            let allEquipos = [];
             let plantillaData = [];
             let pendientesData = [];
+
+            let usuarioActual = null;
+            let rolActual = "";
 
             // ─────────────────── TOAST ────────────────────
             function showToast(msg, type = "success") {
@@ -637,6 +643,33 @@
                 toast.textContent = msg;
                 toast.className = "gysl-toast gysl-toast--" + type + " is-visible";
                 setTimeout(() => toast.classList.remove("is-visible"), 3500);
+            }
+
+            function aplicarModoPorRol() {
+                const esAdmin = rolActual === "ADMIN";
+
+                const tabAlta = document.getElementById("tab-alta");
+                const tituloAlta = document.querySelector("#panel-solicitar-alta .gysl-alta-card h3");
+                const btnAlta = document.getElementById("btn-solicitar-alta");
+                const subtitle = document.querySelector(".gysl-admin__subtitle");
+
+                if (tabAlta) {
+                    tabAlta.textContent = esAdmin ? "+ Alta Jugador" : "+ Solicitar Alta";
+                }
+
+                if (tituloAlta) {
+                    tituloAlta.textContent = esAdmin ? "Alta directa de jugador" : "Solicitar Alta Individual";
+                }
+
+                if (btnAlta) {
+                    btnAlta.textContent = esAdmin ? "Dar de Alta" : "Solicitar Alta";
+                }
+
+                if (subtitle) {
+                    subtitle.textContent = esAdmin
+                        ? "Alta directa y seguimiento de jugadores de tus equipos"
+                        : "Alta, baja y seguimiento de jugadores de tus equipos";
+                }
             }
 
             // ─────────────────── TABS ─────────────────────
@@ -817,7 +850,8 @@
 
                 document.getElementById('alta-aviso').style.display = 'none';
                 document.getElementById('btn-solicitar-alta').disabled = true;
-                document.getElementById('btn-solicitar-alta').textContent = 'Enviando...';
+                document.getElementById('btn-solicitar-alta').textContent =
+                    rolActual === "ADMIN" ? "Procesando..." : "Enviando...";
 
                 try {
                     const fd = new FormData();
@@ -834,15 +868,24 @@
                         fd.append('telefono_padres', document.getElementById('alta-telefono-padres').value.trim());
                     }
 
-                    const res = await fetch(API + '/staff/jugadores/alta', {
+                    const endpointAlta = rolActual === "ADMIN"
+                        ? "/admin/jugadores/alta-directa"
+                        : "/staff/jugadores/alta";
+
+                    const res = await fetch(API + endpointAlta, {
                         method: 'POST',
                         credentials: 'include',
-                        body: fd    // multipart/form-data — NO enviar Content-Type manual
+                        body: fd
                     });
                     const data = await res.json();
 
                     if (res.ok && data.success) {
-                        showToast(data.message || 'Solicitud enviada correctamente', 'success');
+                        showToast(
+                            data.message || (rolActual === "ADMIN"
+                                ? "Jugador dado de alta correctamente"
+                                : "Solicitud enviada correctamente"),
+                            "success"
+                        );
                         // Limpiar formulario
                         ['alta-nombre', 'alta-apellido', 'alta-fecha',
                             'alta-nombres-padres', 'alta-email-padres', 'alta-telefono-padres'
@@ -866,83 +909,10 @@
                     showToast('Error de conexión', 'error');
                 } finally {
                     document.getElementById('btn-solicitar-alta').disabled = false;
-                    document.getElementById('btn-solicitar-alta').textContent = 'Solicitar Alta';
+                    document.getElementById('btn-solicitar-alta').textContent =
+                        rolActual === "ADMIN" ? "Dar de Alta" : "Solicitar Alta";
                 }
             };
-
-            // TODO BORRAR — ALTA MASIVA DESACTIVADA
-            /*
-            // ─────────────────── TAB 1: LOTE ──────────────
-            window.prepararFilasLote = function () {
-                const n = parseInt(document.getElementById("lote-cantidad").value, 10);
-                if (!n || n < 1 || n > 25) { showToast("Introduce entre 1 y 25", "error"); return; }
-
-                const container = document.getElementById("lote-rows-container");
-                container.innerHTML = "";
-                for (let i = 0; i < n; i++) {
-                    container.innerHTML += `
-                    <div class="gysl-lote-row" data-row="${i}">
-                        <span class="gysl-lote-row__num">${i + 1}</span>
-                        <input type="text" placeholder="Nombre" data-field="nombre">
-                        <input type="text" placeholder="Apellido" data-field="apellido">
-                        <input type="date" data-field="fecha_nacimiento">
-                        <button class="gysl-btn-remove" onclick="removeRow(${i})" title="Quitar fila">✕</button>
-                    </div>`;
-                }
-                document.getElementById("btn-enviar-lote").style.display = "inline-flex";
-            };
-
-            window.removeRow = function (idx) {
-                const row = document.querySelector(`.gysl-lote-row[data-row="${idx}"]`);
-                if (row) row.remove();
-            };
-
-            window.enviarLote = async function () {
-                const id_liga   = document.getElementById("lote-liga").value;
-                const id_equipo = document.getElementById("lote-equipo").value;
-
-                if (!id_liga)   { showToast("Selecciona una liga", "error"); return; }
-                if (!id_equipo) { showToast("Selecciona un equipo", "error"); return; }
-
-                const rows = document.querySelectorAll(".gysl-lote-row");
-                if (rows.length === 0) { showToast("No hay filas para enviar", "error"); return; }
-
-                const jugadores = [];
-                for (const row of rows) {
-                    const nombre   = row.querySelector('[data-field="nombre"]')?.value.trim() || "";
-                    const apellido = row.querySelector('[data-field="apellido"]')?.value.trim() || "";
-                    const fecha    = row.querySelector('[data-field="fecha_nacimiento"]')?.value || "";
-                    if (!nombre || !apellido || !fecha) {
-                        showToast("Todas las filas deben estar completas", "error"); return;
-                    }
-                    jugadores.push({ nombre, apellido, fecha_nacimiento: fecha });
-                }
-
-                try {
-                    const res = await fetch(API + "/staff/jugadores/lote", {
-                        method: "POST",
-                        credentials: "include",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ id_equipo: +id_equipo, id_liga: +id_liga, jugadores })
-                    });
-                    const data = await res.json();
-
-                    if (res.ok && data.success) {
-                        showToast(data.message || "Lote enviado", "success");
-                        document.getElementById("lote-rows-container").innerHTML = "";
-                        document.getElementById("btn-enviar-lote").style.display = "none";
-
-                        if (data.avisos && data.avisos.length > 0) {
-                            setTimeout(() => showToast("⚠ Algunos jugadores ya existen en otros equipos", "warning"), 1000);
-                        }
-                    } else {
-                        showToast(data.message || "Error al enviar el lote", "error");
-                    }
-                } catch (err) {
-                    showToast("Error de conexión", "error");
-                }
-            };
-            */
 
             // ─────────────────── TAB 2: PLANTILLA ─────────
             window.cargarPlantilla = async function () {
@@ -1227,6 +1197,7 @@
 
             // ─────────────────── INIT ─────────────────────
             async function init() {
+                aplicarModoPorRol();
                 await loadGlobalData();
                 // Aplicar filtros de URL si vienen (ej: desde staff-equipos.html)
                 const params = new URLSearchParams(window.location.search);
