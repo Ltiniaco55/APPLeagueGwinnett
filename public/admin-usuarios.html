@@ -49,6 +49,147 @@
             outline: none;
             border-color: var(--gysl-yellow);
         }
+
+        .gysl-detail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .gysl-detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .gysl-detail-row__label {
+            font-size: 12px;
+            font-weight: var(--fw-semibold);
+            text-transform: uppercase;
+            color: var(--gysl-muted);
+        }
+
+        .gysl-detail-row__value {
+            font-size: 14px;
+            color: var(--gysl-white);
+            font-weight: var(--fw-bold);
+            text-align: right;
+        }
+
+        .gysl-user-teams-list {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .gysl-user-team-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--gysl-white);
+            font-weight: var(--fw-bold);
+            font-size: 14px;
+        }
+
+        .gysl-user-team-item__name {
+            flex: 1;
+        }
+
+        .gysl-user-team-item__remove {
+            border: 1px solid rgba(215, 38, 38, 0.45);
+            background: rgba(215, 38, 38, 0.12);
+            color: var(--gysl-red, #d72626);
+            padding: 6px 10px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: var(--fw-bold);
+            cursor: pointer;
+        }
+
+        .gysl-user-team-item__remove:hover {
+            background: rgba(215, 38, 38, 0.22);
+        }
+
+        .gysl-role-teams-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .gysl-role-team-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 12px;
+            border-radius: 9px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.035);
+            cursor: pointer;
+            transition: border-color .2s ease, background .2s ease, transform .15s ease;
+        }
+
+        .gysl-role-team-option:hover {
+            border-color: rgba(241, 184, 45, 0.45);
+            background: rgba(241, 184, 45, 0.07);
+        }
+
+        .gysl-role-team-option input {
+            width: 17px;
+            height: 17px;
+            accent-color: var(--gysl-yellow, #f1b82d);
+            cursor: pointer;
+        }
+
+        .gysl-role-team-option__text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .gysl-role-team-option__name {
+            color: var(--gysl-white);
+            font-weight: var(--fw-bold);
+            font-size: 14px;
+        }
+
+        .gysl-role-team-option__liga {
+            color: var(--gysl-muted);
+            font-size: 11px;
+            font-weight: var(--fw-semibold);
+        }
+
+        .gysl-role-team-option:has(input:checked) {
+            border-color: rgba(241, 184, 45, 0.65);
+            background: rgba(241, 184, 45, 0.12);
+        }
+
+
+        .gysl-user-team-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 600px) {
+            .gysl-detail-row {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .gysl-detail-row__value {
+                text-align: left;
+            }
+        }
     </style>
 </head>
 
@@ -104,7 +245,6 @@
                             <th>Nombre</th>
                             <th>Email</th>
                             <th>Rol Actual</th>
-                            <th>Equipo Asignado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -119,7 +259,7 @@
     <!-- ═══ MODAL ROLE ═══ -->
     <div class="gysl-admin-form-overlay" id="rol-form-overlay">
         <div class="gysl-admin-form-card" style="max-width: 480px;">
-            <h3 id="rol-form-title">Modificar Rol de Usuario</h3>
+            <h3 id="rol-form-title">Permisos del Usuario</h3>
             <div style="color: var(--gysl-muted); font-size: 13px; margin-bottom: 15px;" id="rol-user-info">
                 Nombre - user@email.com
             </div>
@@ -138,12 +278,34 @@
                     </select>
                 </div>
 
+                <div class="gysl-admin-form-group" id="rol-password-group" style="display:none;">
+                    <label for="rol-password-confirmacion">Contraseña de confirmación</label>
+
+                    <input type="password" id="rol-password-confirmacion"
+                        placeholder="Introduce tu contraseña de administrador" autocomplete="current-password"
+                        style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:#fff;">
+
+                    <small style="display:block; margin-top:6px; color:var(--gysl-muted); font-size:11px;">
+                        Obligatoria al asignar o retirar permisos de ADMIN
+                    </small>
+                </div>
+
                 <div class="gysl-admin-form-group" id="rol-equipo-group" style="display:none;">
-                    <label for="rol-equipo-select">Equipo a gestionar (Obligatorio para STAFF)</label>
-                    <select id="rol-equipo-select"
-                        style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #fff;">
-                        <option value="">— Seleccione un equipo —</option>
-                    </select>
+                    <label>Equipos a gestionar</label>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                        <select id="rol-filtro-liga" onchange="onFiltroLigaRolChange()"
+                            style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:#fff;">
+                            <option value="">— Todas las ligas —</option>
+                        </select>
+
+                        <input type="text" id="rol-buscar-equipo" placeholder="Buscar equipo..."
+                            oninput="onBuscarEquipoRolChange()"
+                            style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:#fff;">
+                    </div>
+
+                    <div id="rol-equipos-container" class="gysl-role-teams-box"></div>
+
                 </div>
 
                 <div class="gysl-admin-form-actions">
@@ -153,6 +315,23 @@
                         Cambios</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL FICHA USUARIO ═══ -->
+    <div class="gysl-admin-form-overlay" id="ficha-usuario-overlay">
+        <div class="gysl-admin-form-card" style="width:min(620px, 95%); max-height:85vh; overflow-y:auto;">
+            <h3 id="ficha-usuario-title">Ficha del Usuario</h3>
+
+            <div class="gysl-detail-info" id="ficha-usuario-content">
+                <!-- Se genera dinámicamente -->
+            </div>
+
+            <div class="gysl-admin-form-actions" style="margin-top:20px;">
+                <button type="button" class="gysl-admin-btn gysl-admin-btn--secondary" onclick="cerrarFichaUsuario()">
+                    Cerrar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -171,6 +350,11 @@
 
             let usuariosData = [];
             let equiposData = [];
+            let equiposStaffActual = [];
+            let ligasData = [];
+            let filtroLigaRol = "";
+            let filtroBusquedaEquipoRol = "";
+            let rolActualPermisos = "";
 
             const tbody = document.getElementById("usuarios-tbody");
             const tableWrapper = document.getElementById("usuarios-table-wrapper");
@@ -205,21 +389,49 @@
                 empty.style.display = "none";
 
                 try {
-                    const [resUsu, resEq] = await Promise.all([
+
+                    const [resUsu, resEq, resLig] = await Promise.all([
                         fetch(API_REAL + "/usuarios", { credentials: "include" }),
-                        fetch(API_REAL + "/equipos", { credentials: "include" })
+                        fetch(API_REAL + "/equipos", { credentials: "include" }),
+                        fetch(API_REAL + "/ligas", { credentials: "include" })
                     ]);
 
-                    const dataUsu = await resUsu.json();
+                    const rawUsu = await resUsu.text();
+                    const rawEq = await resEq.text();
+                    const rawLig = await resLig.text();
+
+                    const dataUsu = JSON.parse(rawUsu);
+                    const dataEq = JSON.parse(rawEq);
+                    const dataLig = JSON.parse(rawLig);
+
                     usuariosData = Array.isArray(dataUsu) ? dataUsu : (dataUsu.data || []);
-
-                    const dataEq = await resEq.json();
                     equiposData = Array.isArray(dataEq) ? dataEq : (dataEq.data || []);
+                    ligasData = Array.isArray(dataLig) ? dataLig : (dataLig.data || []);
 
-                    populateEquiposSelect();
+                    for (const usuario of usuariosData) {
+                        const rol = (usuario.rol || "").toUpperCase();
+                        const idUsuario = usuario.id_usuario ?? usuario.id;
+
+                        console.log("LOADDATA USUARIO:", {
+                            idUsuario,
+                            rol,
+                            nombre: usuario.nombre,
+                            email: usuario.email
+                        });
+
+                        if (rol === "STAFF" || rol === "ADMIN") {
+                            console.log("CARGANDO EQUIPOS PARA:", idUsuario, rol);
+
+                            usuario.equipos_staff = await obtenerEquiposStaff(idUsuario);
+
+                            console.log("EQUIPOS ASIGNADOS RECIBIDOS:", {
+                                idUsuario,
+                                equipos_staff: usuario.equipos_staff
+                            });
+                        }
+                    }
 
                 } catch (err) {
-                    console.error("Error cargando datos:", err);
                     showToast("Error de conexión", "error");
                 }
 
@@ -227,15 +439,109 @@
                 renderUsuarios();
             }
 
-            function populateEquiposSelect() {
-                const sel = document.getElementById("rol-equipo-select");
-                sel.innerHTML = '<option value="">— Seleccione un equipo —</option>';
-                equiposData.forEach(eq => {
-                    const id = eq.id_equipo ?? eq.id;
-                    const nm = eq.club ?? eq.nombre ?? "Sin club";
-                    sel.innerHTML += `<option value="${id}">${nm}</option>`;
+
+            function populateFiltroLigasRol() {
+                const select = document.getElementById("rol-filtro-liga");
+                if (!select) return;
+
+                select.innerHTML = '<option value="">— Todas las ligas —</option>';
+
+                ligasData.forEach(liga => {
+                    const id = liga.id_liga ?? liga.id;
+                    const nombre = liga.nombre_liga ?? liga.nom ?? liga.nombre ?? "Sin nombre";
+                    const categoria = liga.categoria ?? liga.categ ?? "";
+
+                    select.innerHTML += `
+            <option value="${id}">
+                ${nombre}${categoria ? ` (${categoria})` : ""}
+            </option>
+        `;
                 });
+
+                select.value = filtroLigaRol;
             }
+
+            function populateEquiposCheckboxes(equiposSeleccionados = []) {
+                const container = document.getElementById("rol-equipos-container");
+
+                populateFiltroLigasRol();
+
+                if (!equiposData.length) {
+                    container.innerHTML = `
+            <p style="color:var(--gysl-muted); font-size:13px;">
+                No hay equipos disponibles.
+            </p>
+        `;
+                    return;
+                }
+
+                const busqueda = filtroBusquedaEquipoRol.toLowerCase().trim();
+                const html = equiposData.map(eq => {
+                    const idEquipo = eq.id_equipo ?? eq.id;
+                    const nombre = eq.club ?? eq.nombre ?? "Sin club";
+
+                    if (busqueda && !nombre.toLowerCase().includes(busqueda)) {
+                        return "";
+                    }
+
+                    let ligasIds = [];
+
+                    if (Array.isArray(eq.ligas_ids)) {
+                        ligasIds = eq.ligas_ids;
+                    } else if (typeof eq.ligas_ids === "string") {
+                        ligasIds = eq.ligas_ids.split(",").map(id => id.trim()).filter(Boolean);
+                    } else if (eq.id_liga) {
+                        ligasIds = [eq.id_liga];
+                    }
+
+                    if (filtroLigaRol) {
+                        ligasIds = ligasIds.filter(idLiga =>
+                            Number(idLiga) === Number(filtroLigaRol)
+                        );
+                    }
+
+                    if (ligasIds.length === 0) {
+                        return "";
+                    }
+
+                    return ligasIds.map(idLiga => {
+                        const checked = equiposSeleccionados.some(rel =>
+                            Number(rel.id_equipo) === Number(idEquipo) &&
+                            Number(rel.id_liga) === Number(idLiga)
+                        ) ? "checked" : "";
+
+                        return `
+                <label class="gysl-role-team-option">
+                    <input type="checkbox"
+                        class="rol-equipo-checkbox"
+                        value="${idEquipo}"
+                        data-id-liga="${idLiga}"
+                        ${checked}>
+
+                    <span class="gysl-role-team-option__text">
+                        <span class="gysl-role-team-option__name">${nombre}</span>
+                    </span>
+                </label>
+            `;
+                    }).join("");
+                }).join("");
+
+                container.innerHTML = html || `
+        <p style="color:var(--gysl-muted); font-size:13px;">
+            No hay equipos que coincidan con el filtro.
+        </p>
+    `;
+            }
+
+            window.onFiltroLigaRolChange = function () {
+                filtroLigaRol = document.getElementById("rol-filtro-liga").value;
+                populateEquiposCheckboxes(equiposStaffActual);
+            };
+
+            window.onBuscarEquipoRolChange = function () {
+                filtroBusquedaEquipoRol = document.getElementById("rol-buscar-equipo").value;
+                populateEquiposCheckboxes(equiposStaffActual);
+            };
 
             /* ─── Render ─── */
             window.renderUsuarios = function () {
@@ -244,9 +550,12 @@
 
                 const filtrados = usuariosData.filter(u => {
                     if (fRol && (u.rol || "").toUpperCase() !== fRol) return false;
-                    const nm = (u.nombre + " " + (u.apellido || "")).toLowerCase();
+
+                    const nm = ((u.nombre || "") + " " + (u.apellido || "")).toLowerCase();
                     const em = (u.email || "").toLowerCase();
+
                     if (fStr && !nm.includes(fStr) && !em.includes(fStr)) return false;
+
                     return true;
                 });
 
@@ -262,50 +571,142 @@
                 tbody.innerHTML = filtrados.map(u => {
                     const id = u.id_usuario ?? u.id;
                     const nm = (u.nombre || "—") + " " + (u.apellido || "");
-                    const role = u.rol || "USUARIO";
+                    const role = (u.rol || "USUARIO").toUpperCase();
 
-                    let eqName = "—";
-                    if (u.id_equipo) {
-                        const matcha = equiposData.find(e => (e.id_equipo ?? e.id) == u.id_equipo);
-                        if (matcha) eqName = matcha.club ?? matcha.nombre;
-                    }
+                    const isStaff = role === "STAFF";
 
-                    const isStaff = role.toUpperCase() === "STAFF";
-                    const badgeClass = isStaff ? "gysl-badge--pending" : (role.toUpperCase() === "ADMIN" ? "gysl-badge--active" : "gysl-badge--inactive");
+                    const badgeClass = isStaff
+                        ? "gysl-badge--pending"
+                        : role === "ADMIN"
+                            ? "gysl-badge--active"
+                            : "gysl-badge--inactive";
 
                     return `
-                    <tr>
-                        <td>${id}</td>
-                        <td>${nm}</td>
-                        <td>${u.email}</td>
-                        <td><span class="gysl-badge ${badgeClass}" style="background: ${isStaff ? '#3b82f6' : ''}">${role}</span></td>
-                        <td>${isStaff ? eqName : '—'}</td>
-                        <td>
-                            <div class="gysl-admin-table__actions">
-                                <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
-                                        onclick="openRolForm(${id})">Cambiar Rol</button>
-                            </div>
-                        </td>
-                    </tr>`;
+                        <tr>
+                            <td>${id}</td>
+                            <td>${nm}</td>
+                            <td>${u.email || "—"}</td>
+                            <td>
+                                <span class="gysl-badge ${badgeClass}" style="background: ${isStaff ? '#3b82f6' : ''}">
+                                    ${role}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="gysl-admin-table__actions">
+                                    <button class="gysl-admin-table__btn"
+                                            onclick="abrirFichaUsuario(${id})">
+                                        Ficha
+                                    </button>
+
+                                    <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
+                                            onclick="openRolForm(${id})">
+                                        Permisos
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
                 }).join("");
             };
+            async function obtenerEquiposStaff(idUsuario) {
+                try {
+
+                    console.log("OBTENER EQUIPOS STAFF PARA USUARIO:", idUsuario);
+                    console.log("URL GET EQUIPOS STAFF:", API_REAL + "/usuarios/" + idUsuario + "/equipos-staff");
+                    const res = await fetch(API_REAL + "/usuarios/" + idUsuario + "/equipos-staff", {
+                        credentials: "include"
+                    });
+
+                    const data = await res.json();
+                    console.log("GET EQUIPOS STAFF STATUS:", res.status);
+                    console.log("GET EQUIPOS STAFF OK?:", res.ok);
+                    console.log("GET EQUIPOS STAFF DATA:", data);
+
+                    if (!res.ok || !data.success) {
+                        console.warn("No se pudieron obtener los equipos del staff:", data);
+                        return [];
+                    }
+
+                    return data.data || [];
+                } catch (err) {
+                    console.error("Error obteniendo equipos staff:", err);
+                    return [];
+                }
+            }
+
+            function configurarOpcionesRol(rolActual) {
+                const select = document.getElementById("rol-select");
+
+                const roles = [
+                    {
+                        value: "USUARIO",
+                        label: "USUARIO (Espectador normal)"
+                    },
+                    {
+                        value: "STAFF",
+                        label: "STAFF (Encargado de un equipo)"
+                    },
+                    {
+                        value: "ARBITRO",
+                        label: "ARBITRO"
+                    },
+                    {
+                        value: "ADMIN",
+                        label: "ADMIN (Acceso total)"
+                    }
+                ];
+
+                const rolNormalizado = (rolActual || "USUARIO").toUpperCase();
+
+                const opcionesFiltradas = roles.filter(r => r.value !== rolNormalizado);
+
+                select.innerHTML = `
+                    <option value="" disabled selected>
+                        -- Seleccionar nuevo rol (${rolNormalizado}) --
+                    </option>
+                    ${opcionesFiltradas.map(r => `
+                        <option value="${r.value}">${r.label}</option>
+                    `).join("")}
+                `;
+            }
 
             /* ─── Forms ─── */
-            window.openRolForm = function (id) {
+            window.openRolForm = async function (id) {
                 const u = usuariosData.find(usr => (usr.id_usuario ?? usr.id) == id);
                 if (!u) return;
 
                 document.getElementById("rol-edit-id").value = id;
-                document.getElementById("rol-user-info").textContent = `${u.nombre} ${u.apellido || ""} - ${u.email}`;
-                document.getElementById("rol-select").value = (u.rol || "USUARIO").toUpperCase();
+                document.getElementById("rol-user-info").textContent =
+                    `${u.nombre} ${u.apellido || ""} - ${u.email}`;
+                const rolActual = (u.rol || "USUARIO").toUpperCase();
 
-                if (u.id_equipo) {
-                    document.getElementById("rol-equipo-select").value = u.id_equipo;
-                } else {
-                    document.getElementById("rol-equipo-select").value = "";
+                rolActualPermisos = rolActual;
+
+                document.getElementById("rol-password-confirmacion").value = "";
+
+                configurarOpcionesRol(rolActual);
+
+                equiposStaffActual = [];
+
+                if (rolActual === "STAFF" || rolActual === "ADMIN") {
+                    const equiposAsignados = await obtenerEquiposStaff(id);
+
+                    equiposStaffActual = equiposAsignados.map(eq => ({
+                        id_equipo: Number(eq.id_equipo),
+                        id_liga: Number(eq.id_liga)
+                    }));
                 }
 
+                filtroLigaRol = "";
+                filtroBusquedaEquipoRol = "";
+
+                const inputBusqueda = document.getElementById("rol-buscar-equipo");
+                if (inputBusqueda) inputBusqueda.value = "";
+
+                populateEquiposCheckboxes(equiposStaffActual);
+
                 onRolChange();
+
                 document.getElementById("rol-form-overlay").classList.add("is-open");
             };
 
@@ -313,34 +714,276 @@
                 document.getElementById("rol-form-overlay").classList.remove("is-open");
             };
 
-            window.onRolChange = function () {
-                const s = document.getElementById("rol-select").value;
-                const eqGroup = document.getElementById("rol-equipo-group");
-                const eqSelect = document.getElementById("rol-equipo-select");
+            window.abrirFichaUsuario = async function (id) {
+                const usuario = usuariosData.find(u => (u.id_usuario ?? u.id) == id);
 
-                if (s === "STAFF") {
+                if (!usuario) {
+                    showToast("Usuario no encontrado", "error");
+                    return;
+                }
+
+                const rol = (usuario.rol || "USUARIO").toUpperCase();
+
+                let equiposStaff = [];
+
+                if (rol === "STAFF" || rol === "ADMIN") {
+                    equiposStaff = usuario.equipos_staff || [];
+
+                    if (!Array.isArray(equiposStaff) || equiposStaff.length === 0) {
+                        equiposStaff = await obtenerEquiposStaff(id);
+                        usuario.equipos_staff = equiposStaff;
+                    }
+                    console.log("EQUIPOS STAFF CRUDOS FICHA:", equiposStaff);
+                    console.log("EQUIPOS DATA CRUDOS:", equiposData);
+                }
+
+
+                const nombreCompleto = `${usuario.nombre || "—"} ${usuario.apellido || ""}`.trim();
+                const telefono = usuario.telefono || "—";
+                const email = usuario.email || "—";
+
+                let equiposHtml = "";
+
+                if (rol === "STAFF" || rol === "ADMIN") {
+                    const listaEquipos = equiposStaff.length > 0
+                        ? equiposStaff.map(rel => {
+                            const equipoReal = equiposData.find(eq =>
+                                Number(eq.id_equipo ?? eq.id) === Number(rel.id_equipo)
+                            );
+
+                            const nombreEquipo =
+                                rel.club ??
+                                rel.nombre_equipo ??
+                                rel.nombre ??
+                                rel.nombre_equipo_staff ??
+                                equipoReal?.club ??
+                                equipoReal?.nombre ??
+                                equipoReal?.nombre_equipo ??
+                                "Equipo sin nombre";
+
+                            const categoria =
+                                rel.categoria ??
+                                rel.categ ??
+                                equipoReal?.categoria ??
+                                equipoReal?.categ ??
+                                "";
+
+                            return `
+                    <div class="gysl-user-team-item">
+                        <span class="gysl-user-team-item__name">
+                            ${nombreEquipo}${categoria ? ` (${categoria})` : ""}
+                        </span>
+
+                        <button type="button"
+                            class="gysl-user-team-item__remove"
+                            onclick="quitarEquipoUsuario(${id}, ${Number(rel.id_equipo)}, ${Number(rel.id_liga)})">
+                            Quitar
+                        </button>
+                    </div>
+                `;
+                        }).join("")
+                        : `<div class="gysl-user-team-item" style="color:var(--gysl-muted);">Sin equipos asignados</div>`;
+
+                    const botonAsignar = (rol === "ADMIN" || rol === "STAFF")
+                        ? `
+                            <div style="margin-top:12px;">
+                                <button type="button"
+                                    class="gysl-admin-btn gysl-admin-btn--primary"
+                                    onclick="cerrarFichaUsuario(); openRolForm(${id});">
+                                    Gestionar equipos
+                                </button>
+                            </div>
+    `
+                        : "";
+
+                    equiposHtml = `
+                        <div class="gysl-detail-row" style="flex-direction:column; gap:8px;">
+                            <span class="gysl-detail-row__label">Equipos asociados</span>
+                            <div class="gysl-user-teams-list">
+                                ${listaEquipos}
+                            </div>
+                            ${botonAsignar}
+                        </div>
+                    `;
+                }
+
+                document.getElementById("ficha-usuario-title").textContent = "Ficha del Usuario";
+
+                document.getElementById("ficha-usuario-content").innerHTML = `
+                    <div class="gysl-detail-row">
+                        <span class="gysl-detail-row__label">Nombre</span>
+                        <span class="gysl-detail-row__value">${nombreCompleto}</span>
+                    </div>
+
+                    <div class="gysl-detail-row">
+                        <span class="gysl-detail-row__label">Correo</span>
+                        <span class="gysl-detail-row__value">${email}</span>
+                    </div>
+
+                    <div class="gysl-detail-row">
+                        <span class="gysl-detail-row__label">Teléfono</span>
+                        <span class="gysl-detail-row__value">${telefono}</span>
+                    </div>
+
+                    <div class="gysl-detail-row">
+                        <span class="gysl-detail-row__label">Rol</span>
+                        <span class="gysl-detail-row__value">${rol}</span>
+                    </div>
+
+                    ${equiposHtml}
+                `;
+
+                document.getElementById("ficha-usuario-overlay").classList.add("is-open");
+            };
+
+            window.cerrarFichaUsuario = function () {
+                document.getElementById("ficha-usuario-overlay").classList.remove("is-open");
+            };
+
+            window.quitarEquipoUsuario = async function (idUsuario, idEquipo, idLiga) {
+                if (!confirm("¿Quitar este equipo asociado al usuario?")) return;
+
+                const usuario = usuariosData.find(u => (u.id_usuario ?? u.id) == idUsuario);
+
+                if (!usuario) {
+                    showToast("Usuario no encontrado", "error");
+                    return;
+                }
+
+                let equiposActuales = usuario.equipos_staff || [];
+
+                if (!Array.isArray(equiposActuales) || equiposActuales.length === 0) {
+                    equiposActuales = await obtenerEquiposStaff(idUsuario);
+                }
+
+                const relacionesRestantes = equiposActuales
+                    .filter(rel =>
+                        !(
+                            Number(rel.id_equipo) === Number(idEquipo) &&
+                            Number(rel.id_liga) === Number(idLiga)
+                        )
+                    )
+                    .map(rel => ({
+                        id_equipo: Number(rel.id_equipo),
+                        id_liga: Number(rel.id_liga),
+                        estado: rel.estado || "ACTIVO"
+                    }));
+
+                try {
+                    const res = await fetch(API_REAL + "/usuarios/" + idUsuario + "/equipos-staff", {
+                        method: "PATCH",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ relaciones: relacionesRestantes })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || !data.success) {
+                        showToast(data.message || "Error al quitar equipo", "error");
+                        return;
+                    }
+
+                    showToast("Equipo quitado correctamente", "success");
+
+                    await loadData();
+
+                    const usuarioActualizado = usuariosData.find(u => (u.id_usuario ?? u.id) == idUsuario);
+
+                    if (usuarioActualizado) {
+                        abrirFichaUsuario(idUsuario);
+                    } else {
+                        cerrarFichaUsuario();
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+
+            function actualizarVisibilidadPasswordAdmin() {
+                const nuevoRol = document.getElementById("rol-select").value;
+
+                const passwordGroup = document.getElementById("rol-password-group");
+
+                const cambioCriticoAdmin =
+                    rolActualPermisos === "ADMIN" ||
+                    nuevoRol === "ADMIN";
+
+                passwordGroup.style.display = cambioCriticoAdmin
+                    ? "block"
+                    : "none";
+
+                if (!cambioCriticoAdmin) {
+                    document.getElementById("rol-password-confirmacion").value = "";
+                }
+            }
+
+            window.onRolChange = function () {
+                const rol = document.getElementById("rol-select").value;
+                const eqGroup = document.getElementById("rol-equipo-group");
+
+                if (rol === "STAFF") {
                     eqGroup.style.display = "block";
-                    eqSelect.style.background = "rgba(255,255,255,0.06)";
+                    populateEquiposCheckboxes(equiposStaffActual);
                 } else {
                     eqGroup.style.display = "none";
-                    eqSelect.value = "";
                 }
+                actualizarVisibilidadPasswordAdmin();
             };
 
             window.submitRol = async function () {
                 const id = document.getElementById("rol-edit-id").value;
                 const rol = document.getElementById("rol-select").value;
-                const idEquipo = document.getElementById("rol-equipo-select").value;
 
-                if (rol === "STAFF" && !idEquipo) {
-                    showToast("Debes seleccionar un equipo para el rol STAFF", "warning");
-                    document.getElementById("rol-equipo-select").style.border = "1px solid red";
+                const passwordConfirmacion =
+                    document.getElementById("rol-password-confirmacion").value.trim();
+
+                const cambioCriticoAdmin =
+                    rolActualPermisos === "ADMIN" ||
+                    rol === "ADMIN";
+
+                if (cambioCriticoAdmin && !passwordConfirmacion) {
+                    showToast(
+                        "Debes confirmar tu contraseña para modificar permisos de administrador",
+                        "warning"
+                    );
+                    return;
+                }
+
+                const bodyRol = { rol };
+
+                if (cambioCriticoAdmin) {
+                    bodyRol.password_confirmacion = passwordConfirmacion;
+                }
+
+                if (!rol) {
+                    showToast("Selecciona un rol nuevo", "warning");
+                    return;
+                }
+
+                const relaciones = Array.from(
+                    document.querySelectorAll(".rol-equipo-checkbox:checked")
+                ).map(chk => ({
+                    id_equipo: parseInt(chk.value, 10),
+                    id_liga: parseInt(chk.dataset.idLiga, 10),
+                    estado: "ACTIVO"
+                }));
+
+                console.log("CHECKBOXES MARCADOS:", document.querySelectorAll(".rol-equipo-checkbox:checked"));
+
+                console.log("RELACIONES GENERADAS FRONT:", relaciones);
+
+                console.log("RELACIONES JSON:", JSON.stringify({ relaciones: relaciones }));
+
+                if (rol === "STAFF" && relaciones.length === 0) {
+                    showToast("Debes seleccionar al menos un equipo para el rol STAFF", "warning");
                     return;
                 }
 
                 if (!confirm(`¿Confirmas cambiar el rol a ${rol}?`)) return;
-
-                document.getElementById("rol-equipo-select").style.border = "1px solid rgba(255,255,255,0.12)";
 
                 try {
                     // 1. Update Rol
@@ -348,10 +991,13 @@
                         method: "PATCH",
                         credentials: "include",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ rol: rol })
+                        body: JSON.stringify(bodyRol)
                     });
 
                     const dataRol = await resRol.json();
+
+                    console.log("RESPUESTA ROL STATUS:", resRol.status);
+                    console.log("RESPUESTA ROL DATA:", dataRol);
 
                     if (!resRol.ok) {
                         showToast(dataRol.message || "Error al actualizar rol", "error");
@@ -360,15 +1006,29 @@
 
                     // 2. Update Equipo (Solo aplicable cuando es staff o cuando pierde su rol, 
                     // pero el backend limpia el id_equipo automático si rol != STAFF, así que siempre lo enviamos si es STAFF)
+
+
                     if (rol === "STAFF") {
-                        const resEq = await fetch(API_REAL + "/usuarios/" + id + "/equipo-staff", {
+                        console.log("ENTRANDO A GUARDAR EQUIPOS STAFF/ADMIN");
+
+                        console.log("URL EQUIPOS STAFF:", API_REAL + "/usuarios/" + id + "/equipos-staff");
+
+                        console.log("BODY ENVIADO EQUIPOS STAFF:", {
+                            relaciones: relaciones
+                        });
+                        const resEq = await fetch(API_REAL + "/usuarios/" + id + "/equipos-staff", {
                             method: "PATCH",
                             credentials: "include",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ id_equipo: parseInt(idEquipo, 10) })
+                            body: JSON.stringify({ relaciones: relaciones })
                         });
 
                         const dataEq = await resEq.json();
+
+                        console.log("RESPUESTA EQUIPOS STAFF OK?:", resEq.ok);
+                        console.log("RESPUESTA EQUIPOS STAFF STATUS:", resEq.status);
+                        console.log("RESPUESTA EQUIPOS STAFF DATA COMPLETA:", dataEq);
+
                         if (!resEq.ok) {
                             showToast(dataEq.message || "Rol guardado, pero falló al asignar equipo", "error");
                             return;

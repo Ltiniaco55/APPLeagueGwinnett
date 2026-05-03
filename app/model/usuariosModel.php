@@ -174,6 +174,14 @@ class UsuariosModel
         return $stmt->rowCount();
     }
 
+    public function countAdmins(): int
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM usuario WHERE rol = 'ADMIN'");
+        $stmt->execute();
+
+        return (int)$stmt->fetchColumn();
+    }
+
     public function updateRol(int $id, string $rol): int
     {
         $stmt = $this->db->prepare("UPDATE usuario SET rol = ? WHERE id_usuario = ?");

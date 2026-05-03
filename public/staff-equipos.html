@@ -116,23 +116,112 @@
             margin: 0;
         }
 
-        .gysl-cards-wrapper { margin-top: 20px; }
-        .gysl-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .gysl-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: all 0.2s ease; }
-        .gysl-card:hover { border-color: var(--gysl-yellow, #f1b82d); background: rgba(241, 184, 45, 0.06); transform: translateY(-2px); }
-        .gysl-card__escudo { width: 80px; height: 80px; border-radius: 8px; object-fit: contain; background: rgba(255, 255, 255, 0.05); margin: 0 auto; }
-        .gysl-card__header { text-align: center; }
-        .gysl-card__title { font-size: 18px; font-weight: bold; color: var(--gysl-white, #fff); margin: 0; margin-bottom: 4px; }
-        .gysl-card__info { display: flex; justify-content: space-between; font-size: 13px; color: var(--gysl-muted, #a1a1aa); }
-        .gysl-card__desc { font-size: 13px; color: var(--gysl-muted, #a1a1aa); text-align: center; flex-grow: 1; }
-        .gysl-card__actions { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-        
-        .gysl-filters-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
-        .gysl-filters-bar select, .gysl-filters-bar input { padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: var(--gysl-white, #fff); font-family: var(--gysl-font, sans-serif); }
-        .gysl-filters-bar select { min-width: 180px; }
-        .gysl-filters-bar input { min-width: 200px; }
-        .gysl-filters-bar select option { background: var(--gysl-superdark); color: var(--gysl-white); }
-        .gysl-filters-bar select:focus, .gysl-filters-bar input:focus { outline: none; border-color: var(--gysl-yellow); }
+        .gysl-cards-wrapper {
+            margin-top: 20px;
+        }
+
+        .gysl-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .gysl-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .gysl-card:hover {
+            border-color: var(--gysl-yellow, #f1b82d);
+            background: rgba(241, 184, 45, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .gysl-card__escudo {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0 auto;
+        }
+
+        .gysl-card__header {
+            text-align: center;
+        }
+
+        .gysl-card__title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--gysl-white, #fff);
+            margin: 0;
+            margin-bottom: 4px;
+        }
+
+        .gysl-card__info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--gysl-muted, #a1a1aa);
+        }
+
+        .gysl-card__desc {
+            font-size: 13px;
+            color: var(--gysl-muted, #a1a1aa);
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .gysl-card__actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .gysl-filters-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .gysl-filters-bar select,
+        .gysl-filters-bar input {
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--gysl-white, #fff);
+            font-family: var(--gysl-font, sans-serif);
+        }
+
+        .gysl-filters-bar select {
+            min-width: 180px;
+        }
+
+        .gysl-filters-bar input {
+            min-width: 200px;
+        }
+
+        .gysl-filters-bar select option {
+            background: var(--gysl-superdark);
+            color: var(--gysl-white);
+        }
+
+        .gysl-filters-bar select:focus,
+        .gysl-filters-bar input:focus {
+            outline: none;
+            border-color: var(--gysl-yellow);
+        }
     </style>
 </head>
 
@@ -141,8 +230,11 @@
     <div class="gysl-admin">
 
         <header class="gysl-admin__header" style="display: flex; align-items: center; gap: 20px;">
-            <a href="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/home.html" class="gysl-nav__brand" aria-label="Go to homepage">
-                <img src="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/escudos/gwinnett.svg" alt="Gwinnett Youth Soccer League logo" style="height: 50px;" onerror="this.src=''; this.alt='GYSL';">
+            <a href="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/home.html"
+                class="gysl-nav__brand" aria-label="Go to homepage">
+                <img src="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/escudos/gwinnett.svg"
+                    alt="Gwinnett Youth Soccer League logo" style="height: 50px;"
+                    onerror="this.src=''; this.alt='GYSL';">
             </a>
             <div style="flex-grow: 1;">
                 <h1 class="gysl-admin__title">Mis Equipos</h1>
@@ -158,7 +250,8 @@
             <div class="gysl-admin-actions" style="margin-bottom: 12px;">
                 <h2 class="gysl-admin-actions__title">Listado de Equipos</h2>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="toggleViewMode()" id="view-mode-btn">
+                    <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="toggleViewMode()"
+                        id="view-mode-btn">
                         🗂️ Cards
                     </button>
                 </div>
@@ -245,8 +338,10 @@
 
                 <div class="gysl-admin-form-group" id="equipo-escudo-group">
                     <label for="equipo-escudo">Escudo (opcional al crear)</label>
-                    <input type="file" id="equipo-escudo" accept=".jpg,.jpeg,.png,.webp" style="color: var(--gysl-white);">
-                    <small style="color:var(--gysl-muted); font-size: 11px; margin-top: 4px; display: block;">Nota: Una vez guardado, el escudo no se podrá cambiar.</small>
+                    <input type="file" id="equipo-escudo" accept=".jpg,.jpeg,.png,.webp"
+                        style="color: var(--gysl-white);">
+                    <small style="color:var(--gysl-muted); font-size: 11px; margin-top: 4px; display: block;">Nota: Una
+                        vez guardado, el escudo no se podrá cambiar.</small>
                 </div>
 
                 <div class="gysl-admin-form-actions">
@@ -277,13 +372,13 @@
             const loading = document.getElementById("equipos-loading");
             const empty = document.getElementById("equipos-empty");
 
-            window.toggleViewMode = function() {
+            window.toggleViewMode = function () {
                 viewMode = viewMode === 'list' ? 'cards' : 'list';
                 document.getElementById('view-mode-btn').innerHTML = viewMode === 'list' ? '🗂️ Cards' : '📄 Lista';
                 renderEquipos();
             };
 
-            window.goToJugadores = function(idEquipo) {
+            window.goToJugadores = function (idEquipo) {
                 window.location.href = "admin-jugadores.html?equipo=" + idEquipo;
             };
 
@@ -303,7 +398,7 @@
 
                     const dataEq = await resEq.json();
                     equiposData = Array.isArray(dataEq) ? dataEq : (dataEq.data || []);
-                    
+
                     // Obtener las ligas filtradas desde el endpoint
                     ligasData = dataEq.ligas_staff || [];
 
@@ -429,7 +524,7 @@
                     const cat = e.categoria ?? "—";
                     const desc = e.descripcion ?? "—";
                     const imgUrl = e.escudo ? (API + e.escudo) : "./assets/img/placeholder.png";
-                    
+
                     // Nombres de ligas
                     let ligasNombres = "—";
                     if (e.ligas_ids && e.ligas_ids.length > 0 && ligasData.length > 0) {

@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/usuariosModel.php';
+require_once __DIR__ . '/../model/entrenadoresModel.php';
+require_once __DIR__ . '/../model/entrenadorEquipoModel.php';
 
 class UsuariosController
 {
@@ -231,7 +233,10 @@ class UsuariosController
             Autenticacion::requerirRol([Autenticacion::ROL_ADMIN]);
 
             if ($id <= 0) {
-                $this->responder(400, ['success' => false, 'message' => 'ID inválido']);
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'ID inválido'
+                ]);
             }
 
             $rol = strtoupper($this->limpiarTexto($entrada['rol'] ?? ''));
@@ -244,18 +249,106 @@ class UsuariosController
             ];
 
             if ($rol === '' || !in_array($rol, $rolesValidos, true)) {
-                $this->responder(400, ['success' => false, 'message' => 'Rol inválido']);
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Rol inválido'
+                ]);
             }
 
             $modelo = new UsuariosModel();
 
             $existente = $modelo->getById($id);
+
             if (!$existente) {
-                $this->responder(404, ['success' => false, 'message' => 'Usuario no encontrado']);
+                $this->responder(404, [
+                    'success' => false,
+                    'message' => 'Usuario no encontrado'
+                ]);
             }
 
-            // Si el rol ya no es STAFF, limpiar id_equipo automático por seguridad
-            if ($rol !== Autenticacion::ROL_STAFF) {
+            $rolActual = strtoupper((string)($existente['rol'] ?? Autenticacion::ROL_USUARIO));
+
+            /*
+         * ============================================================
+         * PROTECCIÓN 1:
+         * No permitir quitar el último ADMIN del sistema.
+         * Porque dejar la app sin admin es una forma elegante de pegarse un tiro en el CRUD.
+         * ============================================================
+         */
+            if ($rolActual === Autenticacion::ROL_ADMIN && $rol !== Autenticacion::ROL_ADMIN) {
+                if ($modelo->countAdmins() <= 1) {
+                    $this->responder(409, [
+                        'success' => false,
+                        'message' => 'No se puede quitar el último administrador del sistema'
+                    ]);
+                }
+            }
+
+            /*
+         * ============================================================
+         * PROTECCIÓN 2:
+         * Si el cambio entra o sale de ADMIN, pedir contraseña del admin actual.
+         * Casos:
+         *  - USUARIO / STAFF / ARBITRO -> ADMIN
+         *  - ADMIN -> USUARIO / STAFF / ARBITRO
+         * ============================================================
+         */
+            $cambioCriticoAdmin =
+                $rolActual === Autenticacion::ROL_ADMIN ||
+                $rol === Autenticacion::ROL_ADMIN;
+
+            if ($cambioCriticoAdmin) {
+                $passwordConfirmacion = (string)($entrada['password_confirmacion'] ?? '');
+
+                if ($passwordConfirmacion === '') {
+                    $this->responder(400, [
+                        'success' => false,
+                        'message' => 'Debes confirmar tu contraseña para modificar permisos de administrador'
+                    ]);
+                }
+
+                $usuarioSesion = Autenticacion::usuario();
+
+                if (!$usuarioSesion || empty($usuarioSesion['email'])) {
+                    $this->responder(401, [
+                        'success' => false,
+                        'message' => 'No se pudo validar la sesión del administrador'
+                    ]);
+                }
+
+                $adminValido = $modelo->verifyCredentials(
+                    (string)$usuarioSesion['email'],
+                    $passwordConfirmacion
+                );
+
+                if (!$adminValido) {
+                    $this->responder(403, [
+                        'success' => false,
+                        'message' => 'Contraseña de confirmación incorrecta'
+                    ]);
+                }
+            }
+
+            /*
+         * ============================================================
+         * Si el nuevo rol ya no puede actuar como entrenador/staff,
+         * limpiamos relaciones con equipos.
+         *
+         * STAFF y ADMIN sí pueden tener equipos asociados.
+         * USUARIO y ARBITRO no.
+         * ============================================================
+         */
+            if (!in_array($rol, [Autenticacion::ROL_STAFF, Autenticacion::ROL_ADMIN], true)) {
+                $entrenadoresModel = new EntrenadoresModel();
+                $entrenadorEquipoModel = new EntrenadorEquipoModel();
+
+                $entrenador = $entrenadoresModel->getByUserId($id);
+
+                if ($entrenador) {
+                    $entrenadorEquipoModel->deleteByEntrenador((int)$entrenador['id_entrenador']);
+                    $entrenadoresModel->delete((int)$entrenador['id_entrenador']);
+                }
+
                 $modelo->updateEquipoStaff($id, null);
             }
 
@@ -271,52 +364,161 @@ class UsuariosController
                 'data' => $usuarioActualizado
             ]);
         } catch (Throwable $e) {
-            $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
+            $this->responder(500, [
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
     }
 
     // =========================================================================
     // ACTUALIZAR EQUIPO DE STAFF (PATCH /api/usuarios/{id}/equipo-staff)
     // =========================================================================
-    public function actualizarEquipoStaff(int $id, array $entrada): void
+
+    public function actualizarEquiposStaff(int $id, array $entrada): void
     {
         try {
             Autenticacion::requerirRol([Autenticacion::ROL_ADMIN]);
 
             if ($id <= 0) {
-                $this->responder(400, ['success' => false, 'message' => 'ID de usuario inválido']);
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'ID de usuario inválido'
+                ]);
             }
 
-            $idEquipo = isset($entrada['id_equipo']) ? (int)$entrada['id_equipo'] : null;
+            $relaciones = $entrada['relaciones'] ?? [];
 
-            if ($idEquipo !== null && $idEquipo <= 0) {
-                $this->responder(400, ['success' => false, 'message' => 'ID de equipo inválido']);
+            error_log('DEBUG actualizarEquiposStaff entrada: ' . json_encode($entrada));
+            error_log('DEBUG relaciones recibidas: ' . json_encode($relaciones));
+
+            if (!is_array($relaciones)) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'El campo relaciones debe ser un array'
+                ]);
             }
 
-            $modelo = new UsuariosModel();
+            $usuariosModel = new UsuariosModel();
+            $entrenadoresModel = new EntrenadoresModel();
+            $entrenadorEquipoModel = new EntrenadorEquipoModel();
 
-            $usuario = $modelo->getById($id);
+            $usuario = $usuariosModel->getById($id);
+
             if (!$usuario) {
-                $this->responder(404, ['success' => false, 'message' => 'Usuario no encontrado']);
+                $this->responder(404, [
+                    'success' => false,
+                    'message' => 'Usuario no encontrado'
+                ]);
             }
 
-            if ($usuario['rol'] !== Autenticacion::ROL_STAFF && $idEquipo !== null) {
-                $this->responder(400, ['success' => false, 'message' => 'Solo a usuarios con rol STAFF se les puede asignar un equipo']);
+            $rolUsuario = strtoupper((string)$usuario['rol']);
+
+            if (!in_array($rolUsuario, [Autenticacion::ROL_STAFF, Autenticacion::ROL_ADMIN], true)) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Solo usuarios STAFF o ADMIN pueden tener equipos asignados como entrenadores'
+                ]);
             }
 
-            $filas = $modelo->updateEquipoStaff($id, $idEquipo);
+            $entrenador = $entrenadoresModel->getByUserId($id);
 
-            $usuarioActualizado = $modelo->getById($id);
+            if (!$entrenador) {
+                $idEntrenador = $entrenadoresModel->insert(
+                    $id,
+                    $usuario['nombre'],
+                    $usuario['apellido'],
+                    $usuario['fecha_nacimiento'] ?? null,
+                    $usuario['telefono'] ?? null,
+                    $usuario['email'] ?? null
+                );
+            } else {
+                $idEntrenador = (int)$entrenador['id_entrenador'];
+            }
+
+
+            error_log('DEBUG idEntrenador: ' . $idEntrenador);
+            error_log('DEBUG relaciones antes de sincronizar: ' . json_encode($relaciones));
+            $entrenadorEquipoModel->sincronizarEquiposEntrenador($idEntrenador, $relaciones);
+
+            if (count($relaciones) === 0) {
+                $entrenadoresModel->delete($idEntrenador);
+                $usuariosModel->updateEquipoStaff($id, null);
+
+                if ($rolUsuario === Autenticacion::ROL_STAFF) {
+                    $usuariosModel->updateRol($id, Autenticacion::ROL_USUARIO);
+
+                    $this->responder(200, [
+                        'success' => true,
+                        'message' => 'El usuario quedó sin equipos, por lo tanto pasó automáticamente a USUARIO'
+                    ]);
+                }
+
+                $this->responder(200, [
+                    'success' => true,
+                    'message' => 'El admin quedó sin equipos asociados como entrenador, pero mantiene su rol ADMIN'
+                ]);
+            }
+
+            $usuarioActualizado = $usuariosModel->getById($id);
             $usuarioActualizado = $this->limpiarUsuario($usuarioActualizado);
 
             $this->responder(200, [
                 'success' => true,
-                'message' => 'Equipo de staff actualizado correctamente',
-                'filas_afectadas' => $filas,
+                'message' => 'Equipos del staff actualizados correctamente',
+                'debug' => [
+                    'id_usuario' => $id,
+                    'rol_usuario' => $usuario['rol'],
+                    'id_entrenador' => $idEntrenador,
+                    'relaciones_recibidas' => $relaciones
+                ],
                 'data' => $usuarioActualizado
             ]);
         } catch (Throwable $e) {
-            $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
+            $this->responder(500, [
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function obtenerEquiposStaff(int $id): void
+    {
+        try {
+            Autenticacion::requerirRol([Autenticacion::ROL_ADMIN]);
+
+            if ($id <= 0) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'ID de usuario inválido'
+                ]);
+            }
+
+            $entrenadoresModel = new EntrenadoresModel();
+            $entrenadorEquipoModel = new EntrenadorEquipoModel();
+
+            $entrenador = $entrenadoresModel->getByUserId($id);
+
+            if (!$entrenador) {
+                $this->responder(200, [
+                    'success' => true,
+                    'data' => []
+                ]);
+            }
+
+            $relaciones = $entrenadorEquipoModel->getByEntrenador(
+                (int)$entrenador['id_entrenador']
+            );
+
+            $this->responder(200, [
+                'success' => true,
+                'data' => $relaciones
+            ]);
+        } catch (Throwable $e) {
+            $this->responder(500, [
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }

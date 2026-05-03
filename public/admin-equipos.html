@@ -440,20 +440,23 @@
                 }
             }
 
-            function updateLigasSummary() {
+            window.updateLigasSummary = function () {
                 const chks = document.querySelectorAll(".gysl-liga-chk:checked");
                 const summary = document.getElementById("equipo-ligas-summary");
+
+                if (!summary) return;
+
                 if (chks.length === 0) {
                     summary.textContent = "Seleccionar ligas...";
-                    summary.style.color = "rgba(175,193,230,.5)"; // color placeholder
+                    summary.style.color = "rgba(175,193,230,.5)";
                 } else if (chks.length === 1) {
-                    summary.textContent = `1 liga seleccionada`;
+                    summary.textContent = "1 liga seleccionada";
                     summary.style.color = "var(--gysl-white, #fff)";
                 } else {
                     summary.textContent = `${chks.length} ligas seleccionadas`;
                     summary.style.color = "var(--gysl-white, #fff)";
                 }
-            }
+            };
 
             // Exponer para onClick global en los custom select
             window.toggleLigasDropdown = function () {
@@ -473,7 +476,7 @@
                 const container = document.getElementById("equipo-ligas-container");
                 if (!ligasData || ligasData.length === 0) {
                     container.innerHTML = '<div style="font-size: 0.9rem; color: #888; padding: 10px;">No hay ligas disponibles.</div>';
-                    updateLigasSummary();
+                    window.updateLigasSummary();
                     return;
                 }
 

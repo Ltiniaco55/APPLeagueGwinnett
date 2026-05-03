@@ -45,6 +45,19 @@ class EntrenadorEquipoModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function contarEquiposPorEntrenador(int $idEntrenador): int
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*)
+             FROM entrenador_equipo
+             WHERE id_entrenador = ?"
+        );
+
+        $stmt->execute([$idEntrenador]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
     /**
      * Obtener asignaciones por equipo
      */
@@ -54,6 +67,40 @@ class EntrenadorEquipoModel
             "SELECT * FROM entrenador_equipo WHERE id_equipo = ?"
         );
         $stmt->execute([$idEquipo]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getEntrenadoresByEquipo(int $idEquipo, ?int $idLiga = null): array
+    {
+        $sql = "
+            SELECT 
+                ee.id_entrenador,
+                ee.id_equipo,
+                ee.id_liga,
+                ee.estado,
+                e.nombre,
+                e.apellido,
+                e.telefono,
+                e.email,
+                e.id_usuario
+            FROM entrenador_equipo ee
+            INNER JOIN entrenadores e 
+                ON e.id_entrenador = ee.id_entrenador
+            WHERE ee.id_equipo = ?
+        ";
+
+        $params = [$idEquipo];
+
+        if ($idLiga !== null) {
+            $sql .= " AND ee.id_liga = ?";
+            $params[] = $idLiga;
+        }
+
+        $sql .= " ORDER BY e.apellido ASC, e.nombre ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -119,5 +166,92 @@ class EntrenadorEquipoModel
         );
         $stmt->execute([$idEntrenador, $idEquipo, $idLiga]);
         return $stmt->rowCount();
+    }
+
+
+    public function deleteByEntrenador(int $idEntrenador): int
+    {
+        $stmt = $this->db->prepare(
+            "DELETE FROM entrenador_equipo
+            WHERE id_entrenador = ?"
+        );
+
+        $stmt->execute([$idEntrenador]);
+
+        return $stmt->rowCount();
+    }
+
+    public function deleteByEquipo(int $idEquipo): int
+    {
+        $stmt = $this->db->prepare(
+            "DELETE FROM entrenador_equipo
+            WHERE id_equipo = ?"
+        );
+
+        $stmt->execute([$idEquipo]);
+
+        return $stmt->rowCount();
+    }
+
+    public function sincronizarEquiposEntrenador(
+        int $idEntrenador,
+        array $relaciones
+    ): void {
+        $this->db->beginTransaction();
+
+        try {
+            $stmtDelete = $this->db->prepare(
+                "DELETE FROM entrenador_equipo
+                WHERE id_entrenador = ?"
+            );
+            $stmtDelete->execute([$idEntrenador]);
+
+            $stmtInsert = $this->db->prepare(
+                "INSERT INTO entrenador_equipo 
+                    (id_entrenador, id_equipo, id_liga, estado)
+                VALUES (?, ?, ?, ?)"
+            );
+
+            foreach ($relaciones as $relacion) {
+                $stmtInsert->execute([
+                    $idEntrenador,
+                    (int) $relacion['id_equipo'],
+                    (int) $relacion['id_liga'],
+                    $relacion['estado'] ?? 'ACTIVO'
+                ]);
+            }
+
+            $this->db->commit();
+        } catch (Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+
+    public function getEntrenadoresByEquipoLiga(int $idEquipo, int $idLiga): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT 
+            e.id_entrenador,
+            e.id_usuario,
+            e.nombre,
+            e.apellido,
+            e.telefono,
+            e.email,
+            ee.id_equipo,
+            ee.id_liga,
+            ee.estado
+         FROM entrenador_equipo ee
+         INNER JOIN entrenadores e 
+            ON e.id_entrenador = ee.id_entrenador
+         WHERE ee.id_equipo = ?
+           AND ee.id_liga = ?
+         ORDER BY e.nombre ASC, e.apellido ASC"
+        );
+
+        $stmt->execute([$idEquipo, $idLiga]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

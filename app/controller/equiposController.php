@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/equiposModel.php';
+require_once __DIR__ . '/../model/usuariosModel.php';
+require_once __DIR__ . '/../model/entrenadoresModel.php';
+require_once __DIR__ . '/../model/entrenadorEquipoModel.php';
 
 class EquiposController
 {
@@ -110,11 +113,11 @@ class EquiposController
         try {
             Autenticacion::requerirRol([Autenticacion::ROL_STAFF]);
             $usuarioActual = Autenticacion::usuario();
-            
+
             require_once __DIR__ . '/../model/entrenadoresModel.php';
             require_once __DIR__ . '/../model/entrenadorEquipoModel.php';
             require_once __DIR__ . '/../model/ligasModel.php';
-            
+
             $entModel = new EntrenadoresModel();
             $entEqModel = new EntrenadorEquipoModel();
             $eqModel = new EquiposModel();
@@ -126,7 +129,7 @@ class EquiposController
             }
 
             $misEquipos = $entEqModel->getByEntrenador((int)$entrenador['id_entrenador']);
-            
+
             if (empty($misEquipos)) {
                 $this->responder(200, ['success' => true, 'data' => []]);
             }
@@ -162,7 +165,7 @@ class EquiposController
                 $equipo['ligas_ids'] = $susLigas;
             }
             unset($equipo);
-            
+
             $ligasModel = new LigasModel();
             $ligasAssoc = [];
             foreach ($misLigasFlatIds as $lid) {
@@ -329,25 +332,160 @@ class EquiposController
             Autenticacion::requerirRol([Autenticacion::ROL_ADMIN]);
 
             if ($id <= 0) {
-                $this->responder(400, ['success' => false, 'message' => 'ID inválido']);
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'ID inválido'
+                ]);
             }
 
-            $modelo = new EquiposModel();
-            $existente = $modelo->getById($id);
+            $equiposModel = new EquiposModel();
+            $usuariosModel = new UsuariosModel();
+            $entrenadoresModel = new EntrenadoresModel();
+            $entrenadorEquipoModel = new EntrenadorEquipoModel();
+
+            $existente = $equiposModel->getById($id);
 
             if (!$existente) {
-                $this->responder(404, ['success' => false, 'message' => 'Equipo no encontrado']);
+                $this->responder(404, [
+                    'success' => false,
+                    'message' => 'Equipo no encontrado'
+                ]);
             }
 
-            $filas = $modelo->delete($id);
+            /*
+         * Antes de borrar el equipo, guardamos qué entrenadores estaban relacionados.
+         * Luego la FK con ON DELETE CASCADE debería borrar sus relaciones en entrenador_equipo.
+         */
+            $relacionesEntrenadores = $entrenadorEquipoModel->getByEquipo($id);
+
+            $idsEntrenadoresAfectados = [];
+
+            foreach ($relacionesEntrenadores as $relacion) {
+                if (isset($relacion['id_entrenador'])) {
+                    $idsEntrenadoresAfectados[] = (int)$relacion['id_entrenador'];
+                }
+            }
+
+            $idsEntrenadoresAfectados = array_values(array_unique($idsEntrenadoresAfectados));
+
+            /*
+         * Borramos el equipo.
+         * IMPORTANTE:
+         * Las tablas entrenador_equipo, equipo_liga y equipo_jugador deberían tener
+         * ON DELETE CASCADE hacia equipos.
+         */
+            $filas = $equiposModel->delete($id);
+
+            /*
+         * Ahora revisamos si algún entrenador afectado se quedó sin equipos.
+         *
+         * Regla:
+         * - Si era STAFF y se queda sin equipos:
+         *      se elimina de entrenadores
+         *      pasa a USUARIO
+         *
+         * - Si era ADMIN y se queda sin equipos:
+         *      se elimina de entrenadores
+         *      mantiene rol ADMIN
+         */
+            $usuariosConvertidos = [];
+            $adminsSinEquipos = [];
+
+            foreach ($idsEntrenadoresAfectados as $idEntrenador) {
+                $relacionesRestantes = $entrenadorEquipoModel->getByEntrenador($idEntrenador);
+
+                if (count($relacionesRestantes) > 0) {
+                    continue;
+                }
+
+                $entrenador = $entrenadoresModel->getById($idEntrenador);
+
+                if (!$entrenador || empty($entrenador['id_usuario'])) {
+                    continue;
+                }
+
+                $idUsuario = (int)$entrenador['id_usuario'];
+                $usuario = $usuariosModel->getById($idUsuario);
+
+                if (!$usuario) {
+                    $entrenadoresModel->delete($idEntrenador);
+                    continue;
+                }
+
+                $rolUsuario = strtoupper((string)($usuario['rol'] ?? ''));
+
+                $entrenadoresModel->delete($idEntrenador);
+                $usuariosModel->updateEquipoStaff($idUsuario, null);
+
+                if ($rolUsuario === Autenticacion::ROL_STAFF) {
+                    $usuariosModel->updateRol($idUsuario, Autenticacion::ROL_USUARIO);
+
+                    $usuariosConvertidos[] = [
+                        'id_usuario' => $idUsuario,
+                        'nombre' => trim(($usuario['nombre'] ?? '') . ' ' . ($usuario['apellido'] ?? ''))
+                    ];
+                }
+
+                if ($rolUsuario === Autenticacion::ROL_ADMIN) {
+                    $adminsSinEquipos[] = [
+                        'id_usuario' => $idUsuario,
+                        'nombre' => trim(($usuario['nombre'] ?? '') . ' ' . ($usuario['apellido'] ?? ''))
+                    ];
+                }
+            }
 
             $this->responder(200, [
                 'success' => true,
                 'message' => 'Equipo eliminado correctamente',
-                'filas_afectadas' => $filas
+                'filas_afectadas' => $filas,
+                'staff_convertidos_a_usuario' => $usuariosConvertidos,
+                'admins_sin_equipos_asociados' => $adminsSinEquipos
             ]);
         } catch (Throwable $e) {
-            $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
+            $this->responder(500, [
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function entrenadoresEquipo(int $id, array $entrada = []): void
+    {
+        try {
+            Autenticacion::requerirRol([
+                Autenticacion::ROL_ADMIN,
+                Autenticacion::ROL_STAFF
+            ]);
+
+            if ($id <= 0) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'ID de equipo inválido'
+                ]);
+            }
+
+            $idLiga = isset($entrada['id_liga']) ? (int)$entrada['id_liga'] : 0;
+
+            if ($idLiga <= 0) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'ID de liga inválido'
+                ]);
+            }
+
+            $modelo = new EntrenadorEquipoModel();
+
+            $datos = $modelo->getEntrenadoresByEquipoLiga($id, $idLiga);
+
+            $this->responder(200, [
+                'success' => true,
+                'data' => $datos
+            ]);
+        } catch (Throwable $e) {
+            $this->responder(500, [
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
     }
 

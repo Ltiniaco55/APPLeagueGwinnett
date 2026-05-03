@@ -427,7 +427,8 @@
                             <input type="text" id="alta-apellido" placeholder="Apellido del jugador">
                         </div>
                         <div class="gysl-admin-form-group" style="grid-column: 1/-1;">
-                            <label for="alta-fecha">Fecha de Nacimiento <span style="color:var(--gysl-red);">*</span></label>
+                            <label for="alta-fecha">Fecha de Nacimiento <span
+                                    style="color:var(--gysl-red);">*</span></label>
                             <input type="date" id="alta-fecha" onchange="onAltaFechaChange()">
                         </div>
                     </div>
@@ -435,12 +436,14 @@
                     <!-- Archivos -->
                     <div class="gysl-alta-form-grid" style="margin-top: 16px;">
                         <div class="gysl-admin-form-group">
-                            <label for="alta-foto">Foto jugador <span style="color:var(--gysl-muted);font-weight:normal;">(opcional)</span></label>
+                            <label for="alta-foto">Foto jugador <span
+                                    style="color:var(--gysl-muted);font-weight:normal;">(opcional)</span></label>
                             <input type="file" id="alta-foto" accept="image/jpeg,image/png,image/webp"
                                 style="padding:7px 10px;">
                         </div>
                         <div class="gysl-admin-form-group">
-                            <label for="alta-documento">Documento de identidad <span style="color:var(--gysl-red);">*</span></label>
+                            <label for="alta-documento">Documento de identidad <span
+                                    style="color:var(--gysl-red);">*</span></label>
                             <input type="file" id="alta-documento" accept="image/jpeg,image/png,image/webp"
                                 style="padding:7px 10px;">
                         </div>
@@ -456,15 +459,18 @@
                         </p>
                         <div class="gysl-alta-form-grid">
                             <div class="gysl-admin-form-group" style="grid-column:1/-1;">
-                                <label for="alta-nombres-padres">Nombre padre/madre/tutor <span style="color:var(--gysl-red);">*</span></label>
+                                <label for="alta-nombres-padres">Nombre padre/madre/tutor <span
+                                        style="color:var(--gysl-red);">*</span></label>
                                 <input type="text" id="alta-nombres-padres" placeholder="Nombre completo del tutor">
                             </div>
                             <div class="gysl-admin-form-group">
-                                <label for="alta-email-padres">Email del tutor <span style="color:var(--gysl-red);">*</span></label>
+                                <label for="alta-email-padres">Email del tutor <span
+                                        style="color:var(--gysl-red);">*</span></label>
                                 <input type="email" id="alta-email-padres" placeholder="email@ejemplo.com">
                             </div>
                             <div class="gysl-admin-form-group">
-                                <label for="alta-telefono-padres">Teléfono del tutor <span style="color:var(--gysl-red);">*</span></label>
+                                <label for="alta-telefono-padres">Teléfono del tutor <span
+                                        style="color:var(--gysl-red);">*</span></label>
                                 <input type="tel" id="alta-telefono-padres" placeholder="+34 600 000 000">
                             </div>
                         </div>
@@ -704,7 +710,7 @@
                 sel.innerHTML = '<option value="">— Seleccionar liga —</option>';
                 // Solo ligas de los equipos del staff
                 allLigas.forEach(l => {
-                    const id  = l.id_liga ?? l.id;
+                    const id = l.id_liga ?? l.id;
                     const nom = l.nombre_liga ?? l.nombre ?? 'Sin nombre';
                     const cat = l.categoria ?? '';
                     sel.innerHTML += `<option value="${id}">${nom}${cat ? ' (' + cat + ')' : ''}</option>`;
@@ -725,7 +731,7 @@
                         return ids.includes(lid) || objIds.includes(lid);
                     })
                     .forEach(e => {
-                        const id  = e.id_equipo ?? e.id;
+                        const id = e.id_equipo ?? e.id;
                         const nom = e.club ?? e.nombre ?? 'Sin nombre';
                         sel.innerHTML += `<option value="${id}">${nom}</option>`;
                     });
@@ -762,21 +768,14 @@
                 populateEquipoSelect(document.getElementById("alta-equipo"), document.getElementById("alta-liga").value);
             };
 
-            // TODO BORRAR — ALTA MASIVA DESACTIVADA
-            /*
-            window.onLoteLigaChange = function () {
-                populateEquipoSelect(document.getElementById("lote-equipo"), document.getElementById("lote-liga").value);
-            };
-            */
-
             // ─────────────────── CAMBIO FECHA (menor/mayor) ───
             window.onAltaFechaChange = function () {
                 const fechaVal = document.getElementById('alta-fecha').value;
                 if (!fechaVal) return;
-                const hoy    = new Date();
-                const nac    = new Date(fechaVal);
-                let edad     = hoy.getFullYear() - nac.getFullYear();
-                const m      = hoy.getMonth() - nac.getMonth();
+                const hoy = new Date();
+                const nac = new Date(fechaVal);
+                let edad = hoy.getFullYear() - nac.getFullYear();
+                const m = hoy.getMonth() - nac.getMonth();
                 if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
                 const seccion = document.getElementById('alta-padres-section');
                 seccion.style.display = (edad < 18) ? 'block' : 'none';
@@ -784,13 +783,13 @@
 
             // ─────────────────── TAB 1: ALTA INDIVIDUAL ───
             window.enviarAltaIndividual = async function () {
-                const id_liga   = document.getElementById('alta-liga').value;
+                const id_liga = document.getElementById('alta-liga').value;
                 const id_equipo = document.getElementById('alta-equipo').value;
-                const nombre    = document.getElementById('alta-nombre').value.trim();
-                const apellido  = document.getElementById('alta-apellido').value.trim();
-                const fecha     = document.getElementById('alta-fecha').value;
-                const fotoFile  = document.getElementById('alta-foto').files[0];
-                const docFile   = document.getElementById('alta-documento').files[0];
+                const nombre = document.getElementById('alta-nombre').value.trim();
+                const apellido = document.getElementById('alta-apellido').value.trim();
+                const fecha = document.getElementById('alta-fecha').value;
+                const fotoFile = document.getElementById('alta-foto').files[0];
+                const docFile = document.getElementById('alta-documento').files[0];
 
                 if (!id_liga || !id_equipo || !nombre || !apellido || !fecha) {
                     showToast('Por favor rellena todos los campos obligatorios', 'error'); return;
@@ -800,10 +799,10 @@
                 }
 
                 // Validar si menor y faltan datos de padres
-                const hoy  = new Date();
-                const nac  = new Date(fecha);
-                let edad   = hoy.getFullYear() - nac.getFullYear();
-                const mo   = hoy.getMonth() - nac.getMonth();
+                const hoy = new Date();
+                const nac = new Date(fecha);
+                let edad = hoy.getFullYear() - nac.getFullYear();
+                const mo = hoy.getMonth() - nac.getMonth();
                 if (mo < 0 || (mo === 0 && hoy.getDate() < nac.getDate())) edad--;
                 const esmenor = edad < 18;
 
@@ -822,20 +821,20 @@
 
                 try {
                     const fd = new FormData();
-                    fd.append('id_liga',           id_liga);
-                    fd.append('id_equipo',         id_equipo);
-                    fd.append('nombre',            nombre);
-                    fd.append('apellido',          apellido);
-                    fd.append('fecha_nacimiento',  fecha);
+                    fd.append('id_liga', id_liga);
+                    fd.append('id_equipo', id_equipo);
+                    fd.append('nombre', nombre);
+                    fd.append('apellido', apellido);
+                    fd.append('fecha_nacimiento', fecha);
                     fd.append('documento_identidad', docFile);
                     if (fotoFile) fd.append('foto', fotoFile);
                     if (esmenor) {
-                        fd.append('nombres_padres',  document.getElementById('alta-nombres-padres').value.trim());
-                        fd.append('email_padres',    document.getElementById('alta-email-padres').value.trim());
+                        fd.append('nombres_padres', document.getElementById('alta-nombres-padres').value.trim());
+                        fd.append('email_padres', document.getElementById('alta-email-padres').value.trim());
                         fd.append('telefono_padres', document.getElementById('alta-telefono-padres').value.trim());
                     }
 
-                    const res  = await fetch(API + '/staff/jugadores/alta', {
+                    const res = await fetch(API + '/staff/jugadores/alta', {
                         method: 'POST',
                         credentials: 'include',
                         body: fd    // multipart/form-data — NO enviar Content-Type manual
@@ -845,10 +844,10 @@
                     if (res.ok && data.success) {
                         showToast(data.message || 'Solicitud enviada correctamente', 'success');
                         // Limpiar formulario
-                        ['alta-nombre','alta-apellido','alta-fecha',
-                         'alta-nombres-padres','alta-email-padres','alta-telefono-padres'
+                        ['alta-nombre', 'alta-apellido', 'alta-fecha',
+                            'alta-nombres-padres', 'alta-email-padres', 'alta-telefono-padres'
                         ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-                        document.getElementById('alta-foto').value     = '';
+                        document.getElementById('alta-foto').value = '';
                         document.getElementById('alta-documento').value = '';
                         document.getElementById('alta-padres-section').style.display = 'none';
 

@@ -62,7 +62,8 @@ $requiredFiles = [
     __DIR__ . '/app/model/equiposModel.php',
     __DIR__ . '/app/model/jugadoresModel.php',
     __DIR__ . '/app/model/equipoJugadorModel.php',
-    // Models
+    __DIR__ . '/app/model/entrenadoresModel.php',
+    __DIR__ . '/app/model/entrenadorEquipoModel.php',
     __DIR__ . '/app/model/partidosModel.php',
     // Controllers (nombres reales de los archivos)
     __DIR__ . '/app/controller/AuthController.php',
@@ -99,7 +100,8 @@ $router->add('POST',   '/usuarios',              'UsuariosController', 'insertar
 $router->add('PUT',    '/usuarios/{id}',         'UsuariosController', 'modificar');
 $router->add('DELETE', '/usuarios/{id}',         'UsuariosController', 'eliminar');
 $router->add('PATCH',  '/usuarios/{id}/rol',     'UsuariosController', 'actualizarRol');
-$router->add('PATCH',  '/usuarios/{id}/equipo-staff', 'UsuariosController', 'actualizarEquipoStaff');
+$router->add('PATCH', '/usuarios/{id}/equipos-staff', 'UsuariosController', 'actualizarEquiposStaff');
+$router->add('GET', '/usuarios/{id}/equipos-staff', 'UsuariosController', 'obtenerEquiposStaff');
 
 // ====================== AUTH ======================
 $router->add('POST',   '/auth/register',                 'AuthController', 'register');
@@ -123,6 +125,7 @@ $router->add('POST',   '/ligas/{id}/escudo',     'LigasController', 'subirEscudo
 // ====================== EQUIPOS ======================
 $router->add('GET',    '/equipos',               'EquiposController', 'seleccionar');
 $router->add('GET',    '/equipos/{id}',          'EquiposController', 'localizar');
+$router->add('GET',    '/equipos/{id}/entrenadores', 'EquiposController', 'entrenadoresEquipo');
 $router->add('POST',   '/equipos',               'EquiposController', 'insertar');
 $router->add('PUT',    '/equipos/{id}',          'EquiposController', 'modificar');
 $router->add('DELETE', '/equipos/{id}',          'EquiposController', 'eliminar');
@@ -169,7 +172,7 @@ $router->add('POST',   '/incidencias',                'IncidenciasController', '
 // (rutas específicas ANTES que las dinámicas para evitar colisiones)
 $router->add('POST',   '/admin/partidos',              'PartidosController', 'insertar');
 $router->add('PUT',    '/admin/partidos/{id}',         'PartidosController', 'modificar');
-$router->add('PATCH',  '/admin/partidos/{id}/cancelar','PartidosController', 'cancelar');
+$router->add('PATCH',  '/admin/partidos/{id}/cancelar', 'PartidosController', 'cancelar');
 $router->add('DELETE', '/admin/partidos/{id}',         'PartidosController', 'eliminar');
 
 // ====================== PARTIDOS ======================
