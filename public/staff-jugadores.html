@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="./CSS/global.css">
     <link rel="stylesheet" href="./CSS/admin.css">
     <link rel="stylesheet" href="./CSS/admin-nav.css">
-
+    <link rel="stylesheet" href="./CSS/toast.css">
+    <script src="./JS/toast.js" defer></script>
     <script src="./JS/adminNav.js" defer></script>
 
     <style>
@@ -121,84 +122,7 @@
             gap: 14px;
         }
 
-        /* TODO BORRAR — ALTA MASIVA DESACTIVADA */
-        /*
-        .gysl-lote-section {
-            margin-top: 32px;
-            border-top: 1px solid var(--gysl-line);
-            padding-top: 24px;
-        }
 
-        .gysl-lote-header-row {
-            display: grid;
-            grid-template-columns: 30px 1fr 1fr 145px 28px;
-            gap: 8px;
-            padding: 0 12px 8px;
-            font-size: 11px;
-            font-weight: var(--fw-bold);
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            color: var(--gysl-muted);
-        }
-
-        .gysl-lote-rows {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            max-height: 420px;
-            overflow-y: auto;
-            padding-right: 6px;
-        }
-
-        .gysl-lote-row {
-            display: grid;
-            grid-template-columns: 30px 1fr 1fr 145px 28px;
-            gap: 8px;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .gysl-lote-row__num {
-            font-size: 12px;
-            color: var(--gysl-muted);
-            text-align: center;
-        }
-
-        .gysl-lote-row input {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--gysl-white);
-            font-family: var(--gysl-font);
-            font-size: 13px;
-            box-sizing: border-box;
-        }
-
-        .gysl-lote-row input:focus {
-            outline: none;
-            border-color: var(--gysl-yellow);
-        }
-
-        .gysl-lote-row input::placeholder { color: rgba(175, 193, 230, .4); }
-
-        .gysl-btn-remove {
-            background: none;
-            border: none;
-            color: var(--gysl-muted);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 2px 4px;
-            border-radius: 4px;
-            transition: color 0.2s;
-        }
-
-        .gysl-btn-remove:hover { color: var(--gysl-red); }
-        */
 
         /* ─── Status badge ──────────────────────── */
         .gysl-badge {
@@ -231,43 +155,6 @@
             border: 1px solid rgba(215, 38, 38, 0.25);
         }
 
-        /* ─── Toast ─────────────────────────────── */
-        .gysl-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 14px 22px;
-            border-radius: 10px;
-            font-family: var(--gysl-font);
-            font-size: 14px;
-            font-weight: var(--fw-bold);
-            z-index: 9999;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
-        }
-
-        .gysl-toast.is-visible {
-            transform: translateX(0);
-        }
-
-        .gysl-toast--success {
-            background: rgba(46, 204, 113, 0.15);
-            color: #2ecc71;
-            border: 1px solid rgba(46, 204, 113, 0.3);
-        }
-
-        .gysl-toast--error {
-            background: rgba(215, 38, 38, 0.15);
-            color: var(--gysl-red);
-            border: 1px solid rgba(215, 38, 38, 0.3);
-        }
-
-        .gysl-toast--warning {
-            background: rgba(241, 184, 45, 0.15);
-            color: var(--gysl-yellow);
-            border: 1px solid rgba(241, 184, 45, 0.3);
-        }
 
         /* ─── Aviso coincidencia ────────────────── */
         .gysl-aviso-box {
@@ -353,13 +240,6 @@
                 grid-template-columns: 1fr;
             }
 
-            /* TODO BORRAR — ALTA MASIVA DESACTIVADA */
-            /*
-            .gysl-lote-header-row { display: none; }
-            .gysl-lote-row { grid-template-columns: 1fr 1fr; }
-            .gysl-lote-row__num { display: none; }
-            .gysl-btn-remove { grid-column: 1 / -1; }
-            */
         }
     </style>
 </head>
@@ -598,9 +478,6 @@
         </div>
     </div>
 
-    <!-- ═══ TOAST ═══ -->
-    <div class="gysl-toast" id="toast"></div>
-
     <script>
         (function () {
             "use strict";
@@ -636,14 +513,6 @@
 
             let usuarioActual = null;
             let rolActual = "";
-
-            // ─────────────────── TOAST ────────────────────
-            function showToast(msg, type = "success") {
-                const toast = document.getElementById("toast");
-                toast.textContent = msg;
-                toast.className = "gysl-toast gysl-toast--" + type + " is-visible";
-                setTimeout(() => toast.classList.remove("is-visible"), 3500);
-            }
 
             function aplicarModoPorRol() {
                 const esAdmin = rolActual === "ADMIN";
@@ -1119,7 +988,14 @@
 
             // ─────────────────── SOLICITAR BAJA ───────────
             window.solicitarBaja = async function (id_relacion) {
-                if (!confirm("¿Confirmas solicitar la baja de este jugador? El administrador deberá aprobarla.")) return;
+                const confirmado = await showConfirm(
+                    "Solicitar baja",
+                    "¿Confirmas solicitar la baja de este jugador? El administrador deberá aprobarla.",
+                    "danger",
+                    "Solicitar baja"
+                );
+
+                if (!confirmado) return;
 
                 try {
                     const res = await fetch(`${API}/staff/jugadores/${id_relacion}/solicitar-baja`, {

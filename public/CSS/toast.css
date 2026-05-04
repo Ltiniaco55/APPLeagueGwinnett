@@ -1,0 +1,94 @@
+.gysl-toast-container {
+    position: fixed;
+    top: 22px;
+    right: 22px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.gysl-toast-item {
+    min-width: 260px;
+    max-width: 380px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-family: var(--gysl-font, sans-serif);
+    font-size: 14px;
+    font-weight: var(--fw-bold, 700);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .42);
+    opacity: 0;
+    transform: translateX(120%);
+    transition: opacity .25s ease, transform .25s ease;
+}
+
+.gysl-toast-item.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.gysl-toast-item--success {
+    background: rgba(46, 204, 113, .16);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, .35);
+}
+
+.gysl-toast-item--error {
+    background: rgba(215, 38, 38, .16);
+    color: var(--gysl-red, #d72626);
+    border: 1px solid rgba(215, 38, 38, .35);
+}
+
+.gysl-toast-item--warning {
+    background: rgba(241, 184, 45, .16);
+    color: var(--gysl-yellow, #f1b82d);
+    border: 1px solid rgba(241, 184, 45, .35);
+}
+
+.gysl-toast-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, .68);
+    backdrop-filter: blur(6px);
+}
+
+.gysl-toast-confirm-overlay.is-open {
+    display: flex;
+}
+
+.gysl-toast-confirm-card {
+    width: min(430px, 92%);
+    padding: 28px;
+    border-radius: 16px;
+    border: 1px solid var(--gysl-line, rgba(255, 255, 255, .12));
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(20, 52, 94, .55), transparent 60%),
+        var(--gysl-superdark, #060e1e);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, .55);
+    text-align: center;
+}
+
+.gysl-toast-confirm-card h3 {
+    margin: 0 0 12px;
+    color: var(--gysl-white, #fff);
+    font-size: 18px;
+    font-weight: var(--fw-black, 900);
+}
+
+.gysl-toast-confirm-card p {
+    margin: 0 0 22px;
+    color: var(--gysl-muted, #a1a1aa);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.gysl-toast-confirm-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}

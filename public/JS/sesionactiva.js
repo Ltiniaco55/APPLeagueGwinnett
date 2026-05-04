@@ -250,13 +250,13 @@
                 if (window.location.pathname.includes("admin-")) {
                     window.location.href = "home.html";
                 } else {
-                    alert("Has cerrado sesión correctamente.");
+                    showToast("Has cerrado sesión correctamente.", "success");
                 }
             } else {
-                alert("Error al cerrar sesión: " + (data.message || ""));
+                showToast("Error al cerrar sesión: " + (data.message || ""), "error");
             }
         } catch (_) {
-            alert("Falló la conexión al servidor. Inténtalo de nuevo.");
+            showToast("Falló la conexión al servidor. Inténtalo de nuevo.", "error");
         }
     };
 

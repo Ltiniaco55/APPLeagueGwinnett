@@ -236,10 +236,10 @@
                                 errorVerify.style.color = "red"; // restaurar para futuros errores
                             }, 4000);
                         } else {
-                            alert("Hubo un error al reenviar el código.");
+                            showToast("Hubo un error al reenviar el código.", "error");
                         }
                     } catch (err) {
-                        alert("Error de red.");
+                        showToast("Error de red.", "error");
                     } finally {
                         btnResend.disabled = false;
                         btnResend.textContent = "Reenviar código";

@@ -320,7 +320,7 @@ class EquipoJugadorModel
                 INNER JOIN jugador j  ON ej.id_jugador = j.id_jugador
                 INNER JOIN equipos e  ON ej.id_equipo  = e.id_equipo
                 INNER JOIN ligas l    ON ej.id_liga    = l.id_liga
-                LEFT  JOIN usuarios u ON ej.id_usuario_solicitante = u.id_usuario
+                LEFT  JOIN usuario u ON ej.id_usuario_solicitante = u.id_usuario
                 WHERE ej.estado = 'PENDIENTE'";
         $params = [];
 

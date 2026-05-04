@@ -373,6 +373,33 @@ class UsuariosModel
         return $stmt->rowCount();
     }
 
+
+    public function getResetPasswordData(int $idUsuario): ?array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT reset_password_token, reset_password_expire
+         FROM usuario
+         WHERE id_usuario = ?
+         LIMIT 1"
+        );
+
+        $stmt->execute([$idUsuario]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ?: null;
+    }
+
+    public function guardarCodigoResetPassword(int $idUsuario, string $codigoHash, string $expireAt): int
+    {
+        return $this->guardarResetPasswordToken($idUsuario, $codigoHash, $expireAt);
+    }
+
+    public function limpiarCodigoResetPassword(int $idUsuario): int
+    {
+        return $this->limpiarResetPasswordToken($idUsuario);
+    }
+
     // =====================================================================
     //  OAUTH
     // =====================================================================

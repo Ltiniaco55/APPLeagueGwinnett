@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="./CSS/admin.css">
     <link rel="stylesheet" href="./CSS/admin-nav.css">
 
+    <link rel="stylesheet" href="./CSS/toast.css">
+    <script src="./JS/toast.js" defer></script>
+
     <script src="./JS/adminNav.js" defer></script>
 
     <style>
@@ -292,53 +295,6 @@
             font-weight: 500;
         }
 
-        /* ── Toast ─────────────────────────────────────────── */
-        .gysl-toast-container {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            align-items: center;
-            pointer-events: none;
-        }
-
-        .gysl-toast {
-            padding: 12px 22px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #fff;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
-            animation: gyslToastIn .25s ease-out both;
-            pointer-events: none;
-        }
-
-        .gysl-toast--success {
-            background: linear-gradient(135deg, #1a6e3a, #16a34a);
-            border: 1px solid rgba(46, 204, 113, .35);
-        }
-
-        .gysl-toast--error {
-            background: linear-gradient(135deg, #7a1010, #b91c1c);
-            border: 1px solid rgba(215, 38, 38, .4);
-        }
-
-        @keyframes gyslToastIn {
-            from {
-                opacity: 0;
-                transform: translateY(14px) scale(.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
         /* ── Form modal ancho mayor ────────────────────────── */
         .gysl-admin-form-card--wide {
             width: min(620px, 100%);
@@ -601,9 +557,6 @@
         </div>
     </div>
 
-    <!-- ── Toast container ──────────────────────────────── -->
-    <div class="gysl-toast-container" id="toast-container"></div>
-
     <script>
         (function () {
             "use strict";
@@ -623,17 +576,6 @@
             const tbody = document.getElementById("partidos-tbody");
             const cardsGrid = document.getElementById("partidos-cards-grid");
 
-            /* ═══════════════════════════════════════════════
-               TOAST
-            ═══════════════════════════════════════════════ */
-            function showToast(msg, type = "success") {
-                const container = document.getElementById("toast-container");
-                const el = document.createElement("div");
-                el.className = `gysl-toast gysl-toast--${type}`;
-                el.textContent = msg;
-                container.appendChild(el);
-                setTimeout(() => el.remove(), 3200);
-            }
 
             /* ═══════════════════════════════════════════════
                HELPERS
@@ -1105,7 +1047,14 @@
                 const p = partidosData.find(x => x.id_partido == id);
                 const nombre = p ? `${p.club_local} vs ${p.club_visitante}` : `Partido #${id}`;
 
-                if (!confirm(`¿Cancelar el partido "${nombre}"?\n\nCambiará el estado a "cancelado".`)) return;
+                const confirmado = await showConfirm(
+                    "Cancelar partido",
+                    `¿Cancelar el partido "${nombre}"? Cambiará el estado a cancelado.`,
+                    "warning",
+                    "Cancelar partido"
+                );
+
+                if (!confirmado) return;
 
                 try {
                     const res = await fetch(API + "/admin/partidos/" + id + "/cancelar", {
@@ -1131,8 +1080,14 @@
                 const p = partidosData.find(x => x.id_partido == id);
                 const nombre = p ? `${p.club_local} vs ${p.club_visitante}` : `Partido #${id}`;
 
-                const confirmTxt = `⚠️ ELIMINAR PARTIDO\n\n"${nombre}"\n\nEsta acción es PERMANENTE y no se puede deshacer.\n\n¿Estás completamente seguro?`;
-                if (!confirm(confirmTxt)) return;
+                const confirmado = await showConfirm(
+                    "Eliminar partido",
+                    `¿Eliminar el partido "${nombre}"? Esta acción es permanente y no se puede deshacer.`,
+                    "danger",
+                    "Eliminar partido"
+                );
+
+                if (!confirmado) return;
 
                 try {
                     const res = await fetch(API + "/admin/partidos/" + id, {

@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="./CSS/global.css">
     <link rel="stylesheet" href="./CSS/admin.css">
     <link rel="stylesheet" href="./CSS/admin-nav.css">
+    <link rel="stylesheet" href="./CSS/toast.css">
 
     <script src="./JS/adminNav.js" defer></script>
-
+    <script src="./JS/toast.js" defer></script>
     <style>
         /* ─── Tabs ────────────────────── */
         .gysl-tabs {
@@ -179,53 +180,6 @@
             color: var(--gysl-white);
         }
 
-        /* ─── Confirmation overlay ────── */
-        .gysl-confirm-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(6px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .gysl-confirm-overlay.is-open {
-            display: flex;
-        }
-
-        .gysl-confirm-card {
-            background: radial-gradient(ellipse at 20% 20%, rgba(20, 52, 94, .5), transparent 60%), var(--gysl-superdark);
-            border: 1px solid var(--gysl-line);
-            border-radius: 16px;
-            padding: 28px;
-            width: min(420px, 90%);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
-            text-align: center;
-            animation: gyslMsgIn .22s ease-out;
-        }
-
-        .gysl-confirm-card h3 {
-            font-size: 18px;
-            font-weight: var(--fw-black);
-            color: var(--gysl-white);
-            margin: 0 0 16px;
-        }
-
-        .gysl-confirm-card p {
-            font-size: 14px;
-            color: var(--gysl-muted);
-            margin: 0 0 20px;
-        }
-
-        .gysl-confirm-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        /* ─── Detalle ─────────────────── */
         .gysl-detail-grid {
             display: grid;
             grid-template-columns: 160px 1fr;
@@ -277,44 +231,6 @@
             font-size: 14px;
             color: var(--gysl-white);
             font-weight: var(--fw-bold);
-        }
-
-        /* ─── Message toast ───────────── */
-        .gysl-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 14px 22px;
-            border-radius: 10px;
-            font-family: var(--gysl-font);
-            font-size: 14px;
-            font-weight: var(--fw-bold);
-            z-index: 9999;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-        }
-
-        .gysl-toast.is-visible {
-            transform: translateX(0);
-        }
-
-        .gysl-toast--success {
-            background: rgba(46, 204, 113, 0.15);
-            color: #2ecc71;
-            border: 1px solid rgba(46, 204, 113, 0.3);
-        }
-
-        .gysl-toast--error {
-            background: rgba(215, 38, 38, 0.15);
-            color: var(--gysl-red);
-            border: 1px solid rgba(215, 38, 38, 0.3);
-        }
-
-        .gysl-toast--warning {
-            background: rgba(241, 184, 45, 0.15);
-            color: var(--gysl-yellow);
-            border: 1px solid rgba(241, 184, 45, 0.3);
         }
 
         /* ─── File upload ─────────────── */
@@ -639,21 +555,6 @@
         </div>
     </div>
 
-    <!-- ═══ CONFIRMATION MODAL ═══ -->
-    <div class="gysl-confirm-overlay" id="confirm-overlay">
-        <div class="gysl-confirm-card">
-            <h3 id="confirm-title">¿Está seguro?</h3>
-            <p id="confirm-msg">¿Está seguro de los datos introducidos?</p>
-            <div class="gysl-confirm-actions">
-                <button class="gysl-admin-btn gysl-admin-btn--secondary" id="confirm-cancel">Seguir modificando</button>
-                <button class="gysl-admin-btn gysl-admin-btn--primary" id="confirm-ok">Sí</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ═══ TOAST ═══ -->
-    <div class="gysl-toast" id="toast"></div>
-
     <script>
         (function () {
             "use strict";
@@ -665,41 +566,6 @@
             let plantillaData = [];
             let pendientesData = [];
             let entrenadoresData = [];
-
-            // ═══════════════════════════════════════
-            //  TOAST
-            // ═══════════════════════════════════════
-            function showToast(msg, type = "success") {
-                const toast = document.getElementById("toast");
-                toast.textContent = msg;
-                toast.className = "gysl-toast gysl-toast--" + type + " is-visible";
-                setTimeout(() => toast.classList.remove("is-visible"), 3500);
-            }
-
-            // ═══════════════════════════════════════
-            //  CONFIRMATION MODAL
-            // ═══════════════════════════════════════
-            function showConfirm(title, msg) {
-                return new Promise((resolve) => {
-                    document.getElementById("confirm-title").textContent = title;
-                    document.getElementById("confirm-msg").textContent = msg;
-                    document.getElementById("confirm-overlay").classList.add("is-open");
-
-                    const ok = document.getElementById("confirm-ok");
-                    const cancel = document.getElementById("confirm-cancel");
-
-                    function cleanup() {
-                        document.getElementById("confirm-overlay").classList.remove("is-open");
-                        ok.removeEventListener("click", onOk);
-                        cancel.removeEventListener("click", onCancel);
-                    }
-                    function onOk() { cleanup(); resolve(true); }
-                    function onCancel() { cleanup(); resolve(false); }
-
-                    ok.addEventListener("click", onOk);
-                    cancel.addEventListener("click", onCancel);
-                });
-            }
 
             // ═══════════════════════════════════════
             //  TABS
@@ -1118,7 +984,13 @@
             }
 
             window.eliminarDePlantilla = async function (id_jugador, id_equipo, id_liga) {
-                if (!confirm("¿Eliminar este jugador de la plantilla?")) return;
+                const confirmado = await showConfirm(
+                    "Quitar jugador",
+                    "¿Quieres eliminar este jugador de la plantilla?",
+                    "danger"
+                );
+
+                if (!confirmado) return;
 
                 try {
                     const res = await fetch(API + "/plantillas", {
@@ -1265,7 +1137,11 @@
                 const ids = [...document.querySelectorAll(".pend-chk:checked")].map(c => +c.value);
                 if (ids.length === 0) { showToast("Selecciona al menos uno", "error"); return; }
 
-                const confirmado = await showConfirm("Aprobar en lote", `¿Aprobar ${ids.length} solicitud(es) seleccionada(s)?`);
+                const confirmado = await showConfirm(
+                    "Aprobar en lote",
+                    `¿Aprobar ${ids.length} solicitud(es) seleccionada(s)?`,
+                    "warning"
+                );
                 if (!confirmado) return;
 
                 try {
@@ -1294,7 +1170,7 @@
                     ? `¿Aprobar BAJA de ${p?.nombre} ${p?.apellido}? Se eliminará del equipo.`
                     : `¿Aprobar ALTA de ${p?.nombre} ${p?.apellido}?`;
 
-                const confirmado = await showConfirm("Confirmar aprobación", msg);
+                const confirmado = await showConfirm("Confirmar aprobación", msg, "warning");
                 if (!confirmado) return;
 
                 try {
@@ -1318,7 +1194,7 @@
                     ? `¿Rechazar BAJA? ${p?.nombre} ${p?.apellido} volverá a ALTA.`
                     : `¿Rechazar ALTA de ${p?.nombre} ${p?.apellido}? Se eliminará la solicitud.`;
 
-                const confirmado = await showConfirm("Confirmar rechazo", msg);
+                const confirmado = await showConfirm("Confirmar rechazo", msg, "danger");
                 if (!confirmado) return;
 
                 try {
@@ -1510,7 +1386,11 @@
                     return;
                 }
 
-                const confirmado = await showConfirm("Asignar dorsal", "¿Está seguro de los cambios? El dorsal no se podrá modificar después.");
+                const confirmado = await showConfirm(
+                    "Asignar dorsal",
+                    "¿Está seguro de los cambios? El dorsal no se podrá modificar después.",
+                    "warning"
+                );
                 if (!confirmado) return;
 
                 try {
@@ -1537,7 +1417,11 @@
                 const input = document.getElementById("detalle-foto-input");
                 if (!input.files || input.files.length === 0) return;
 
-                const confirmado = await showConfirm("Subir foto", "¿Está seguro de los cambios? La foto no se podrá modificar después.");
+                const confirmado = await showConfirm(
+                    "Subir foto",
+                    "¿Está seguro de los cambios? La foto no se podrá modificar después.",
+                    "warning"
+                );
                 if (!confirmado) { input.value = ""; return; }
 
                 const formData = new FormData();

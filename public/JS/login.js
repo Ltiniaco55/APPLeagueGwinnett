@@ -176,11 +176,11 @@
 
                         closeModal();
                     } else {
-                        alert("Error: " + (data.message || "Credenciales inválidas"));
+                        showToast(data.message || "Credenciales inválidas", "error");
                     }
                 } catch (error) {
                     console.error("❌ Error de red:", error);
-                    alert("Falló la conexión al servidor. Inténtalo de nuevo.");
+                    showToast("Falló la conexión al servidor. Inténtalo de nuevo.", "error");
                 }
             });
         }

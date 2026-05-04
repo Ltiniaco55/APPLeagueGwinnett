@@ -10,8 +10,10 @@
     <link rel="stylesheet" href="./CSS/global.css">
     <link rel="stylesheet" href="./CSS/admin.css">
     <link rel="stylesheet" href="./CSS/admin-nav.css">
+    <link rel="stylesheet" href="./CSS/toast.css">
 
     <script src="./JS/adminNav.js" defer></script>
+    <script src="./JS/toast.js" defer></script>
     <style>
         /* Custom Select-like Dropdown for Checkboxes */
         .gysl-custom-select {
@@ -649,12 +651,19 @@
                 const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
 
                 if (!body.club || !body.categoria || !body.descripcion) {
-                    alert("Todos los campos (club, categoría, descripción) son obligatorios");
+                    showToast("Todos los campos son obligatorios", "error");
                     return;
                 }
 
                 if (hasFile) {
-                    if (!confirm("¿Estás seguro de subir el escudo? Una vez guardado no podrás cambiarlo.")) return;
+                    const confirmado = await showConfirm(
+                        "Subir escudo",
+                        "Una vez guardado, el escudo no se podrá cambiar.",
+                        "warning",
+                        "Subir escudo"
+                    );
+
+                    if (!confirmado) return;
                 }
 
                 try {
@@ -694,20 +703,32 @@
                             } catch (e) { console.error("Error subiendo escudo", e); }
                         }
 
+                        showToast(
+                            editId ? "Equipo actualizado correctamente" : "Equipo creado correctamente",
+                            "success"
+                        );
+
                         closeEquipoForm();
                         loadData();
                     } else {
-                        alert("Error: " + (data.message || JSON.stringify(data)));
+                        showToast(data.message || "Error al guardar el equipo", "error");
                     }
                 } catch (err) {
                     console.error("Error guardando equipo:", err);
-                    alert("Error de conexión");
+                    showToast("Error de conexión", "error");
                 }
             };
 
             /* ─── Delete ─────────────────────────────────────── */
             window.deleteEquipo = async function (id) {
-                if (!confirm("¿Estás seguro de eliminar este equipo?")) return;
+                const confirmado = await showConfirm(
+                    "Eliminar equipo",
+                    "Esta acción eliminará el equipo del sistema. No se podrá deshacer.",
+                    "danger",
+                    "Eliminar"
+                );
+
+                if (!confirmado) return;
 
                 try {
                     const res = await fetch(API + "/equipos/" + id, {
@@ -718,13 +739,14 @@
                     const data = await res.json();
 
                     if (res.ok) {
+                        showToast("Equipo eliminado correctamente", "success");
                         loadData();
                     } else {
-                        alert("Error: " + (data.message || JSON.stringify(data)));
+                        showToast(data.message || "Error al eliminar el equipo", "error");
                     }
                 } catch (err) {
                     console.error("Error eliminando equipo:", err);
-                    alert("Error de conexión");
+                    showToast("Error de conexión", "error");
                 }
             };
 

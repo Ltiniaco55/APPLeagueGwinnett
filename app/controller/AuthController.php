@@ -280,7 +280,27 @@ class AuthController
                 $this->responder(404, ['success' => false, 'message' => 'No existe usuario con ese email']);
             }
 
-            $this->generarGuardarYEnviarCodigo($modelo, (int)$u['id_usuario'], $email);
+            $codigo = $this->generarCodigo6();
+            $hash = password_hash($codigo, PASSWORD_DEFAULT);
+            $expireAt = $this->expireAt(10);
+
+            $modelo->guardarResetPasswordToken((int)$u['id_usuario'], $hash, $expireAt);
+
+            $ok = $this->enviarCodigoEmail($email, $codigo);
+
+            if (!$ok) {
+                $logDir = __DIR__ . '/../../logs';
+                $logFile = $logDir . '/email_dev.log';
+
+                if (!is_dir($logDir)) {
+                    @mkdir($logDir, 0755, true);
+                }
+
+                $linea = '[' . date('Y-m-d H:i:s') . '] '
+                    . "SOLICITAR CÓDIGO EMAIL | EMAIL: {$email} | CÓDIGO: {$codigo} | EXPIRA: {$expireAt}" . PHP_EOL;
+
+                @file_put_contents($logFile, $linea, FILE_APPEND | LOCK_EX);
+            }
 
             $this->responder(200, [
                 'success' => true,
@@ -421,7 +441,27 @@ class AuthController
                 ]);
             }
 
-            $this->generarGuardarYEnviarCodigo($modelo, (int)$u['id_usuario'], $email);
+            $codigo = $this->generarCodigo6();
+            $hash = password_hash($codigo, PASSWORD_DEFAULT);
+            $expireAt = $this->expireAt(10);
+
+            $modelo->guardarCodigoResetPassword((int)$u['id_usuario'], $hash, $expireAt);
+
+            $ok = $this->enviarCodigoEmail($email, $codigo);
+
+            if (!$ok) {
+                $logDir = __DIR__ . '/../../logs';
+                $logFile = $logDir . '/email_dev.log';
+
+                if (!is_dir($logDir)) {
+                    @mkdir($logDir, 0755, true);
+                }
+
+                $linea = '[' . date('Y-m-d H:i:s') . '] '
+                    . "SOLICITAR CÓDIGO EMAIL | EMAIL: {$email} | CÓDIGO: {$codigo} | EXPIRA: {$expireAt}" . PHP_EOL;
+
+                @file_put_contents($logFile, $linea, FILE_APPEND | LOCK_EX);
+            }
 
             $this->responder(200, [
                 'success' => true,
@@ -455,23 +495,14 @@ class AuthController
 
             $idUsuario = (int)$u['id_usuario'];
 
-            // Verificamos el hash + expiración directamente en BD
-            $db   = Database::getInstance();
-            $stmt = $db->prepare(
-                "SELECT email_verification_code_hash, email_verification_expire
-                 FROM usuario
-                 WHERE id_usuario = ?
-                 LIMIT 1"
-            );
-            $stmt->execute([$idUsuario]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $row = $modelo->getResetPasswordData($idUsuario);
 
             if (!$row) {
                 $this->responder(400, ['success' => false, 'message' => 'Código no disponible']);
             }
 
-            $hash   = (string)($row['email_verification_code_hash'] ?? '');
-            $expire = (string)($row['email_verification_expire']    ?? '');
+            $hash = (string)($row['reset_password_token'] ?? '');
+            $expire = (string)($row['reset_password_expire'] ?? '');
 
             if ($hash === '' || $expire === '') {
                 $this->responder(400, ['success' => false, 'message' => 'No hay código activo. Solicita uno nuevo.']);
@@ -526,10 +557,8 @@ class AuthController
             // Actualizar la contraseña usando el nuevo método del model
             $filas = $modelo->updatePasswordByEmail($email, $nuevaPwd);
 
-            // Limpiar el token/código de reset para que no pueda reutilizarse
-            $modelo->limpiarResetPasswordToken((int)$u['id_usuario']);
-            // También borramos el código de verificación de email usado
-            $modelo->marcarEmailVerificado((int)$u['id_usuario']);
+            // Limpiar el código de reset para que no pueda reutilizarse
+            $modelo->limpiarCodigoResetPassword((int)$u['id_usuario']);
 
             $this->responder(200, [
                 'success' => true,

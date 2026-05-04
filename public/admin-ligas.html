@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="./CSS/global.css">
     <link rel="stylesheet" href="./CSS/admin.css">
     <link rel="stylesheet" href="./CSS/admin-nav.css">
+    <link rel="stylesheet" href="./CSS/toast.css">
+    <script src="./JS/toast.js" defer></script>
 
     <script src="./JS/adminNav.js" defer></script>
     <style>
@@ -379,12 +381,21 @@
                 };
 
                 if (!body.nom || !body.temp || !body.categ || !body.descripcion) {
-                    alert("Todos los campos (nombre, temporada, categoría, descripción) son obligatorios");
+                    showToast("Todos los campos son obligatorios", "error");
                     return;
                 }
 
                 if (hasFile) {
-                    if (!confirm("¿Estás seguro de subir el escudo? Una vez guardado no podrás cambiarlo.")) return;
+                    if (hasFile) {
+                        const confirmado = await showConfirm(
+                            "Subir escudo",
+                            "Una vez guardado, el escudo no se podrá cambiar.",
+                            "warning",
+                            "Subir escudo"
+                        );
+
+                        if (!confirmado) return;
+                    }
                 }
 
                 try {
@@ -431,20 +442,32 @@
                             } catch (e) { console.error("Error subiendo escudo", e); }
                         }
 
+                        showToast(
+                            editId ? "Liga actualizada correctamente" : "Liga creada correctamente",
+                            "success"
+                        );
+
                         closeLigaForm();
                         loadLigas();
                     } else {
-                        alert("Error: " + (data.message || JSON.stringify(data)));
+                        showToast(data.message || "Error al guardar la liga", "error");
                     }
                 } catch (err) {
                     console.error("Error guardando liga:", err);
-                    alert("Error de conexión");
+                    showToast("Error de conexión", "error");
                 }
             };
 
             /* ─── Delete ─────────────────────────────────────── */
             window.deleteLiga = async function (nom, temp, categ) {
-                if (!confirm(`¿Estás seguro de eliminar la liga ${nom} (${temp})?`)) return;
+                const confirmado = await showConfirm(
+                    "Eliminar liga",
+                    `Esta acción eliminará la liga ${nom} (${temp}). No se podrá deshacer.`,
+                    "danger",
+                    "Eliminar"
+                );
+
+                if (!confirmado) return;
 
                 try {
                     const res = await fetch(API + "/ligas", {
@@ -459,11 +482,11 @@
                     if (res.ok) {
                         loadLigas();
                     } else {
-                        alert("Error: " + (data.message || JSON.stringify(data)));
+                        showToast(data.message || "Error al guardar la liga", "error");
                     }
                 } catch (err) {
                     console.error("Error eliminando liga:", err);
-                    alert("Error de conexión");
+                    showToast("Error de conexión", "error");
                 }
             };
 

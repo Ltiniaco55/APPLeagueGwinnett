@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="./CSS/admin.css">
     <link rel="stylesheet" href="./CSS/admin-nav.css">
 
+    <link rel="stylesheet" href="./CSS/toast.css">
+    <script src="./JS/toast.js" defer></script>
+
     <script src="./JS/adminNav.js" defer></script>
     <style>
         /* Custom Select-like Dropdown for Checkboxes */
@@ -299,61 +302,6 @@
 
     </div>
 
-    <!-- ═══ CREATE / EDIT FORM MODAL ═══ -->
-    <div class="gysl-admin-form-overlay" id="equipo-form-overlay">
-        <div class="gysl-admin-form-card">
-            <h3 id="equipo-form-title">Nuevo Equipo</h3>
-            <form id="equipo-form" onsubmit="return false;">
-                <input type="hidden" id="equipo-edit-id">
-
-                <div class="gysl-admin-form-group">
-                    <label for="equipo-club">Nombre del Equipo (Club)</label>
-                    <input type="text" id="equipo-club" placeholder="Ej: Atlanta FC" required>
-                </div>
-                <div class="gysl-admin-form-group">
-                    <label for="equipo-categoria">Categoría</label>
-                    <input type="text" id="equipo-categoria" placeholder="Ej: U14, Senior" required>
-                </div>
-                <div class="gysl-admin-form-group">
-                    <label>Ligas disponibles</label>
-                    <div class="gysl-custom-select" id="gysl-ligas-dropdown">
-                        <!-- Botón simulando dropdown -->
-                        <div class="gysl-custom-select__box" onclick="toggleLigasDropdown()">
-                            <span id="equipo-ligas-summary">Seleccionar ligas...</span>
-                            <svg class="gysl-custom-select__icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                        </div>
-                        <!-- Lista oculta que se despliega -->
-                        <div id="equipo-ligas-container" class="gysl-equipo-ligas">
-                            <div style="font-size: 0.9rem; color: #888; padding: 10px;">Cargando ligas...</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="gysl-admin-form-group">
-                    <label for="equipo-descripcion">Descripción</label>
-                    <textarea id="equipo-descripcion" placeholder="Opcional: información adicional" rows="3"
-                        required></textarea>
-                </div>
-
-                <div class="gysl-admin-form-group" id="equipo-escudo-group">
-                    <label for="equipo-escudo">Escudo (opcional al crear)</label>
-                    <input type="file" id="equipo-escudo" accept=".jpg,.jpeg,.png,.webp"
-                        style="color: var(--gysl-white);">
-                    <small style="color:var(--gysl-muted); font-size: 11px; margin-top: 4px; display: block;">Nota: Una
-                        vez guardado, el escudo no se podrá cambiar.</small>
-                </div>
-
-                <div class="gysl-admin-form-actions">
-                    <button type="button" class="gysl-admin-btn gysl-admin-btn--secondary"
-                        onclick="closeEquipoForm()">Cancelar</button>
-                    <button type="button" class="gysl-admin-btn gysl-admin-btn--primary"
-                        onclick="submitEquipo()">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
         (function () {
             "use strict";
@@ -434,21 +382,6 @@
                 }
             }
 
-            function updateLigasSummary() {
-                const chks = document.querySelectorAll(".gysl-liga-chk:checked");
-                const summary = document.getElementById("equipo-ligas-summary");
-                if (chks.length === 0) {
-                    summary.textContent = "Seleccionar ligas...";
-                    summary.style.color = "rgba(175,193,230,.5)"; // color placeholder
-                } else if (chks.length === 1) {
-                    summary.textContent = `1 liga seleccionada`;
-                    summary.style.color = "var(--gysl-white, #fff)";
-                } else {
-                    summary.textContent = `${chks.length} ligas seleccionadas`;
-                    summary.style.color = "var(--gysl-white, #fff)";
-                }
-            }
-
             // Exponer para onClick global en los custom select
             window.toggleLigasDropdown = function () {
                 const dropdown = document.getElementById("gysl-ligas-dropdown");
@@ -467,7 +400,6 @@
                 const container = document.getElementById("equipo-ligas-container");
                 if (!ligasData || ligasData.length === 0) {
                     container.innerHTML = '<div style="font-size: 0.9rem; color: #888; padding: 10px;">No hay ligas disponibles.</div>';
-                    updateLigasSummary();
                     return;
                 }
 
@@ -479,13 +411,11 @@
 
                     return `
                         <label class="gysl-equipo-ligas__item">
-                            <input type="checkbox" class="gysl-liga-chk" value="${id}" ${isChecked} onchange="updateLigasSummary()">
+                            <input type="checkbox" class="gysl-liga-chk" value="${id}" ${isChecked}>
                             <span>${nombre} (${categ})</span>
                         </label>
                     `;
                 }).join("");
-
-                updateLigasSummary();
             }
 
             /* ─── Render ─────────────────────────────────────── */
@@ -561,149 +491,6 @@
                 cardsGrid.innerHTML = cards;
             }
 
-            /* ─── Form ───────────────────────────────────────── */
-            window.openEquipoForm = function (equipo = null) {
-                const overlay = document.getElementById("equipo-form-overlay");
-                const title = document.getElementById("equipo-form-title");
-
-                document.getElementById("equipo-edit-id").value = "";
-                document.getElementById("equipo-club").value = "";
-                document.getElementById("equipo-categoria").value = "";
-                document.getElementById("equipo-descripcion").value = "";
-
-                if (equipo) {
-                    title.textContent = "Editar Equipo";
-                    document.getElementById("equipo-edit-id").value = equipo.id_equipo ?? equipo.id ?? "";
-                    document.getElementById("equipo-club").value = equipo.club ?? equipo.nombre ?? "";
-                    document.getElementById("equipo-categoria").value = equipo.categoria ?? "";
-                    document.getElementById("equipo-descripcion").value = equipo.descripcion ?? "";
-
-                    const ligasActivas = (equipo.ligas_ids || []).map(id => parseInt(id, 10));
-                    renderLigasCheckboxes(ligasActivas);
-
-                    if (equipo.escudo_bloqueado === 1 || equipo.escudo) {
-                        document.getElementById("equipo-escudo-group").style.display = "none";
-                    } else {
-                        document.getElementById("equipo-escudo-group").style.display = "block";
-                    }
-                } else {
-                    title.textContent = "Nuevo Equipo";
-                    renderLigasCheckboxes([]);
-                    document.getElementById("equipo-escudo-group").style.display = "block";
-                }
-
-                document.getElementById("equipo-escudo").value = "";
-
-                // Cerrar dropdown por si quedó abierto anteriormente
-                document.getElementById("gysl-ligas-dropdown").classList.remove("is-active");
-
-                overlay.classList.add("is-open");
-            };
-
-            window.closeEquipoForm = function () {
-                document.getElementById("equipo-form-overlay").classList.remove("is-open");
-            };
-
-            window.editEquipo = function (id) {
-                const eq = equiposData.find((e) => (e.id_equipo ?? e.id) == id);
-                if (eq) openEquipoForm(eq);
-            };
-
-            /* ─── Submit ─────────────────────────────────────── */
-            window.submitEquipo = async function () {
-                const editId = document.getElementById("equipo-edit-id").value;
-                const chks = document.querySelectorAll(".gysl-liga-chk:checked");
-                const selectedLigasIds = Array.from(chks).map(chk => parseInt(chk.value, 10));
-
-                const body = {
-                    club: document.getElementById("equipo-club").value.trim(),
-                    categoria: document.getElementById("equipo-categoria").value.trim(),
-                    descripcion: document.getElementById("equipo-descripcion").value.trim(),
-                    ligas: selectedLigasIds
-                };
-
-                const fileInput = document.getElementById("equipo-escudo");
-                const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
-
-                if (!body.club || !body.categoria || !body.descripcion) {
-                    alert("Todos los campos (club, categoría, descripción) son obligatorios");
-                    return;
-                }
-
-                if (hasFile) {
-                    if (!confirm("¿Estás seguro de subir el escudo? Una vez guardado no podrás cambiarlo.")) return;
-                }
-
-                try {
-                    let res;
-                    if (editId) {
-                        // PUT /equipos/{id}
-                        res = await fetch(API + "/equipos/" + editId, {
-                            method: "PUT",
-                            credentials: "include",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(body)
-                        });
-                    } else {
-                        // POST /equipos
-                        res = await fetch(API + "/equipos", {
-                            method: "POST",
-                            credentials: "include",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(body)
-                        });
-                    }
-
-                    const data = await res.json();
-
-                    if (res.ok) {
-                        let savedId = editId || (data.data ? data.data.id_equipo : null);
-
-                        if (hasFile && savedId) {
-                            const formData = new FormData();
-                            formData.append("escudo", fileInput.files[0]);
-                            try {
-                                await fetch(API + "/equipos/" + savedId + "/escudo", {
-                                    method: "POST",
-                                    credentials: "include",
-                                    body: formData
-                                });
-                            } catch (e) { console.error("Error subiendo escudo", e); }
-                        }
-
-                        closeEquipoForm();
-                        loadData();
-                    } else {
-                        alert("Error: " + (data.message || JSON.stringify(data)));
-                    }
-                } catch (err) {
-                    console.error("Error guardando equipo:", err);
-                    alert("Error de conexión");
-                }
-            };
-
-            /* ─── Delete ─────────────────────────────────────── */
-            window.deleteEquipo = async function (id) {
-                if (!confirm("¿Estás seguro de eliminar este equipo?")) return;
-
-                try {
-                    const res = await fetch(API + "/equipos/" + id, {
-                        method: "DELETE",
-                        credentials: "include"
-                    });
-
-                    const data = await res.json();
-
-                    if (res.ok) {
-                        loadData();
-                    } else {
-                        alert("Error: " + (data.message || JSON.stringify(data)));
-                    }
-                } catch (err) {
-                    console.error("Error eliminando equipo:", err);
-                    alert("Error de conexión");
-                }
-            };
 
             /* ─── Init ───────────────────────────────────────── */
             async function init() {
