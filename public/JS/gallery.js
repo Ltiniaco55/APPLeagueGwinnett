@@ -1,34 +1,49 @@
 /**
  * ==========================================================
  * GYSL — gallery.js
- * Dropdown jump to sections (smooth scroll)
+ * Smooth scroll para navegación de secciones de galería
  * ==========================================================
  */
 (function () {
     "use strict";
 
+    const OFFSET_HEADER = 110;
+
     function scrollToHash(hash) {
         const el = document.querySelector(hash);
         if (!el) return;
 
-        const y = el.getBoundingClientRect().top + window.pageYOffset - 110; // offset for sticky header
-        window.scrollTo({ top: y, behavior: "smooth" });
+        const y = el.getBoundingClientRect().top + window.pageYOffset - OFFSET_HEADER;
+
+        window.scrollTo({
+            top: y,
+            behavior: "smooth"
+        });
     }
 
-    function initJump() {
-        const select = document.getElementById("gysl-gallery-jump");
-        if (!select) return;
+    function initGalleryNav() {
+        const links = document.querySelectorAll('.gysl-gallery-nav__item');
 
-        select.addEventListener("change", () => {
-            const value = select.value;
-            if (!value) return;
-            scrollToHash(value);
+        if (!links.length) return;
+
+        links.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const hash = link.getAttribute('href');
+
+                if (!hash || !hash.startsWith('#')) return;
+
+                e.preventDefault();
+
+                scrollToHash(hash);
+
+                history.replaceState(null, null, hash);
+            });
         });
     }
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initJump);
+        document.addEventListener("DOMContentLoaded", initGalleryNav);
     } else {
-        initJump();
+        initGalleryNav();
     }
 })();
