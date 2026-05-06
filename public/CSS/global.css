@@ -2,6 +2,8 @@
    GYSL — GLOBAL DESIGN TOKENS
    Fuente: home.css (fonts) + layout.css (colors/layout)
    ========================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
 
 :root {
 

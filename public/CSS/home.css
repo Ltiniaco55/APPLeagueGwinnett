@@ -8,9 +8,7 @@
 
     --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 
-    --font-bebas: "Bebas Neue", sans-serif;
-    --font-anton: "Anton", sans-serif;
-    --font-oswald: "Oswald", sans-serif;
+
 
     /* ───── FONT WEIGHTS ───── */
 
@@ -100,7 +98,7 @@
 
 /* titulo */
 .gysl-hero-title {
-    font-family: var(--font-anton);
+    font-family: var(--font-primary);
     font-size: var(--fs-hero-title);
     font-weight: var(--fw-black);
     line-height: var(--lh-tight);
@@ -212,6 +210,20 @@
 
 .gysl-btn-ui-home:active .gysl-btn-ui-home__text {
     transform: scale(.9);
+}
+
+.gysl-btn-ui-home {
+    text-decoration: none;
+}
+
+.gysl-btn-ui-home:hover,
+.gysl-btn-ui-home:focus,
+.gysl-btn-ui-home:active {
+    text-decoration: none;
+}
+
+.gysl-btn-ui-home__text {
+    text-decoration: none;
 }
 
 

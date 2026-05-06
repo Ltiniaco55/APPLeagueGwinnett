@@ -139,6 +139,7 @@
                             <th>Temporada</th>
                             <th>Categoría</th>
                             <th>Descripción</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -177,6 +178,14 @@
                     <label for="liga-descripcion">Descripción</label>
                     <textarea id="liga-descripcion" placeholder="Ej: Breve descripción de la liga" required
                         rows="3"></textarea>
+                </div>
+
+                <div class="gysl-admin-form-group">
+                    <label for="liga-estado">Estado de la Liga</label>
+                    <select id="liga-estado" required>
+                        <option value="PROXIMAMENTE">Próximamente</option>
+                        <option value="EN_CURSO">En curso</option>
+                    </select>
                 </div>
 
                 <div class="gysl-admin-form-group" id="liga-escudo-group">
@@ -274,6 +283,9 @@
                     const desc = l.descripcion ?? "—";
                     const temp = l.temporada ?? l.temp ?? "—";
                     const cat = l.categoria ?? l.categ ?? "—";
+                    const estado = l.estado_liga ?? "PROXIMAMENTE";
+                    const estadoLabel = estado === "EN_CURSO" ? "En curso" : "Próximamente";
+                    const estadoClass = estado === "EN_CURSO" ? "gysl-badge--active" : "gysl-badge--pending";
 
                     // LISTA
                     trs += `
@@ -284,6 +296,7 @@
                         <td>${temp}</td>
                         <td>${cat}</td>
                         <td>${desc}</td>
+                        <td><span class="gysl-badge ${estadoClass}">${estadoLabel}</span></td>
                         <td onclick="event.stopPropagation()">
                             <div class="gysl-admin-table__actions">
                                 <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
@@ -305,6 +318,9 @@
                             <span>Temp: ${temp}</span>
                             <span>Cat: ${cat}</span>
                         </div>
+                        <div style="text-align:center;">
+    <span class="gysl-badge ${estadoClass}">${estadoLabel}</span>
+</div>
                         <p class="gysl-card__desc">${desc}</p>
                         <div class="gysl-card__actions" onclick="event.stopPropagation()">
                             <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
@@ -329,14 +345,16 @@
                 document.getElementById("liga-temporada").value = "";
                 document.getElementById("liga-categoria").value = "";
                 document.getElementById("liga-descripcion").value = "";
+                document.getElementById("liga-estado").value = "PROXIMAMENTE";
 
                 if (liga) {
                     title.textContent = "Editar Liga";
-                    document.getElementById("liga-edit-id").value = "edit"; // Usado solo como flag bool
+                    document.getElementById("liga-edit-id").value = liga.id_liga ?? liga.id ?? "";
                     document.getElementById("liga-nombre").value = liga.nombre_liga ?? liga.nom ?? liga.nombre ?? "";
                     document.getElementById("liga-temporada").value = liga.temporada ?? liga.temp ?? "";
                     document.getElementById("liga-categoria").value = liga.categoria ?? liga.categ ?? "";
                     document.getElementById("liga-descripcion").value = liga.descripcion ?? "";
+                    document.getElementById("liga-estado").value = liga.estado_liga ?? "PROXIMAMENTE";
                     // Guardamos las keys originales en dataset por si el backend soportara update en el futuro
                     document.getElementById("liga-nombre").dataset.original = liga.nombre_liga ?? liga.nom ?? "";
                     document.getElementById("liga-temporada").dataset.original = liga.temporada ?? liga.temp ?? "";
@@ -377,8 +395,15 @@
                     nom: document.getElementById("liga-nombre").value.trim(),
                     temp: document.getElementById("liga-temporada").value.trim(),
                     categ: document.getElementById("liga-categoria").value.trim(),
-                    descripcion: document.getElementById("liga-descripcion").value.trim()
+                    descripcion: document.getElementById("liga-descripcion").value.trim(),
+                    estado_liga: document.getElementById("liga-estado").value || "PROXIMAMENTE"
                 };
+
+                if (editId) {
+                    body.nom_actual = document.getElementById("liga-nombre").dataset.original;
+                    body.temp_actual = document.getElementById("liga-temporada").dataset.original;
+                    body.categ_actual = document.getElementById("liga-categoria").dataset.original;
+                }
 
                 if (!body.nom || !body.temp || !body.categ || !body.descripcion) {
                     showToast("Todos los campos son obligatorios", "error");
@@ -400,9 +425,8 @@
 
                 try {
                     let res;
-                    if (editId && ligasData.find((l) => l.nombre_liga === body.nom)) {
+                    if (editId) {
                         // PUT /ligas (el backend usa body, no URL param)
-                        body.id_liga = editId; // but editId currently is the bool flag. Try to retrieve real editId if possible
                         res = await fetch(API + "/ligas", {
                             method: "PUT",
                             credentials: "include",

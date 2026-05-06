@@ -115,6 +115,12 @@ class LigasController
             $categ = $this->limpiarTexto($entrada['categ'] ?? '');
             $descripcion = $this->limpiarTexto($entrada['descripcion'] ?? '');
 
+            $estadoLiga = strtoupper($this->limpiarTexto($entrada['estado_liga'] ?? 'PROXIMAMENTE'));
+
+            if (!in_array($estadoLiga, ['EN_CURSO', 'PROXIMAMENTE'], true)) {
+                $estadoLiga = 'PROXIMAMENTE';
+            }
+
             if ($nom === '' || $temp === '' || $categ === '') {
                 $this->responder(400, [
                     'success' => false,
@@ -133,7 +139,7 @@ class LigasController
             }
 
             // Tu insert acepta descripcion como 4º argumento opcional
-            $idNuevo = $modelo->insert($nom, $temp, $categ, $descripcion);
+            $idNuevo = $modelo->insert($nom, $temp, $categ, $descripcion, $estadoLiga);
 
             $this->responder(201, [
                 'success' => true,
@@ -143,7 +149,8 @@ class LigasController
                     'nom' => $nom,
                     'temp' => $temp,
                     'categ' => $categ,
-                    'descripcion' => $descripcion
+                    'descripcion' => $descripcion,
+                    'estado_liga' => $estadoLiga
                 ]
             ]);
         } catch (Throwable $e) {
@@ -204,9 +211,55 @@ class LigasController
         try {
             Autenticacion::requerirRol([Autenticacion::ROL_ADMIN]);
 
-            $this->responder(501, [
-                'success' => false,
-                'message' => 'Modificar ligas no implementado: falta método update en LigasModel'
+            $nomActual   = $this->limpiarTexto($entrada['nom_actual'] ?? '');
+            $tempActual  = $this->limpiarTexto($entrada['temp_actual'] ?? '');
+            $categActual = $this->limpiarTexto($entrada['categ_actual'] ?? '');
+
+            $nomNuevo   = $this->limpiarTexto($entrada['nom'] ?? '');
+            $tempNuevo  = $this->limpiarTexto($entrada['temp'] ?? '');
+            $categNuevo = $this->limpiarTexto($entrada['categ'] ?? '');
+            $descripcion = $this->limpiarTexto($entrada['descripcion'] ?? '');
+
+            $estadoLiga = strtoupper($this->limpiarTexto($entrada['estado_liga'] ?? 'PROXIMAMENTE'));
+
+            if (!in_array($estadoLiga, ['EN_CURSO', 'PROXIMAMENTE'], true)) {
+                $estadoLiga = 'PROXIMAMENTE';
+            }
+
+            if (
+                $nomActual === '' || $tempActual === '' || $categActual === '' ||
+                $nomNuevo === '' || $tempNuevo === '' || $categNuevo === ''
+            ) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Faltan campos obligatorios para modificar la liga'
+                ]);
+            }
+
+            $modelo = new LigasModel();
+
+            if (!$modelo->existsByKey($nomActual, $tempActual, $categActual)) {
+                $this->responder(404, [
+                    'success' => false,
+                    'message' => 'La liga original no existe'
+                ]);
+            }
+
+            $filas = $modelo->updateByKey(
+                $nomActual,
+                $tempActual,
+                $categActual,
+                $nomNuevo,
+                $tempNuevo,
+                $categNuevo,
+                $descripcion,
+                $estadoLiga
+            );
+
+            $this->responder(200, [
+                'success' => true,
+                'message' => 'Liga modificada correctamente',
+                'filas_afectadas' => $filas
             ]);
         } catch (Throwable $e) {
             $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
