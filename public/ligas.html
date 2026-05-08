@@ -10,12 +10,14 @@
     <link rel="stylesheet" href="./CSS/contact.css">
     <link rel="stylesheet" href="./CSS/mini-menu.css">
     <link rel="stylesheet" href="./CSS/toast.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
 
     <script src="./JS/contact.js" defer></script>
     <script src="./JS/login.js" defer></script>
     <script src="./JS/sesionactiva.js" defer></script>
     <script src="./JS/layout.js" defer></script>
     <script src="./JS/toast.js" defer></script>
+    <script src="./JS/adminNav.js" defer></script>
 
     <style>
         :root {
@@ -436,9 +438,18 @@
                     const categoria = texto(liga.categoria);
                     const descripcion = texto(liga.descripcion, "Competición GYSL");
                     const escudo = liga.escudo ? API + liga.escudo : "./escudos/gwinnett.svg";
+                    const idLiga = liga.id_liga ?? liga.id;
+                    const estadoLiga = liga.estado_liga ?? "PROXIMAMENTE";
+                    const formatoLiga = liga.formato_liga ?? "JORNADAS";
+
+                    let urlDestino = "#";
+
+                    if (estadoLiga === "EN_CURSO") {
+                        urlDestino = `clasificacion.html?liga=${idLiga}&formato=${formatoLiga}`;
+                    }
 
                     return `
-                        <article class="gysl-liga-card">
+                        <article class="gysl-liga-card" onclick="${urlDestino !== '#' ? `window.location.href='${urlDestino}'` : ''}">
                             <div class="gysl-liga-card__image">
                                 <img src="${escudo}" alt="${nombre}" onerror="this.src='./escudos/gwinnett.svg'">
                                 <span class="gysl-liga-card__badge ${esProxima
@@ -456,7 +467,7 @@
 
                                 <p class="gysl-liga-card__desc">${descripcion}</p>
 
-                                <a href="#" class="gysl-liga-card__btn">
+                                <a href="${urlDestino}" class="gysl-liga-card__btn" onclick="event.stopPropagation()">
                                     ${esProxima ? "VER MÁS INFO →" : "VER DETALLES →"}
                                 </a>
                             </div>

@@ -84,6 +84,12 @@
             gap: 10px;
             margin-top: 10px;
         }
+
+        .gysl-badge--info {
+            background: rgba(59, 130, 246, .15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, .35);
+        }
     </style>
 </head>
 
@@ -140,6 +146,7 @@
                             <th>Categoría</th>
                             <th>Descripción</th>
                             <th>Estado</th>
+                            <th>Formato</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -185,6 +192,15 @@
                     <select id="liga-estado" required>
                         <option value="PROXIMAMENTE">Próximamente</option>
                         <option value="EN_CURSO">En curso</option>
+                    </select>
+                </div>
+
+                <div class="gysl-admin-form-group">
+                    <label for="liga-formato">Formato de la Liga</label>
+                    <select id="liga-formato" required>
+                        <option value="JORNADAS">Jornadas</option>
+                        <option value="ELIMINATORIA">Eliminatoria</option>
+                        <option value="AMISTOSO">Amistoso</option>
                     </select>
                 </div>
 
@@ -286,6 +302,13 @@
                     const estado = l.estado_liga ?? "PROXIMAMENTE";
                     const estadoLabel = estado === "EN_CURSO" ? "En curso" : "Próximamente";
                     const estadoClass = estado === "EN_CURSO" ? "gysl-badge--active" : "gysl-badge--pending";
+                    const formato = l.formato_liga ?? "JORNADAS";
+
+                    const formatoLabel = {
+                        JORNADAS: "Jornadas",
+                        ELIMINATORIA: "Eliminatoria",
+                        AMISTOSO: "Amistoso"
+                    }[formato] ?? "Jornadas";
 
                     // LISTA
                     trs += `
@@ -297,6 +320,7 @@
                         <td>${cat}</td>
                         <td>${desc}</td>
                         <td><span class="gysl-badge ${estadoClass}">${estadoLabel}</span></td>
+                        <td><span class="gysl-badge gysl-badge--info">${formatoLabel}</span></td>
                         <td onclick="event.stopPropagation()">
                             <div class="gysl-admin-table__actions">
                                 <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
@@ -319,8 +343,9 @@
                             <span>Cat: ${cat}</span>
                         </div>
                         <div style="text-align:center;">
-    <span class="gysl-badge ${estadoClass}">${estadoLabel}</span>
-</div>
+                            <span class="gysl-badge ${estadoClass}">${estadoLabel}</span>
+                            <span class="gysl-badge gysl-badge--info">${formatoLabel}</span>
+                        </div>
                         <p class="gysl-card__desc">${desc}</p>
                         <div class="gysl-card__actions" onclick="event.stopPropagation()">
                             <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
@@ -346,6 +371,7 @@
                 document.getElementById("liga-categoria").value = "";
                 document.getElementById("liga-descripcion").value = "";
                 document.getElementById("liga-estado").value = "PROXIMAMENTE";
+                document.getElementById("liga-formato").value = "JORNADAS";
 
                 if (liga) {
                     title.textContent = "Editar Liga";
@@ -355,6 +381,7 @@
                     document.getElementById("liga-categoria").value = liga.categoria ?? liga.categ ?? "";
                     document.getElementById("liga-descripcion").value = liga.descripcion ?? "";
                     document.getElementById("liga-estado").value = liga.estado_liga ?? "PROXIMAMENTE";
+                    document.getElementById("liga-formato").value = liga.formato_liga ?? "JORNADAS";
                     // Guardamos las keys originales en dataset por si el backend soportara update en el futuro
                     document.getElementById("liga-nombre").dataset.original = liga.nombre_liga ?? liga.nom ?? "";
                     document.getElementById("liga-temporada").dataset.original = liga.temporada ?? liga.temp ?? "";
@@ -396,7 +423,8 @@
                     temp: document.getElementById("liga-temporada").value.trim(),
                     categ: document.getElementById("liga-categoria").value.trim(),
                     descripcion: document.getElementById("liga-descripcion").value.trim(),
-                    estado_liga: document.getElementById("liga-estado").value || "PROXIMAMENTE"
+                    estado_liga: document.getElementById("liga-estado").value || "PROXIMAMENTE",
+                    formato_liga: document.getElementById("liga-formato").value || "JORNADAS"
                 };
 
                 if (editId) {
@@ -446,13 +474,7 @@
                     const data = await res.json();
 
                     if (res.ok) {
-                        let savedId = data.data ? data.data.id_liga : null;
-
-                        // Si el edit no nos devolvió la id en 'data', probamos buscarla
-                        if (!savedId) {
-                            const lg = ligasData.find(lg => lg.nombre_liga === body.nom && lg.temporada === body.temp);
-                            if (lg) savedId = lg.id_liga;
-                        }
+                        let savedId = data.data?.id_liga ?? null;
 
                         if (hasFile && savedId) {
                             const formData = new FormData();

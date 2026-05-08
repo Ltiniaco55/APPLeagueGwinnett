@@ -28,6 +28,9 @@ require_once __DIR__ . '/../model/equiposModel.php';
 require_once __DIR__ . '/../model/usuariosModel.php';
 require_once __DIR__ . '/../model/entrenadoresModel.php';
 require_once __DIR__ . '/../model/entrenadorEquipoModel.php';
+require_once __DIR__ . '/../model/equipoLigaModel.php';
+require_once __DIR__ . '/../model/partidosModel.php';
+require_once __DIR__ . '/../model/clasificacionesModel.php';
 
 class EquiposController
 {
@@ -42,6 +45,12 @@ class EquiposController
     private function limpiarTexto($valor): string
     {
         return trim((string)($valor ?? ''));
+    }
+
+    private function regenerarClasificacion(int $idLiga): void
+    {
+        $clasificacionesModel = new ClasificacionesModel();
+        $clasificacionesModel->regenerarLiga($idLiga);
     }
 
     /**
@@ -394,6 +403,8 @@ class EquiposController
                 ]);
             }
 
+            $ligasDelEquipo = $equiposModel->getLigasByEquipo($id);
+
             /*
          * Antes de borrar el equipo, guardamos qué entrenadores estaban relacionados.
          * Luego la FK con ON DELETE CASCADE debería borrar sus relaciones en entrenador_equipo.
@@ -417,6 +428,10 @@ class EquiposController
          * ON DELETE CASCADE hacia equipos.
          */
             $filas = $equiposModel->delete($id);
+
+            foreach ($ligasDelEquipo as $idLiga) {
+                $this->regenerarClasificacion((int)$idLiga);
+            }
 
             /*
          * Ahora revisamos si algún entrenador afectado se quedó sin equipos.

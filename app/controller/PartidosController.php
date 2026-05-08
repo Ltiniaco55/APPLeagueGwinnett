@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/partidosModel.php';
+require_once __DIR__ . '/../model/clasificacionesModel.php';
 
 class PartidosController
 {
@@ -48,6 +49,12 @@ class PartidosController
     private function validarEstado(string $estado): bool
     {
         return in_array($estado, ['pendiente', 'programado', 'jugado', 'cancelado'], true);
+    }
+
+    private function regenerarClasificacion(int $idLiga): void
+    {
+        $clasificacionesModel = new ClasificacionesModel();
+        $clasificacionesModel->regenerarLiga($idLiga);
     }
 
     /**
@@ -180,10 +187,41 @@ class PartidosController
             $idLocal      = isset($entrada['id_equipo_local'])      ? (int) $entrada['id_equipo_local']      : 0;
             $idVisitante  = isset($entrada['id_equipo_visitante'])  ? (int) $entrada['id_equipo_visitante']  : 0;
             $golesLocal   = isset($entrada['goles_local'])      && $entrada['goles_local']     !== ''
-                            ? (int) $entrada['goles_local']     : null;
+                ? (int) $entrada['goles_local']     : null;
             $golesVisitante = isset($entrada['goles_visitante']) && $entrada['goles_visitante'] !== ''
-                            ? (int) $entrada['goles_visitante'] : null;
+                ? (int) $entrada['goles_visitante'] : null;
             $estado       = $this->limpiarTexto($entrada['estado'] ?? 'programado');
+
+
+            if (!$this->validarEstado($estado)) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Estado de partido no permitido. Valores válidos: pendiente, programado, jugado, cancelado',
+                ]);
+            }
+
+            // ── Validar goles ─────────────────────────────────────────────────
+            if (
+                ($golesLocal !== null && $golesLocal < 0) ||
+                ($golesVisitante !== null && $golesVisitante < 0)
+            ) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Los goles no pueden ser negativos',
+                ]);
+            }
+
+            if ($estado === 'jugado' && ($golesLocal === null || $golesVisitante === null)) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Un partido jugado debe tener goles local y visitante',
+                ]);
+            }
+
+            if ($estado !== 'jugado') {
+                $golesLocal = null;
+                $golesVisitante = null;
+            }
 
             // ── Validar obligatorios ─────────────────────────────────────────
             if ($idLiga === 0 || $jornada === '' || $fecha === '' || $lugar === '' || $idLocal === 0 || $idVisitante === 0) {
@@ -193,13 +231,6 @@ class PartidosController
                 ]);
             }
 
-            // ── Validar estado ───────────────────────────────────────────────
-            if (!$this->validarEstado($estado)) {
-                $this->responder(400, [
-                    'success' => false,
-                    'message' => 'Estado de partido no permitido. Valores válidos: pendiente, programado, jugado, cancelado',
-                ]);
-            }
 
             // ── Equipo local != visitante ────────────────────────────────────
             if ($idLocal === $idVisitante) {
@@ -271,6 +302,10 @@ class PartidosController
                 'estado'              => $estado,
             ]);
 
+            if ($estado === 'jugado') {
+                $this->regenerarClasificacion($idLiga);
+            }
+
             $this->responder(201, [
                 'success'    => true,
                 'message'    => 'Partido creado correctamente',
@@ -325,10 +360,33 @@ class PartidosController
             $idLocal      = isset($entrada['id_equipo_local'])      ? (int) $entrada['id_equipo_local']      : 0;
             $idVisitante  = isset($entrada['id_equipo_visitante'])  ? (int) $entrada['id_equipo_visitante']  : 0;
             $golesLocal   = isset($entrada['goles_local'])      && $entrada['goles_local']     !== ''
-                            ? (int) $entrada['goles_local']     : null;
+                ? (int) $entrada['goles_local']     : null;
             $golesVisitante = isset($entrada['goles_visitante']) && $entrada['goles_visitante'] !== ''
-                            ? (int) $entrada['goles_visitante'] : null;
+                ? (int) $entrada['goles_visitante'] : null;
             $estado       = $this->limpiarTexto($entrada['estado'] ?? '');
+
+            // ── Validar goles ─────────────────────────────────────────────────
+            if (
+                ($golesLocal !== null && $golesLocal < 0) ||
+                ($golesVisitante !== null && $golesVisitante < 0)
+            ) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Los goles no pueden ser negativos',
+                ]);
+            }
+
+            if ($estado === 'jugado' && ($golesLocal === null || $golesVisitante === null)) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => 'Un partido jugado debe tener goles local y visitante',
+                ]);
+            }
+
+            if ($estado !== 'jugado') {
+                $golesLocal = null;
+                $golesVisitante = null;
+            }
 
             // ── Validar obligatorios ─────────────────────────────────────────
             if ($idLiga === 0 || $jornada === '' || $fecha === '' || $lugar === '' || $idLocal === 0 || $idVisitante === 0) {
@@ -414,6 +472,14 @@ class PartidosController
                 'estado'              => $estado,
             ]);
 
+            $idLigaAnterior = (int)$partido['id_liga'];
+
+            $this->regenerarClasificacion($idLigaAnterior);
+
+            if ($idLigaAnterior !== $idLiga) {
+                $this->regenerarClasificacion($idLiga);
+            }
+
             $this->responder(200, [
                 'success' => true,
                 'message' => 'Partido actualizado correctamente',
@@ -454,6 +520,8 @@ class PartidosController
 
             $modelo->cancelar($id);
 
+            $this->regenerarClasificacion((int)$partido['id_liga']);
+
             $this->responder(200, [
                 'success' => true,
                 'message' => 'Partido cancelado correctamente',
@@ -493,6 +561,8 @@ class PartidosController
             }
 
             $modelo->delete($id);
+
+            $this->regenerarClasificacion((int)$partido['id_liga']);
 
             $this->responder(200, [
                 'success' => true,

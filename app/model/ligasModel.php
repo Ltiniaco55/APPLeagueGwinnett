@@ -40,33 +40,18 @@ class LigasModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function existsByKey(string $nom, string $temp, string $categ): bool
-    {
-        $stmt = $this->db->prepare(
-            "SELECT 1 
-         FROM ligas 
-         WHERE nombre_liga = ? 
-           AND temporada = ? 
-           AND categoria = ?
-         LIMIT 1"
-        );
-
-        $stmt->execute([$nom, $temp, $categ]);
-
-        return (bool) $stmt->fetchColumn();
-    }
-
     public function insert(
         string $nom,
         string $temp,
         string $categ,
         string $descripcion = '',
-        string $estadoLiga = 'PROXIMAMENTE'
+        string $estadoLiga = 'PROXIMAMENTE',
+        string $formatoLiga = 'JORNADAS'
     ): int {
         $stmt = $this->db->prepare(
             "INSERT INTO ligas 
-            (nombre_liga, temporada, categoria, descripcion, estado_liga) 
-         VALUES (?, ?, ?, ?, ?)"
+        (nombre_liga, temporada, categoria, descripcion, estado_liga, formato_liga) 
+        VALUES (?, ?, ?, ?, ?, ?)"
         );
 
         $stmt->execute([
@@ -74,7 +59,8 @@ class LigasModel
             $temp,
             $categ,
             $descripcion,
-            $estadoLiga
+            $estadoLiga,
+            $formatoLiga
         ]);
 
         return (int) $this->db->lastInsertId();
@@ -103,7 +89,8 @@ class LigasModel
         string $tempNuevo,
         string $categNuevo,
         ?string $descripcion = null,
-        string $estadoLiga = 'PROXIMAMENTE'
+        string $estadoLiga = 'PROXIMAMENTE',
+        string $formatoLiga = 'JORNADAS'
     ): int {
         $stmt = $this->db->prepare(
             "UPDATE ligas
@@ -111,7 +98,8 @@ class LigasModel
              temporada = ?, 
              categoria = ?, 
              descripcion = ?,
-             estado_liga = ?
+             estado_liga = ?,
+             formato_liga = ?
          WHERE nombre_liga = ? 
            AND temporada = ? 
            AND categoria = ?"
@@ -123,10 +111,66 @@ class LigasModel
             $categNuevo,
             $descripcion,
             $estadoLiga,
+            $formatoLiga,
             $nomActual,
             $tempActual,
             $categActual
         ]);
+
+        return $stmt->rowCount();
+    }
+
+
+    public function getByKey(string $nom, string $temp, string $categ): ?array
+    {
+        $stmt = $this->db->prepare("
+        SELECT *
+        FROM ligas
+        WHERE nombre_liga = ?
+          AND temporada = ?
+          AND categoria = ?
+        LIMIT 1
+    ");
+
+        $stmt->execute([$nom, $temp, $categ]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result ?: null;
+    }
+
+    public function deleteClasificacionByLiga(int $idLiga): int
+    {
+        $stmt = $this->db->prepare("
+        DELETE FROM clasificaciones
+        WHERE id_liga = ?
+    ");
+
+        $stmt->execute([$idLiga]);
+
+        return $stmt->rowCount();
+    }
+
+    public function deletePartidosByLiga(int $idLiga): int
+    {
+        $stmt = $this->db->prepare("
+        DELETE FROM partidos
+        WHERE id_liga = ?
+    ");
+
+        $stmt->execute([$idLiga]);
+
+        return $stmt->rowCount();
+    }
+
+    public function deleteEquiposLigaByLiga(int $idLiga): int
+    {
+        $stmt = $this->db->prepare("
+        DELETE FROM equipo_liga
+        WHERE id_liga = ?
+    ");
+
+        $stmt->execute([$idLiga]);
 
         return $stmt->rowCount();
     }

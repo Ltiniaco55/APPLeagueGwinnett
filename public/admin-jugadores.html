@@ -455,23 +455,23 @@
                         <tbody id="plantilla-tbody"></tbody>
                     </table>
                 </div>
-            </div>
 
-            <h3 id="entrenadores-title"
-                style="display:none; margin-top:32px; margin-bottom:14px; color:var(--gysl-white);">
-                Entrenadores
-            </h3>
 
-            <div id="entrenadores-cards-wrapper" style="display:none;">
-                <div id="entrenadores-cards-grid"
-                    style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px;">
+                <h3 id="entrenadores-title"
+                    style="display:none; margin-top:32px; margin-bottom:14px; color:var(--gysl-white);">
+                    Entrenadores
+                </h3>
+
+                <div id="entrenadores-cards-wrapper" style="display:none;">
+                    <div id="entrenadores-cards-grid"
+                        style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px;">
+                    </div>
+                </div>
+
+                <div id="entrenadores-empty" class="gysl-admin-empty" style="display:none;">
+                    <p>No hay entrenadores asignados a este equipo</p>
                 </div>
             </div>
-
-            <div id="entrenadores-empty" class="gysl-admin-empty" style="display:none;">
-                <p>No hay entrenadores asignados a este equipo</p>
-            </div>
-
             <!-- ═══ TAB 3: PENDIENTES ═══ -->
             <div class="gysl-tab-panel" id="panel-pendientes">
 
@@ -491,12 +491,7 @@
                             <option value="">— Todos —</option>
                         </select>
                     </div>
-                    <div class="gysl-filter-group">
-                        <label for="pend-filter-categoria">Categoría</label>
-                        <select id="pend-filter-categoria" onchange="loadPendientes()">
-                            <option value="">— Todas —</option>
-                        </select>
-                    </div>
+
                     <div class="gysl-filter-group" style="justify-content:flex-end;">
                         <label>&nbsp;</label>
                         <button class="gysl-admin-btn gysl-admin-btn--primary" id="btn-aprobar-lote"
@@ -1021,19 +1016,17 @@
 
             function populatePendFiltros() {
                 const selEq = document.getElementById("pend-filter-equipo");
-                const selCat = document.getElementById("pend-filter-categoria");
-                if (!selEq || !selCat) return;
+                if (!selEq) return;
 
                 selEq.innerHTML = '<option value="">— Todos —</option>';
+
                 allEquipos.forEach(e => {
                     const id = e.id_equipo ?? e.id;
                     const nom = e.club ?? e.nombre ?? "Sin nombre";
-                    selEq.innerHTML += `<option value="${id}">${nom}</option>`;
-                });
+                    const cat = e.categoria ?? "Sin categoría";
 
-                const cats = [...new Set(allEquipos.map(e => e.categoria).filter(Boolean))].sort();
-                selCat.innerHTML = '<option value="">— Todas —</option>';
-                cats.forEach(c => selCat.innerHTML += `<option value="${c}">${c}</option>`);
+                    selEq.innerHTML += `<option value="${id}">${nom} (${cat})</option>`;
+                });
             }
 
             async function loadPendientes() {
@@ -1045,15 +1038,26 @@
 
                 const accion = document.getElementById("pend-filter-accion")?.value || "";
                 const id_equipo = document.getElementById("pend-filter-equipo")?.value || "";
-                const categoria = document.getElementById("pend-filter-categoria")?.value || "";
 
                 const params = new URLSearchParams();
-                if (accion) params.append("accion", accion);
-                if (id_equipo) params.append("id_equipo", id_equipo);
-                if (categoria) params.append("categoria", categoria);
+
+                if (accion) {
+                    params.append("accion", accion);
+                }
+
+                if (id_equipo) {
+                    params.append("id_equipo", id_equipo);
+                }
 
                 try {
                     const res = await fetch(API + "/admin/jugadores/pendientes?" + params.toString(), { credentials: "include" });
+
+                    console.log("===== DEBUG PENDIENTES: LOAD =====");
+                    console.log("Filtro acción seleccionado:", accion);
+                    console.log("Filtro equipo seleccionado:", id_equipo);
+                    console.log("URL enviada:", url);
+
+
                     const data = await res.json();
                     pendientesData = data.data || [];
                 } catch (err) {
@@ -1070,7 +1074,22 @@
                 const wrapper = document.getElementById("pendientes-table-wrapper");
                 const empty = document.getElementById("pendientes-empty");
 
-                if (pendientesData.length === 0) {
+                const accionFiltro = document.getElementById("pend-filter-accion")?.value || "";
+                const equipoFiltro = document.getElementById("pend-filter-equipo")?.value || "";
+
+                let pendientesFiltrados = pendientesData.filter(p => {
+                    if (accionFiltro && p.accion_solicitada !== accionFiltro) {
+                        return false;
+                    }
+
+                    if (equipoFiltro && String(p.id_equipo) !== String(equipoFiltro)) {
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                if (pendientesFiltrados.length === 0) {
                     wrapper.style.display = "none";
                     empty.style.display = "block";
                     return;
@@ -1079,11 +1098,11 @@
                 empty.style.display = "none";
                 wrapper.style.display = "block";
 
-                const hayAltas = pendientesData.some(p => p.accion_solicitada === "ALTA");
+                const hayAltas = pendientesFiltrados.some(p => p.accion_solicitada === "ALTA");
                 const loteBtn = document.getElementById("btn-aprobar-lote");
                 if (loteBtn) loteBtn.style.display = hayAltas ? "inline-flex" : "none";
 
-                tbody.innerHTML = pendientesData.map(p => {
+                tbody.innerHTML = pendientesFiltrados.map(p => {
                     const accionBadge = p.accion_solicitada === "ALTA"
                         ? `<span class="gysl-badge gysl-badge--active">Alta</span>`
                         : `<span class="gysl-badge gysl-badge--inactive">Baja</span>`;

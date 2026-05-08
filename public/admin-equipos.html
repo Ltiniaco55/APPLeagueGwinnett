@@ -289,7 +289,7 @@
                             <th>ID</th>
                             <th>Club</th>
                             <th>Categoría</th>
-                            <th>Descripción</th>
+                            <th>Liga/s</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -551,7 +551,7 @@
                         <td>${idEq}</td>
                         <td>${club}</td>
                         <td>${cat}</td>
-                        <td>${desc}</td>
+                        <td>${ligasNombres}</td>
                         <td onclick="event.stopPropagation()">
                             <div class="gysl-admin-table__actions">
                                 <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
@@ -572,7 +572,7 @@
                             <span>Ligas: <span style="color:#fff">${ligasNombres}</span></span>
                             <span>Cat: ${cat}</span>
                         </div>
-                        <p class="gysl-card__desc">${desc}</p>
+                        <p class="gysl-card__desc">Liga/s: ${ligasNombres}</p>
                         <div class="gysl-card__actions" onclick="event.stopPropagation()">
                             <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
                                     onclick="editEquipo(${idEq})">Editar</button>

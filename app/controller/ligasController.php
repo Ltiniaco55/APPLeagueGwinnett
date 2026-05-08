@@ -79,7 +79,9 @@ class LigasController
             $modelo = new LigasModel();
 
             // Existencia exacta
-            if (!$modelo->existsByKey($nom, $temp, $categ)) {
+            $liga = $modelo->getByKey($nom, $temp, $categ);
+
+            if (!$liga) {
                 $this->responder(404, [
                     'success' => false,
                     'message' => 'No existe una liga con ese nom, temp y categ'
@@ -121,6 +123,12 @@ class LigasController
                 $estadoLiga = 'PROXIMAMENTE';
             }
 
+            $formatoLiga = strtoupper($this->limpiarTexto($entrada['formato_liga'] ?? 'JORNADAS'));
+
+            if (!in_array($formatoLiga, ['JORNADAS', 'ELIMINATORIA', 'AMISTOSO'], true)) {
+                $formatoLiga = 'JORNADAS';
+            }
+
             if ($nom === '' || $temp === '' || $categ === '') {
                 $this->responder(400, [
                     'success' => false,
@@ -131,7 +139,7 @@ class LigasController
             $modelo = new LigasModel();
 
             // Regla: no duplicados por (nom,temp,categ)
-            if ($modelo->existsByKey($nom, $temp, $categ)) {
+            if ($modelo->getByKey($nom, $temp, $categ)) {
                 $this->responder(409, [
                     'success' => false,
                     'message' => 'Ya existe una liga con el mismo nom, temp y categ'
@@ -139,7 +147,7 @@ class LigasController
             }
 
             // Tu insert acepta descripcion como 4º argumento opcional
-            $idNuevo = $modelo->insert($nom, $temp, $categ, $descripcion, $estadoLiga);
+            $idNuevo = $modelo->insert($nom, $temp, $categ, $descripcion, $estadoLiga, $formatoLiga);
 
             $this->responder(201, [
                 'success' => true,
@@ -150,7 +158,8 @@ class LigasController
                     'temp' => $temp,
                     'categ' => $categ,
                     'descripcion' => $descripcion,
-                    'estado_liga' => $estadoLiga
+                    'estado_liga' => $estadoLiga,
+                    'formato_liga' => $formatoLiga
                 ]
             ]);
         } catch (Throwable $e) {
@@ -182,12 +191,20 @@ class LigasController
 
             $modelo = new LigasModel();
 
-            if (!$modelo->existsByKey($nom, $temp, $categ)) {
+            $liga = $modelo->getByKey($nom, $temp, $categ);
+
+            if (!$liga) {
                 $this->responder(404, [
                     'success' => false,
                     'message' => 'No existe una liga con ese nom, temp y categ'
                 ]);
             }
+
+            $idLiga = (int)$liga['id_liga'];
+
+            $modelo->deleteClasificacionByLiga($idLiga);
+            $modelo->deletePartidosByLiga($idLiga);
+            $modelo->deleteEquiposLigaByLiga($idLiga);
 
             $filas = $modelo->deleteByKey($nom, $temp, $categ);
 
@@ -226,6 +243,12 @@ class LigasController
                 $estadoLiga = 'PROXIMAMENTE';
             }
 
+            $formatoLiga = strtoupper($this->limpiarTexto($entrada['formato_liga'] ?? 'JORNADAS'));
+
+            if (!in_array($formatoLiga, ['JORNADAS', 'ELIMINATORIA', 'AMISTOSO'], true)) {
+                $formatoLiga = 'JORNADAS';
+            }
+
             if (
                 $nomActual === '' || $tempActual === '' || $categActual === '' ||
                 $nomNuevo === '' || $tempNuevo === '' || $categNuevo === ''
@@ -238,7 +261,7 @@ class LigasController
 
             $modelo = new LigasModel();
 
-            if (!$modelo->existsByKey($nomActual, $tempActual, $categActual)) {
+            if (!$modelo->getByKey($nomActual, $tempActual, $categActual)) {
                 $this->responder(404, [
                     'success' => false,
                     'message' => 'La liga original no existe'
@@ -253,7 +276,8 @@ class LigasController
                 $tempNuevo,
                 $categNuevo,
                 $descripcion,
-                $estadoLiga
+                $estadoLiga,
+                $formatoLiga
             );
 
             $this->responder(200, [

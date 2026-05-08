@@ -261,6 +261,38 @@ class PartidosModel
         return $stmt->rowCount();
     }
 
+    public function deleteByEquipoLiga(int $idLiga, int $idEquipo): int
+    {
+        $stmt = $this->db->prepare("
+        DELETE FROM partidos
+        WHERE id_liga = ?
+          AND (
+                id_equipo_local = ?
+             OR id_equipo_visitante = ?
+          )
+    ");
+
+        $stmt->execute([
+            $idLiga,
+            $idEquipo,
+            $idEquipo
+        ]);
+
+        return $stmt->rowCount();
+    }
+
+    public function deleteByLiga(int $idLiga): int
+    {
+        $stmt = $this->db->prepare("
+        DELETE FROM partidos
+        WHERE id_liga = ?
+    ");
+
+        $stmt->execute([$idLiga]);
+
+        return $stmt->rowCount();
+    }
+
     // =========================================================================
     //  VALIDACIONES DE NEGOCIO
     // =========================================================================
@@ -286,9 +318,12 @@ class PartidosModel
               )
         ";
         $params = [
-            $idLiga, $jornada,
-            $idLocal, $idVisitante,
-            $idVisitante, $idLocal,
+            $idLiga,
+            $jornada,
+            $idLocal,
+            $idVisitante,
+            $idVisitante,
+            $idLocal,
         ];
 
         if ($excluirId !== null) {
@@ -322,9 +357,12 @@ class PartidosModel
               )
         ";
         $params = [
-            $idLiga, $fecha,
-            $idLocal,    $idLocal,
-            $idVisitante, $idVisitante,
+            $idLiga,
+            $fecha,
+            $idLocal,
+            $idLocal,
+            $idVisitante,
+            $idVisitante,
         ];
 
         if ($excluirId !== null) {

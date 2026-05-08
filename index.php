@@ -65,6 +65,7 @@ $requiredFiles = [
     __DIR__ . '/app/model/entrenadoresModel.php',
     __DIR__ . '/app/model/entrenadorEquipoModel.php',
     __DIR__ . '/app/model/partidosModel.php',
+    __DIR__ . '/app/model/clasificacionesModel.php',
     // Controllers (nombres reales de los archivos)
     __DIR__ . '/app/controller/AuthController.php',
     __DIR__ . '/app/controller/userController.php',
@@ -72,10 +73,10 @@ $requiredFiles = [
     __DIR__ . '/app/controller/equiposController.php',
     __DIR__ . '/app/controller/jugadoresController.php',
     __DIR__ . '/app/controller/equipojugador.php',
-    __DIR__ . '/app/controller/incidenciasController.php',
     __DIR__ . '/app/controller/JugadoresStaffController.php',
     __DIR__ . '/app/controller/JugadoresAdminController.php',
     __DIR__ . '/app/controller/PartidosController.php',
+    __DIR__ . '/app/controller/clasificacionesController.php'
 ];
 
 foreach ($requiredFiles as $file) {
@@ -179,6 +180,10 @@ $router->add('DELETE', '/admin/partidos/{id}',         'PartidosController', 'el
 // ====================== PARTIDOS ======================
 $router->add('GET',    '/partidos',                    'PartidosController', 'seleccionar');
 $router->add('GET',    '/partidos/{id}',               'PartidosController', 'localizar');
+
+// ====================== CLASIFICACIONES ======================
+$router->add('GET',  '/clasificaciones/{id}',            'ClasificacionesController', 'seleccionarPorLiga');
+$router->add('POST', '/clasificaciones/{id}/regenerar',  'ClasificacionesController', 'regenerar');
 
 // ====================== Dispatch ======================
 $router->dispatch();
