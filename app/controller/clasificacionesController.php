@@ -33,6 +33,8 @@ class ClasificacionesController
                 ]);
             }
 
+            $modelo->asegurarClasificacionLiga($idLiga);
+
             $datos = $modelo->getByLiga($idLiga);
 
             $this->responder(200, [

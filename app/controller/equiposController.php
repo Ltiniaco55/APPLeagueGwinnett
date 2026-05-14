@@ -53,6 +53,19 @@ class EquiposController
         $clasificacionesModel->regenerarLiga($idLiga);
     }
 
+    private function asegurarClasificaciones(array $idsLigas): void
+    {
+        $clasificacionesModel = new ClasificacionesModel();
+
+        foreach ($idsLigas as $idLiga) {
+            $idLiga = (int)$idLiga;
+
+            if ($idLiga > 0) {
+                $clasificacionesModel->asegurarClasificacionLiga($idLiga);
+            }
+        }
+    }
+
     /**
      * Validar duplicado por UNIQUE (club, categoria).
      * Devuelve true si YA existe un equipo con ese club+categoria.
@@ -298,6 +311,10 @@ class EquiposController
                 $modelo->syncLigas($idNuevo, $ligas);
             }
 
+            if (is_array($ligas)) {
+                $this->asegurarClasificaciones($ligas);
+            }
+
             $equipo = $modelo->getById((int)$idNuevo);
             $equipo['ligas_ids'] = $modelo->getLigasByEquipo((int)$idNuevo);
 
@@ -355,9 +372,18 @@ class EquiposController
 
             $modelo->update($id, $club, $categoria, $descripcion);
 
+            $ligasAnteriores = $modelo->getLigasByEquipo($id);
+
             // Sincronizar ligas en equipo_liga
             if (is_array($ligas)) {
                 $modelo->syncLigas($id, $ligas);
+
+                $ligasAfectadas = array_values(array_unique(array_merge(
+                    array_map('intval', $ligasAnteriores),
+                    array_map('intval', $ligas)
+                )));
+
+                $this->asegurarClasificaciones($ligasAfectadas);
             }
 
             $actualizado = $modelo->getById($id);

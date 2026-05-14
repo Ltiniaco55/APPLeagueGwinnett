@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL — Clasificación</title>
+    <meta name="description" content="Tabla de clasificación de la liga seleccionada en Gwinnett Youth Soccer League.">
+
+    <link rel="stylesheet" href="./CSS/layout.css">
+    <link rel="stylesheet" href="./CSS/contact.css">
+    <link rel="stylesheet" href="./CSS/mini-menu.css">
+    <link rel="stylesheet" href="./CSS/toast.css">
+
+    <script src="./JS/contact.js" defer></script>
+    <script src="./JS/login.js" defer></script>
+    <script src="./JS/sesionactiva.js" defer></script>
+    <script src="./JS/layout.js" defer></script>
+    <script src="./JS/header_secun.js" defer></script>
+    <script src="./JS/toast.js" defer></script>
+
+    <style>
+        /* ==========================================================
+           CLASIFICACION PAGE — Inline Styles
+           ========================================================== */
+
+        :root {
+            --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+            /* ───── FONT WEIGHTS ───── */
+            --fw-light: 300;
+            --fw-regular: 400;
+            --fw-medium: 500;
+            --fw-semibold: 600;
+            --fw-bold: 700;
+            --fw-black: 900;
+
+            /* ───── HERO SCALE ───── */
+            --fs-hero-title: 64px;
+
+            /* ───── GLOBAL SCALE ───── */
+            --fs-h1: 48px;
+            --fs-h2: 36px;
+            --fs-h3: 28px;
+            --fs-h4: 22px;
+
+            --fs-body: 16px;
+            --fs-body-sm: 14px;
+
+            /* ───── LINE HEIGHT ───── */
+            --lh-tight: 1.1;
+            --lh-normal: 1.5;
+            --lh-relaxed: 1.7;
+
+            /* ───── LETTER SPACING ───── */
+            --tracking-tight: -1px;
+            --tracking-wide: .5px;
+        }
+
+        /* ── Hero ──────────────────────────────────────────────── */
+
+        .clas-hero {
+            padding: 32px 0 28px;
+            background:
+                linear-gradient(90deg, rgba(6, 14, 30, .96), rgba(6, 14, 30, .76)),
+                radial-gradient(ellipse at 80% 20%, rgba(241, 184, 45, .18), transparent 50%),
+                var(--gysl-superdark, #060e1e);
+        }
+
+        .clas-hero__inner {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .clas-hero__eyebrow {
+            color: var(--gysl-yellow, #f1b82d);
+            font-size: .78rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-family: var(--font-primary);
+        }
+
+        .clas-hero__title {
+            margin: 10px 0 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: var(--fs-h1);
+            font-weight: var(--fw-black);
+            line-height: var(--lh-tight);
+            letter-spacing: var(--tracking-tight);
+        }
+
+        .clas-hero__subtitle {
+            margin: 14px 0 0;
+            max-width: 560px;
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: var(--fw-medium);
+            line-height: var(--lh-relaxed);
+        }
+
+        /* ── Divider ───────────────────────────────────────────── */
+
+        .clas-divider {
+            height: 3px;
+            background: linear-gradient(90deg,
+                    rgba(241, 184, 45, 0),
+                    rgba(241, 184, 45, .85),
+                    rgba(241, 184, 45, 0));
+        }
+
+        /* ── Section ───────────────────────────────────────────── */
+
+        .clas-section {
+            padding: 34px 0 50px;
+            background: var(--gysl-superdark, #060e1e);
+        }
+
+        .clas-section__wrap {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ── Loading / Empty / Error ───────────────────────────── */
+
+        .clas-status {
+            padding: 22px 24px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .10);
+            color: var(--gysl-muted, #afc1e6);
+            font-weight: 700;
+            font-family: var(--font-primary);
+            font-size: .92rem;
+        }
+
+        .clas-status--error {
+            border-color: rgba(215, 38, 38, .35);
+            color: var(--gysl-red, #D72626);
+        }
+
+        /* ── Table wrapper (responsive) ────────────────────────── */
+
+        .clas-table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 6px;
+            border: 1px solid var(--gysl-line, rgba(255, 255, 255, .10));
+        }
+
+        /* ── Table ─────────────────────────────────────────────── */
+
+        .clas-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-primary);
+            font-size: var(--fs-body-sm);
+            color: var(--gysl-text, #EAF1FF);
+            min-width: 720px;
+        }
+
+        .clas-table thead {
+            background: var(--gysl-blue, #0B2A4A);
+        }
+
+        .clas-table th {
+            padding: 12px 14px;
+            font-weight: 800;
+            font-size: .74rem;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--gysl-muted, #AFC1E6);
+            text-align: center;
+            border-bottom: 2px solid var(--gysl-line, rgba(255, 255, 255, .10));
+            white-space: nowrap;
+        }
+
+        .clas-table th:first-child,
+        .clas-table td:first-child {
+            text-align: center;
+            width: 44px;
+        }
+
+        /* Equipo column left-aligned */
+        .clas-table th:nth-child(2) {
+            text-align: left;
+        }
+
+        .clas-table tbody tr {
+            border-bottom: 1px solid var(--gysl-line, rgba(255, 255, 255, .10));
+            transition: background .18s ease;
+        }
+
+        .clas-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .clas-table tbody tr:hover {
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .clas-table td {
+            padding: 11px 14px;
+            text-align: center;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ── Position number ───────────────────────────────────── */
+
+        .clas-pos {
+            font-weight: 800;
+            font-size: .82rem;
+            color: var(--gysl-muted, #AFC1E6);
+        }
+
+        /* Gold highlight for 1st */
+        .clas-pos--1 {
+            color: var(--gysl-yellow, #F1B82D);
+        }
+
+        /* 1st row subtle gold bg */
+        .clas-table tbody tr.clas-row--1 {
+            background: rgba(241, 184, 45, .06);
+        }
+
+        .clas-table tbody tr.clas-row--1:hover {
+            background: rgba(241, 184, 45, .10);
+        }
+
+        /* ── Team cell ─────────────────────────────────────────── */
+
+        .clas-team {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .clas-team__badge {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            flex-shrink: 0;
+            border-radius: 3px;
+        }
+
+        .clas-team__name {
+            font-weight: 700;
+            color: var(--gysl-white, #FFFFFF);
+            font-size: .88rem;
+        }
+
+        .clas-team__cat {
+            font-size: .72rem;
+            color: var(--gysl-muted, #AFC1E6);
+            margin-left: 6px;
+            font-weight: 500;
+        }
+
+        /* ── PTS column highlight ──────────────────────────────── */
+
+        .clas-pts {
+            font-weight: 900;
+            font-size: .95rem;
+            color: var(--gysl-yellow, #F1B82D);
+        }
+
+        /* ── DG positive / negative ────────────────────────────── */
+
+        .clas-dg--pos {
+            color: #2ECC71;
+        }
+
+        .clas-dg--neg {
+            color: var(--gysl-red, #D72626);
+        }
+
+        /* ── Responsive ────────────────────────────────────────── */
+
+        @media (max-width: 640px) {
+            .clas-hero__title {
+                font-size: var(--fs-h2);
+            }
+
+            .clas-hero {
+                padding: 24px 0 20px;
+            }
+
+            .clas-section {
+                padding: 24px 0 36px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main id="page-content">
+
+        <!-- ═══ HERO ═══════════════════════════════════════════ -->
+        <section class="clas-hero">
+            <div class="clas-hero__inner">
+                <span class="clas-hero__eyebrow">Competición GYSL</span>
+                <h1 class="clas-hero__title">Clasificación</h1>
+                <p class="clas-hero__subtitle" id="clas-subtitle">
+                    Tabla de posiciones de la competición
+                </p>
+            </div>
+        </section>
+
+        <div class="clas-divider"></div>
+
+        <!-- ═══ TABLE SECTION ══════════════════════════════════ -->
+        <section class="clas-section">
+            <div class="clas-section__wrap">
+
+                <!-- Loading -->
+                <div id="clas-loading" class="clas-status">Cargando clasificación…</div>
+
+                <!-- Error / Empty -->
+                <div id="clas-empty" class="clas-status" style="display:none;"></div>
+
+                <!-- Table -->
+                <div id="clas-table-wrap" class="clas-table-wrap" style="display:none;">
+                    <table class="clas-table" id="clas-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Equipo</th>
+                                <th>PJ</th>
+                                <th>PG</th>
+                                <th>PE</th>
+                                <th>PP</th>
+                                <th>GF</th>
+                                <th>GC</th>
+                                <th>DG</th>
+                                <th>PTS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clas-tbody"></tbody>
+                    </table>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ═══ PAGE SCRIPT ════════════════════════════════════════ -->
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            const elLoading = document.getElementById("clas-loading");
+            const elEmpty = document.getElementById("clas-empty");
+            const elWrap = document.getElementById("clas-table-wrap");
+            const elTbody = document.getElementById("clas-tbody");
+            const elSubtitle = document.getElementById("clas-subtitle");
+
+            /* ── Helpers ──────────────────────────────────────── */
+
+            function texto(valor, fallback) {
+                if (fallback === undefined) fallback = "—";
+                return String(valor ?? "").trim() || fallback;
+            }
+
+            function getLigaId() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get("liga");
+            }
+
+            /* ── Render functions ─────────────────────────────── */
+
+            function renderClasificacion(data) {
+                elLoading.style.display = "none";
+
+                if (!data || !data.length) {
+                    elLoading.style.display = "none";
+                    elEmpty.style.display = "none";
+                    elTbody.innerHTML = "";
+                    elWrap.style.display = "";
+                    return;
+                }
+
+                // Optional: update subtitle with first row's category or liga info
+                const firstCat = data[0].categoria;
+                if (firstCat) {
+                    elSubtitle.textContent = "Tabla de posiciones — " + firstCat;
+                }
+
+                let html = "";
+
+                data.forEach(function (row, index) {
+                    const pos = index + 1;
+                    const club = texto(row.club, "Equipo");
+                    const categoria = texto(row.categoria, "");
+                    const escudo = row.escudo
+                        ? API + row.escudo
+                        : "./escudos/gwinnett.svg";
+
+                    const pj = texto(row.PJ, "0");
+                    const pg = texto(row.PG, "0");
+                    const pe = texto(row.PE, "0");
+                    const pp = texto(row.PP, "0");
+                    const gf = texto(row.GF, "0");
+                    const gc = texto(row.GC, "0");
+                    const dg = Number(row.DG ?? 0);
+                    const pts = texto(row.PTS, "0");
+
+                    const dgSign = dg > 0 ? "+" + dg : String(dg);
+                    const dgClass = dg > 0
+                        ? "clas-dg--pos"
+                        : dg < 0
+                            ? "clas-dg--neg"
+                            : "";
+
+                    const rowClass = pos === 1 ? ' class="clas-row--1"' : "";
+                    const posClass = pos === 1 ? "clas-pos clas-pos--1" : "clas-pos";
+
+                    html += `
+                        <tr${rowClass}>
+                            <td><span class="${posClass}">${pos}</span></td>
+                            <td>
+                                <div class="clas-team">
+                                    <img class="clas-team__badge"
+                                         src="${escudo}"
+                                         alt="${club}"
+                                         onerror="this.src='./escudos/gwinnett.svg'">
+                                    <span class="clas-team__name">${club}</span>
+                                    ${categoria ? `<span class="clas-team__cat">${categoria}</span>` : ""}
+                                </div>
+                            </td>
+                            <td>${pj}</td>
+                            <td>${pg}</td>
+                            <td>${pe}</td>
+                            <td>${pp}</td>
+                            <td>${gf}</td>
+                            <td>${gc}</td>
+                            <td class="${dgClass}">${dgSign}</td>
+                            <td><span class="clas-pts">${pts}</span></td>
+                        </tr>`;
+                });
+
+                elTbody.innerHTML = html;
+                elWrap.style.display = "";
+            }
+
+            function renderError(message) {
+                elLoading.style.display = "none";
+                elEmpty.textContent = message;
+                elEmpty.classList.add("clas-status--error");
+                elEmpty.style.display = "";
+            }
+
+            function renderEmpty() {
+                elLoading.style.display = "none";
+                elEmpty.textContent = "No hay clasificación disponible para esta liga.";
+                elEmpty.style.display = "";
+            }
+
+            /* ── Data loading ─────────────────────────────────── */
+
+            async function cargarClasificacion() {
+                const idLiga = getLigaId();
+
+                console.log("[Clasificación] idLiga recibido desde URL:", idLiga);
+                console.log("[Clasificación] URL actual:", window.location.href);
+
+                if (!idLiga) {
+                    renderError("No se indicó ninguna liga.");
+                    return;
+                }
+
+                const url = API + "/clasificaciones/" + encodeURIComponent(idLiga);
+
+                console.log("[Clasificación] Fetch URL:", url);
+
+                try {
+                    const res = await fetch(
+                        API + "/clasificaciones/" + encodeURIComponent(idLiga),
+                        { credentials: "include" }
+                    );
+
+                    console.log("[Clasificación] HTTP status:", res.status);
+                    console.log("[Clasificación] res.ok:", res.ok);
+
+                    const json = await res.json();
+
+                    console.log("[Clasificación] JSON bruto:", json);
+                    console.log("[Clasificación] Keys:", Object.keys(json));
+
+                    if (!res.ok || json.success === false) {
+                        throw new Error(json.message || "Error al cargar la clasificación");
+                    }
+
+                    const rows = Array.isArray(json) ? json : (json.data || []);
+
+                    console.log("[Clasificación] Rows finales que se van a pintar:", rows);
+                    console.log("[Clasificación] Número de filas:", rows.length);
+
+                    if (rows.length > 0) {
+                        console.log("[Clasificación] Primera fila:", rows[0]);
+                    }
+
+                    renderClasificacion(rows);
+                } catch (err) {
+                    console.error("[Clasificación]", err);
+                    renderError(err.message || "No se pudo cargar la clasificación.");
+                }
+            }
+
+            /* ── Init ─────────────────────────────────────────── */
+            cargarClasificacion();
+        })();
+    </script>
+
+</body>
+
+</html>

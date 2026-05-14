@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/ligasModel.php';
+require_once __DIR__ . '/../model/clasificacionesModel.php';
 
 class LigasController
 {
@@ -33,6 +34,16 @@ class LigasController
     private function limpiarTexto($valor): string
     {
         return trim((string)($valor ?? ''));
+    }
+
+    private function asegurarClasificacionSiEnCurso(int $idLiga, string $estadoLiga): void
+    {
+        if ($estadoLiga !== 'EN_CURSO') {
+            return;
+        }
+
+        $clasificacionesModel = new ClasificacionesModel();
+        $clasificacionesModel->asegurarClasificacionLiga($idLiga);
     }
 
     // =========================================================================
@@ -149,6 +160,8 @@ class LigasController
             // Tu insert acepta descripcion como 4º argumento opcional
             $idNuevo = $modelo->insert($nom, $temp, $categ, $descripcion, $estadoLiga, $formatoLiga);
 
+            $this->asegurarClasificacionSiEnCurso($idNuevo, $estadoLiga);
+
             $this->responder(201, [
                 'success' => true,
                 'message' => 'Liga creada exitosamente',
@@ -202,11 +215,29 @@ class LigasController
 
             $idLiga = (int)$liga['id_liga'];
 
+            $escudoPath = $liga['escudo'] ?? null;
+
             $modelo->deleteClasificacionByLiga($idLiga);
             $modelo->deletePartidosByLiga($idLiga);
             $modelo->deleteEquiposLigaByLiga($idLiga);
 
             $filas = $modelo->deleteByKey($nom, $temp, $categ);
+
+            if ($filas > 0 && $escudoPath) {
+                $carpetaEscudo = __DIR__ . '/../../public/uploads/ligas/' . $idLiga;
+
+                if (is_dir($carpetaEscudo)) {
+                    $archivos = glob($carpetaEscudo . '/*');
+
+                    foreach ($archivos as $archivo) {
+                        if (is_file($archivo)) {
+                            @unlink($archivo);
+                        }
+                    }
+
+                    @rmdir($carpetaEscudo);
+                }
+            }
 
             $this->responder(200, [
                 'success' => true,
@@ -261,7 +292,9 @@ class LigasController
 
             $modelo = new LigasModel();
 
-            if (!$modelo->getByKey($nomActual, $tempActual, $categActual)) {
+            $ligaActual = $modelo->getByKey($nomActual, $tempActual, $categActual);
+
+            if (!$ligaActual) {
                 $this->responder(404, [
                     'success' => false,
                     'message' => 'La liga original no existe'
@@ -279,6 +312,8 @@ class LigasController
                 $estadoLiga,
                 $formatoLiga
             );
+
+            $this->asegurarClasificacionSiEnCurso($ligaActual['id_liga'], $estadoLiga);
 
             $this->responder(200, [
                 'success' => true,

@@ -142,7 +142,7 @@ class LigasModel
     public function deleteClasificacionByLiga(int $idLiga): int
     {
         $stmt = $this->db->prepare("
-        DELETE FROM clasificaciones
+        DELETE FROM clasificacion
         WHERE id_liga = ?
     ");
 

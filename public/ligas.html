@@ -437,7 +437,10 @@
                     const temporada = texto(liga.temporada);
                     const categoria = texto(liga.categoria);
                     const descripcion = texto(liga.descripcion, "Competición GYSL");
-                    const escudo = liga.escudo ? API + liga.escudo : "./escudos/gwinnett.svg";
+                    const escudo = liga.escudo ? API + liga.escudo : "";
+                    const escudoHtml = escudo
+                        ? `<img src="${escudo}" alt="${nombre}" onerror="this.remove()">`
+                        : "";
                     const idLiga = liga.id_liga ?? liga.id;
                     const estadoLiga = liga.estado_liga ?? "PROXIMAMENTE";
                     const formatoLiga = liga.formato_liga ?? "JORNADAS";
@@ -451,7 +454,7 @@
                     return `
                         <article class="gysl-liga-card" onclick="${urlDestino !== '#' ? `window.location.href='${urlDestino}'` : ''}">
                             <div class="gysl-liga-card__image">
-                                <img src="${escudo}" alt="${nombre}" onerror="this.src='./escudos/gwinnett.svg'">
+                                ${escudoHtml}
                                 <span class="gysl-liga-card__badge ${esProxima
                             ? 'gysl-liga-card__badge--proxima'
                             : 'gysl-liga-card__badge--activa'}">${esProxima ? "PRÓXIMAMENTE" : "EN CURSO"}</span>

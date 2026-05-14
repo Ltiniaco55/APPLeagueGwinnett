@@ -6,7 +6,7 @@ declare(strict_types=1);
  * ============================================================================
  *  ClasificacionesModel
  * ============================================================================
- *  Gestión de clasificaciones dinámicas por liga.
+ *  Gestión de clasificacion dinámicas por liga.
  *
  *  Reglas:
  *   - Victoria = 3 pts
@@ -55,7 +55,7 @@ class ClasificacionesModel
                 c.DG,
                 c.PTS
 
-            FROM clasificaciones c
+            FROM clasificacion c
 
             INNER JOIN equipos e
                 ON e.id_equipo = c.id_equipo
@@ -73,6 +73,12 @@ class ClasificacionesModel
         $stmt->execute([$idLiga]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function asegurarClasificacionLiga(int $idLiga): void
+    {
+        $this->regenerarLiga($idLiga);
     }
 
     // =========================================================================
@@ -98,7 +104,7 @@ class ClasificacionesModel
             // ─────────────────────────────────────────────────────────────
 
             $stmtDelete = $this->db->prepare("
-                DELETE FROM clasificaciones
+                DELETE FROM clasificacion
                 WHERE id_liga = ?
             ");
 
@@ -238,7 +244,7 @@ class ClasificacionesModel
             // ─────────────────────────────────────────────────────────────
 
             $stmtInsert = $this->db->prepare("
-                INSERT INTO clasificaciones (
+                INSERT INTO clasificacion (
                     id_liga,
                     id_equipo,
                     PJ,
@@ -305,7 +311,7 @@ class ClasificacionesModel
     public function deleteByLiga(int $idLiga): int
     {
         $stmt = $this->db->prepare("
-            DELETE FROM clasificaciones
+            DELETE FROM clasificacion
             WHERE id_liga = ?
         ");
 

@@ -26,30 +26,52 @@
         }
 
         .gysl-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 20px;
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(241, 184, 45, .10), transparent 35%),
+                linear-gradient(180deg, rgba(13, 35, 68, .98), rgba(8, 22, 45, .98));
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-top: 2px solid rgba(241, 184, 45, .45);
+            border-radius: 16px;
+            padding: 26px 22px 22px;
+            min-height: 340px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 18px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all .22s ease;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .28);
         }
 
         .gysl-card:hover {
-            border-color: var(--gysl-yellow, #f1b82d);
-            background: rgba(241, 184, 45, 0.06);
-            transform: translateY(-2px);
+            border-color: rgba(241, 184, 45, .55);
+            transform: translateY(-3px);
+            box-shadow: 0 22px 50px rgba(0, 0, 0, .38);
+        }
+
+        .gysl-card__escudo-wrap {
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -6px 0 2px;
         }
 
         .gysl-card__escudo {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
+            max-width: 120px;
+            max-height: 105px;
+            width: auto;
+            height: auto;
             object-fit: contain;
-            background: rgba(255, 255, 255, 0.05);
-            margin: 0 auto;
+            display: block;
+            filter: drop-shadow(0 12px 20px rgba(0, 0, 0, .45));
+        }
+
+        .gysl-card:not(.gysl-card--con-escudo) {
+            justify-content: center;
+        }
+
+        .gysl-card--con-escudo {
+            min-height: 430px;
         }
 
         .gysl-card__header {
@@ -57,32 +79,86 @@
         }
 
         .gysl-card__title {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 900;
             color: var(--gysl-white, #fff);
             margin: 0;
-            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .gysl-card__divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--gysl-yellow, #F1B82D);
+            font-size: 18px;
+        }
+
+        .gysl-card__divider::before,
+        .gysl-card__divider::after {
+            content: "";
+            width: 70px;
+            height: 1px;
+            background: rgba(241, 184, 45, .45);
         }
 
         .gysl-card__info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            color: var(--gysl-muted, #AFC1E6);
+            text-align: center;
+        }
+
+        .gysl-card__info-item {
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .035);
+            border: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .gysl-card__info-label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            font-weight: 800;
+            color: var(--gysl-muted, #AFC1E6);
+            margin-bottom: 6px;
+        }
+
+        .gysl-card__info-value {
+            display: block;
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--gysl-white, #fff);
+        }
+
+        .gysl-card__badges {
             display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            color: var(--gysl-muted, #a1a1aa);
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .gysl-card__desc {
-            font-size: 13px;
-            color: var(--gysl-muted, #a1a1aa);
+            font-size: 15px;
+            color: var(--gysl-muted, #AFC1E6);
             text-align: center;
+            line-height: 1.5;
+            font-weight: 700;
             flex-grow: 1;
         }
 
         .gysl-card__actions {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 12px;
+            padding-top: 16px;
+            padding-bottom: 12px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, .08);
         }
 
         .gysl-badge--info {
@@ -295,7 +371,22 @@
                 ligasData.forEach((l) => {
                     const idLiga = l.id_liga ?? l.id ?? "—";
                     const nombre = l.nombre_liga ?? l.nom ?? l.nombre ?? "—";
-                    const imgUrl = l.escudo ? (API + l.escudo) : "./assets/img/placeholder.png";
+                    const imgUrl = l.escudo ? (API + l.escudo) : "";
+                    const escudoHtml = imgUrl
+                        ? `<img src="${imgUrl}" alt="${nombre}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: contain; background: rgba(255,255,255,0.05);" onerror="this.remove()">`
+                        : "";
+                    const tieneEscudo = Boolean(imgUrl);
+
+                    const escudoCardHtml = tieneEscudo
+                        ? `
+                            <div class="gysl-card__escudo-wrap">
+                                <img src="${imgUrl}" 
+                                    alt="${nombre}" 
+                                    class="gysl-card__escudo" 
+                                    onerror="this.closest('.gysl-card__escudo-wrap')?.remove()">
+                            </div>
+                        `
+                        : "";
                     const desc = l.descripcion ?? "—";
                     const temp = l.temporada ?? l.temp ?? "—";
                     const cat = l.categoria ?? l.categ ?? "—";
@@ -313,7 +404,7 @@
                     // LISTA
                     trs += `
                     <tr onclick="goToEquipos(${idLiga})">
-                        <td onclick="event.stopPropagation()"><img src="${imgUrl}" alt="${nombre}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: contain; background: rgba(255,255,255,0.05);"></td>
+                        <td onclick="event.stopPropagation()">${escudoHtml}</td>
                         <td>${idLiga}</td>
                         <td>${nombre}</td>
                         <td>${temp}</td>
@@ -333,27 +424,41 @@
 
                     // CARDS
                     cards += `
-                    <div class="gysl-card" onclick="goToEquipos(${idLiga})">
-                        <img src="${imgUrl}" alt="${nombre}" class="gysl-card__escudo">
-                        <div class="gysl-card__header">
-                            <h4 class="gysl-card__title">${nombre}</h4>
-                        </div>
-                        <div class="gysl-card__info">
-                            <span>Temp: ${temp}</span>
-                            <span>Cat: ${cat}</span>
-                        </div>
-                        <div style="text-align:center;">
-                            <span class="gysl-badge ${estadoClass}">${estadoLabel}</span>
-                            <span class="gysl-badge gysl-badge--info">${formatoLabel}</span>
-                        </div>
-                        <p class="gysl-card__desc">${desc}</p>
-                        <div class="gysl-card__actions" onclick="event.stopPropagation()">
-                            <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
-                                    onclick="editLiga('${nombre}', '${temp}', '${cat}')">Editar</button>
-                            <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
-                                    onclick="deleteLiga('${nombre}', '${temp}', '${cat}')">Eliminar</button>
-                        </div>
-                    </div>`;
+                        <div class="gysl-card ${tieneEscudo ? 'gysl-card--con-escudo' : 'gysl-card--sin-escudo'}" onclick="goToEquipos(${idLiga})">
+                            ${escudoCardHtml}
+
+                            <div class="gysl-card__header">
+                                <h4 class="gysl-card__title">${nombre}</h4>
+                            </div>
+
+                            <div class="gysl-card__divider">🏆</div>
+
+                            <div class="gysl-card__info">
+                                <div class="gysl-card__info-item">
+                                    <span class="gysl-card__info-label">Temporada</span>
+                                    <span class="gysl-card__info-value">${temp}</span>
+                                </div>
+
+                                <div class="gysl-card__info-item">
+                                    <span class="gysl-card__info-label">Categoría</span>
+                                    <span class="gysl-card__info-value">${cat}</span>
+                                </div>
+                            </div>
+
+                            <div class="gysl-card__badges">
+                                <span class="gysl-badge ${estadoClass}">${estadoLabel}</span>
+                                <span class="gysl-badge gysl-badge--info">${formatoLabel}</span>
+                            </div>
+
+                            <p class="gysl-card__desc">${desc}</p>
+
+                            <div class="gysl-card__actions" onclick="event.stopPropagation()">
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
+                                        onclick="editLiga('${nombre}', '${temp}', '${cat}')">Editar</button>
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
+                                        onclick="deleteLiga('${nombre}', '${temp}', '${cat}')">Eliminar</button>
+                            </div>
+                        </div>`;
                 });
 
                 tbody.innerHTML = trs;
@@ -474,7 +579,7 @@
                     const data = await res.json();
 
                     if (res.ok) {
-                        let savedId = data.data?.id_liga ?? null;
+                        let savedId = editId || (data.data?.id_liga ?? null);
 
                         if (hasFile && savedId) {
                             const formData = new FormData();
