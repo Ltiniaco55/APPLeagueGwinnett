@@ -405,6 +405,7 @@
     <script>
         (function () {
             "use strict";
+       
 
             const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
 
@@ -443,12 +444,14 @@
                         : "";
                     const idLiga = liga.id_liga ?? liga.id;
                     const estadoLiga = liga.estado_liga ?? "PROXIMAMENTE";
-                    const formatoLiga = liga.formato_liga ?? "JORNADAS";
+                    const formatoLiga = (liga.formato_liga ?? "JORNADAS").toUpperCase();
 
                     let urlDestino = "#";
 
                     if (estadoLiga === "EN_CURSO") {
-                        urlDestino = `clasificacion.html?liga=${idLiga}&formato=${formatoLiga}`;
+                        urlDestino = formatoLiga === "JORNADAS"
+                            ? `clasificacion.html?liga=${idLiga}&formato=${formatoLiga}`
+                            : `resultados.html?liga=${idLiga}&formato=${formatoLiga}`;
                     }
 
                     return `

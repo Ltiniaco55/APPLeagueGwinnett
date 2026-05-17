@@ -273,10 +273,10 @@
 
 .gysl-fixtures__top {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between;
-    gap: 18px;
-    margin-bottom: 26px;
+    gap: 24px;
+    margin-bottom: 32px;
 }
 
 .gysl-fixtures__title {
@@ -286,6 +286,8 @@
     letter-spacing: .5px;
     color: var(--gysl-white);
     text-transform: uppercase;
+    margin: 0;
+    line-height: 1;
 }
 
 /* Tabs */
@@ -293,7 +295,8 @@
     display: flex;
     gap: 14px;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    justify-content: right;
+    width: 100%;
 }
 
 .gysl-tab {
@@ -510,9 +513,12 @@
 
 /* Bottom right link */
 .gysl-fixtures__bottom {
+    width: 90%;
+    max-width: 1200px;
+    margin: 28px auto 0;
     display: flex;
     justify-content: flex-end;
-    margin-top: 18px;
+    padding-bottom: 28px;
 }
 
 .gysl-fixtures__all {
@@ -526,6 +532,65 @@
 
 .gysl-fixtures__all:hover {
     color: var(--gysl-yellow2);
+}
+
+.gysl-tabs {
+    align-items: center;
+}
+
+.gysl-tab-select,
+.gysl-tab-input {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.gysl-tab-select {
+    min-width: 190px;
+    appearance: none;
+}
+
+.gysl-tab-input {
+    min-width: 190px;
+    cursor: text;
+}
+
+.gysl-tab-input::placeholder {
+    color: rgba(255, 255, 255, .72);
+}
+
+.gysl-carousel__empty {
+    width: 100%;
+    padding: 26px 32px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .12);
+    color: var(--gysl-muted, #afc1e6);
+    font-family: var(--font-primary);
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.gysl-match,
+.gysl-match * {
+    font-family: var(--font-primary);
+}
+
+.gysl-tab-select {
+    background-color: var(--gysl-superdark);
+    color: var(--gysl-white);
+    border: 1px solid rgba(255, 255, 255, .35);
+}
+
+.gysl-tab-select option {
+    background-color: var(--gysl-superdark);
+    color: var(--gysl-white);
+}
+
+.gysl-tab-select:focus {
+    outline: none;
+    border-color: var(--gysl-yellow);
+    box-shadow: 0 0 0 3px rgba(241, 184, 45, .14);
 }
 
 /* Responsive */

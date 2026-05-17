@@ -2,33 +2,12 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  PartidosController
- * ============================================================================
- *  Gestiona los endpoints REST de partidos.
- *
- *  Rutas públicas (sin autenticación):
- *    GET  /partidos
- *    GET  /partidos/{id}
- *
- *  Rutas protegidas (solo ADMIN):
- *    POST   /admin/partidos
- *    PUT    /admin/partidos/{id}
- *    PATCH  /admin/partidos/{id}/cancelar
- *    DELETE /admin/partidos/{id}
- * ============================================================================
- */
-
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/partidosModel.php';
 require_once __DIR__ . '/../model/clasificacionesModel.php';
 
 class PartidosController
 {
-    // =========================================================================
-    //  HELPERS PRIVADOS
-    // =========================================================================
 
     private function responder(int $codigoHttp, array $contenido): void
     {
@@ -43,12 +22,65 @@ class PartidosController
         return trim((string)($valor ?? ''));
     }
 
-    /**
-     * Comprueba si el estado está dentro de los valores permitidos.
-     */
     private function validarEstado(string $estado): bool
     {
         return in_array($estado, ['pendiente', 'programado', 'jugado', 'cancelado'], true);
+    }
+
+    private function obtenerTiposRondaPermitidos(string $formatoLiga): array
+    {
+        if ($formatoLiga === 'JORNADAS') {
+            $jornadas = [];
+
+            for ($i = 1; $i <= 32; $i++) {
+                $jornadas[] = 'Jornada ' . $i;
+            }
+
+            return $jornadas;
+        }
+
+        if ($formatoLiga === 'ELIMINATORIA') {
+            return [
+                'Fase de grupos',
+                'Octavos de final',
+                'Cuartos de final',
+                'Semifinal',
+                'Final'
+            ];
+        }
+
+        if ($formatoLiga === 'AMISTOSO') {
+            return ['Amistoso'];
+        }
+
+        return [];
+    }
+
+    private function prepararTipoRonda(PartidosModel $modelo, int $idLiga, string $tipoRondaEntrada): string
+    {
+        $formatoLiga = $modelo->getFormatoLiga($idLiga);
+
+        if (!$formatoLiga) {
+            throw new RuntimeException('No se pudo obtener el formato de la liga');
+        }
+
+        if ($formatoLiga === 'AMISTOSO') {
+            return 'Amistoso';
+        }
+
+        $tipoRonda = $this->limpiarTexto($tipoRondaEntrada);
+
+        if ($tipoRonda === '') {
+            throw new RuntimeException('Debe indicar el tipo de ronda');
+        }
+
+        $permitidos = $this->obtenerTiposRondaPermitidos($formatoLiga);
+
+        if (!in_array($tipoRonda, $permitidos, true)) {
+            throw new RuntimeException('Tipo de ronda no permitido para esta liga');
+        }
+
+        return $tipoRonda;
     }
 
     private function regenerarClasificacion(int $idLiga): void
@@ -57,23 +89,14 @@ class PartidosController
         $clasificacionesModel->regenerarLiga($idLiga);
     }
 
-    /**
-     * Construye un datetime SQL válido a partir de la entrada.
-     *
-     * Acepta:
-     *   a) Campo "fecha" con datetime completo  →  se usa directamente
-     *   b) "fecha_dia" + "hora"                 →  se unen como "Y-m-d H:i:s"
-     *
-     * Lanza RuntimeException si no se puede determinar la fecha.
-     */
     private function prepararFecha(array $entrada): string
     {
-        // Caso a: fecha completa
+
         if (!empty($entrada['fecha'])) {
             return $this->limpiarTexto($entrada['fecha']);
         }
 
-        // Caso b: dia + hora separados
+
         $dia  = $this->limpiarTexto($entrada['fecha_dia'] ?? '');
         $hora = $this->limpiarTexto($entrada['hora']      ?? '');
 
@@ -83,10 +106,6 @@ class PartidosController
 
         return $dia . ' ' . $hora;
     }
-
-    // =========================================================================
-    //  SELECCIONAR  –  GET /partidos
-    // =========================================================================
 
     public function seleccionar(array $entrada = []): void
     {
@@ -102,8 +121,8 @@ class PartidosController
             if (!empty($entrada['id_equipo'])) {
                 $filtros['id_equipo'] = (int) $entrada['id_equipo'];
             }
-            if (isset($entrada['jornada']) && $entrada['jornada'] !== '') {
-                $filtros['jornada'] = $this->limpiarTexto($entrada['jornada']);
+            if (isset($entrada['tipo_ronda']) && $entrada['tipo_ronda'] !== '') {
+                $filtros['tipo_ronda'] = $this->limpiarTexto($entrada['tipo_ronda']);
             }
             if (isset($entrada['estado']) && $entrada['estado'] !== '') {
                 $filtros['estado'] = $this->limpiarTexto($entrada['estado']);
@@ -126,10 +145,6 @@ class PartidosController
             ]);
         }
     }
-
-    // =========================================================================
-    //  LOCALIZAR  –  GET /partidos/{id}
-    // =========================================================================
 
     public function localizar(int $id): void
     {
@@ -163,25 +178,19 @@ class PartidosController
         }
     }
 
-    // =========================================================================
-    //  INSERTAR  –  POST /admin/partidos
-    // =========================================================================
-
     public function insertar(array $entrada): void
     {
         try {
             Autenticacion::requerirRol([Autenticacion::ROL_ADMIN]);
 
-            // ── Preparar fecha ───────────────────────────────────────────────
             try {
                 $fecha = $this->prepararFecha($entrada);
             } catch (\RuntimeException $ex) {
                 $this->responder(400, ['success' => false, 'message' => $ex->getMessage()]);
             }
 
-            // ── Campos base ──────────────────────────────────────────────────
             $idLiga       = isset($entrada['id_liga'])             ? (int) $entrada['id_liga']             : 0;
-            $jornada      = $this->limpiarTexto($entrada['jornada']      ?? '');
+            $tipo_ronda      = $this->limpiarTexto($entrada['tipo_ronda']      ?? '');
             $lugar        = $this->limpiarTexto($entrada['lugar']        ?? '');
             $arbitro      = $this->limpiarTexto($entrada['arbitro']      ?? '');
             $idLocal      = isset($entrada['id_equipo_local'])      ? (int) $entrada['id_equipo_local']      : 0;
@@ -200,7 +209,6 @@ class PartidosController
                 ]);
             }
 
-            // ── Validar goles ─────────────────────────────────────────────────
             if (
                 ($golesLocal !== null && $golesLocal < 0) ||
                 ($golesVisitante !== null && $golesVisitante < 0)
@@ -223,16 +231,14 @@ class PartidosController
                 $golesVisitante = null;
             }
 
-            // ── Validar obligatorios ─────────────────────────────────────────
-            if ($idLiga === 0 || $jornada === '' || $fecha === '' || $lugar === '' || $idLocal === 0 || $idVisitante === 0) {
+            if ($idLiga === 0 || $fecha === '' || $lugar === '' || $idLocal === 0 || $idVisitante === 0) {
                 $this->responder(400, [
                     'success' => false,
-                    'message' => 'Faltan campos obligatorios: id_liga, jornada, fecha, lugar, id_equipo_local, id_equipo_visitante',
+                    'message' => 'Faltan campos obligatorios: id_liga, fecha, lugar, id_equipo_local, id_equipo_visitante',
                 ]);
             }
 
 
-            // ── Equipo local != visitante ────────────────────────────────────
             if ($idLocal === $idVisitante) {
                 $this->responder(400, [
                     'success' => false,
@@ -242,7 +248,15 @@ class PartidosController
 
             $modelo = new PartidosModel();
 
-            // ── Liga existe ──────────────────────────────────────────────────
+            try {
+                $tipo_ronda = $this->prepararTipoRonda($modelo, $idLiga, $tipo_ronda);
+            } catch (RuntimeException $ex) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => $ex->getMessage()
+                ]);
+            }
+
             if (!$modelo->existeLiga($idLiga)) {
                 $this->responder(404, [
                     'success' => false,
@@ -250,7 +264,6 @@ class PartidosController
                 ]);
             }
 
-            // ── Equipos existen ──────────────────────────────────────────────
             if (!$modelo->existeEquipo($idLocal)) {
                 $this->responder(404, [
                     'success' => false,
@@ -264,7 +277,6 @@ class PartidosController
                 ]);
             }
 
-            // ── Equipos pertenecen a la liga ─────────────────────────────────
             if (!$modelo->equiposPertenecenALiga($idLiga, $idLocal, $idVisitante)) {
                 $this->responder(409, [
                     'success' => false,
@@ -272,15 +284,13 @@ class PartidosController
                 ]);
             }
 
-            // ── Sin duplicado de jornada ─────────────────────────────────────
-            if ($modelo->existeDuplicado($idLiga, $jornada, $idLocal, $idVisitante)) {
+            if ($modelo->existeDuplicado($idLiga, $tipo_ronda, $idLocal, $idVisitante)) {
                 $this->responder(409, [
                     'success' => false,
-                    'message' => 'Ya existe un partido con esos equipos en esta jornada',
+                    'message' => 'Ya existe un partido con esos equipos en esta ronda',
                 ]);
             }
 
-            // ── Sin conflicto horario ────────────────────────────────────────
             if ($modelo->existeConflictoHorario($idLiga, $fecha, $idLocal, $idVisitante)) {
                 $this->responder(409, [
                     'success' => false,
@@ -288,10 +298,9 @@ class PartidosController
                 ]);
             }
 
-            // ── Insertar ─────────────────────────────────────────────────────
             $idNuevo = $modelo->insertar([
                 'id_liga'             => $idLiga,
-                'jornada'             => $jornada,
+                'tipo_ronda'          => $tipo_ronda,
                 'fecha'               => $fecha,
                 'lugar'               => $lugar,
                 'arbitro'             => $arbitro !== '' ? $arbitro : null,
@@ -319,10 +328,6 @@ class PartidosController
         }
     }
 
-    // =========================================================================
-    //  MODIFICAR  –  PUT /admin/partidos/{id}
-    // =========================================================================
-
     public function modificar(int $id, array $entrada): void
     {
         try {
@@ -345,16 +350,14 @@ class PartidosController
                 ]);
             }
 
-            // ── Preparar fecha ───────────────────────────────────────────────
             try {
                 $fecha = $this->prepararFecha($entrada);
             } catch (\RuntimeException $ex) {
                 $this->responder(400, ['success' => false, 'message' => $ex->getMessage()]);
             }
 
-            // ── Campos base ──────────────────────────────────────────────────
             $idLiga       = isset($entrada['id_liga'])             ? (int) $entrada['id_liga']             : 0;
-            $jornada      = $this->limpiarTexto($entrada['jornada']      ?? '');
+            $tipo_ronda      = $this->limpiarTexto($entrada['tipo_ronda']      ?? '');
             $lugar        = $this->limpiarTexto($entrada['lugar']        ?? '');
             $arbitro      = $this->limpiarTexto($entrada['arbitro']      ?? '');
             $idLocal      = isset($entrada['id_equipo_local'])      ? (int) $entrada['id_equipo_local']      : 0;
@@ -365,7 +368,6 @@ class PartidosController
                 ? (int) $entrada['goles_visitante'] : null;
             $estado       = $this->limpiarTexto($entrada['estado'] ?? '');
 
-            // ── Validar goles ─────────────────────────────────────────────────
             if (
                 ($golesLocal !== null && $golesLocal < 0) ||
                 ($golesVisitante !== null && $golesVisitante < 0)
@@ -388,15 +390,13 @@ class PartidosController
                 $golesVisitante = null;
             }
 
-            // ── Validar obligatorios ─────────────────────────────────────────
-            if ($idLiga === 0 || $jornada === '' || $fecha === '' || $lugar === '' || $idLocal === 0 || $idVisitante === 0) {
+            if ($idLiga === 0 || $fecha === '' || $lugar === '' || $idLocal === 0 || $idVisitante === 0) {
                 $this->responder(400, [
                     'success' => false,
-                    'message' => 'Faltan campos obligatorios: id_liga, jornada, fecha, lugar, id_equipo_local, id_equipo_visitante',
+                    'message' => 'Faltan campos obligatorios: id_liga, fecha, lugar, id_equipo_local, id_equipo_visitante',
                 ]);
             }
 
-            // ── Validar estado ───────────────────────────────────────────────
             if ($estado === '' || !$this->validarEstado($estado)) {
                 $this->responder(400, [
                     'success' => false,
@@ -404,7 +404,6 @@ class PartidosController
                 ]);
             }
 
-            // ── Equipo local != visitante ────────────────────────────────────
             if ($idLocal === $idVisitante) {
                 $this->responder(400, [
                     'success' => false,
@@ -412,7 +411,6 @@ class PartidosController
                 ]);
             }
 
-            // ── Liga existe ──────────────────────────────────────────────────
             if (!$modelo->existeLiga($idLiga)) {
                 $this->responder(404, [
                     'success' => false,
@@ -420,7 +418,15 @@ class PartidosController
                 ]);
             }
 
-            // ── Equipos existen ──────────────────────────────────────────────
+            try {
+                $tipo_ronda = $this->prepararTipoRonda($modelo, $idLiga, $tipo_ronda);
+            } catch (RuntimeException $ex) {
+                $this->responder(400, [
+                    'success' => false,
+                    'message' => $ex->getMessage()
+                ]);
+            }
+
             if (!$modelo->existeEquipo($idLocal)) {
                 $this->responder(404, [
                     'success' => false,
@@ -434,7 +440,6 @@ class PartidosController
                 ]);
             }
 
-            // ── Equipos pertenecen a la liga ─────────────────────────────────
             if (!$modelo->equiposPertenecenALiga($idLiga, $idLocal, $idVisitante)) {
                 $this->responder(409, [
                     'success' => false,
@@ -442,15 +447,13 @@ class PartidosController
                 ]);
             }
 
-            // ── Sin duplicado (excluye el propio partido) ────────────────────
-            if ($modelo->existeDuplicado($idLiga, $jornada, $idLocal, $idVisitante, $id)) {
+            if ($modelo->existeDuplicado($idLiga, $tipo_ronda, $idLocal, $idVisitante, $id)) {
                 $this->responder(409, [
                     'success' => false,
-                    'message' => 'Ya existe un partido con esos equipos en esta jornada',
+                    'message' => 'Ya existe un partido con esos equipos en esta tipo_ronda',
                 ]);
             }
 
-            // ── Sin conflicto horario (excluye el propio partido) ────────────
             if ($modelo->existeConflictoHorario($idLiga, $fecha, $idLocal, $idVisitante, $id)) {
                 $this->responder(409, [
                     'success' => false,
@@ -458,10 +461,9 @@ class PartidosController
                 ]);
             }
 
-            // ── Actualizar ───────────────────────────────────────────────────
             $modelo->modificar($id, [
                 'id_liga'             => $idLiga,
-                'jornada'             => $jornada,
+                'tipo_ronda'          => $tipo_ronda,
                 'fecha'               => $fecha,
                 'lugar'               => $lugar,
                 'arbitro'             => $arbitro !== '' ? $arbitro : null,
@@ -491,10 +493,6 @@ class PartidosController
             ]);
         }
     }
-
-    // =========================================================================
-    //  CANCELAR  –  PATCH /admin/partidos/{id}/cancelar
-    // =========================================================================
 
     public function cancelar(int $id): void
     {
@@ -533,10 +531,6 @@ class PartidosController
             ]);
         }
     }
-
-    // =========================================================================
-    //  ELIMINAR  –  DELETE /admin/partidos/{id}
-    // =========================================================================
 
     public function eliminar(int $id): void
     {

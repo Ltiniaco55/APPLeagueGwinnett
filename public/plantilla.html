@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL — Plantilla</title>
+    <meta name="description" content="Plantilla del equipo seleccionado.">
+
+    <link rel="stylesheet" href="./CSS/layout.css">
+    <link rel="stylesheet" href="./CSS/contact.css">
+    <link rel="stylesheet" href="./CSS/mini-menu.css">
+    <link rel="stylesheet" href="./CSS/toast.css">
+
+    <script src="./JS/contact.js" defer></script>
+    <script src="./JS/login.js" defer></script>
+    <script src="./JS/sesionactiva.js" defer></script>
+    <script src="./JS/layout.js" defer></script>
+    <script src="./JS/header_secun.js" defer></script>
+    <script src="./JS/toast.js" defer></script>
+
+    <style>
+        :root {
+            --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        .pl-hero {
+            padding: 34px 0 30px;
+            background:
+                linear-gradient(90deg, rgba(6, 14, 30, .96), rgba(6, 14, 30, .76)),
+                radial-gradient(ellipse at 80% 20%, rgba(241, 184, 45, .18), transparent 50%),
+                var(--gysl-superdark, #060e1e);
+        }
+
+        .pl-hero__inner,
+        .pl-section__wrap {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pl-hero__eyebrow {
+            color: var(--gysl-yellow, #f1b82d);
+            font-size: .78rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .pl-hero__main {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            margin-top: 14px;
+        }
+
+        .pl-hero__escudo {
+            width: 92px;
+            height: 92px;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
+        }
+
+        .pl-hero__no-escudo {
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .13);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gysl-yellow, #f1b82d);
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .pl-hero__title {
+            margin: 0;
+            color: #fff;
+            font-size: 48px;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        .pl-hero__subtitle {
+            margin: 10px 0 0;
+            color: var(--gysl-muted, #afc1e6);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .pl-divider {
+            height: 3px;
+            background: linear-gradient(90deg,
+                    rgba(241, 184, 45, 0),
+                    rgba(241, 184, 45, .85),
+                    rgba(241, 184, 45, 0));
+        }
+
+        .pl-section {
+            padding: 42px 0 56px;
+            background: var(--gysl-superdark, #060e1e);
+        }
+
+        .pl-status {
+            padding: 22px 24px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .10);
+            color: var(--gysl-muted, #afc1e6);
+            font-weight: 800;
+        }
+
+        .pl-status--error {
+            color: var(--gysl-red, #d72626);
+            border-color: rgba(215, 38, 38, .35);
+        }
+
+        .pl-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 26px;
+            border-bottom: 1px solid rgba(255, 255, 255, .10);
+        }
+
+        .pl-tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--gysl-muted, #afc1e6);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            cursor: pointer;
+        }
+
+        .pl-tab.is-active {
+            color: var(--gysl-yellow, #f1b82d);
+            border-bottom-color: var(--gysl-yellow, #f1b82d);
+        }
+
+        .pl-panel {
+            display: none;
+        }
+
+        .pl-panel.is-active {
+            display: block;
+        }
+
+        .pl-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .pl-card {
+            padding: 22px;
+            border-radius: 18px;
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(241, 184, 45, .10), transparent 34%),
+                linear-gradient(180deg, rgba(13, 35, 68, .98), rgba(8, 22, 45, .98));
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-top: 2px solid rgba(241, 184, 45, .42);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .28);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .pl-card__top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .pl-card__foto {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gysl-muted, #afc1e6);
+            font-size: 12px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .pl-card__foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pl-card__name {
+            margin: 0;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .pl-card__role {
+            margin-top: 5px;
+            color: var(--gysl-yellow, #f1b82d);
+            font-size: .7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+        }
+
+        .pl-card__info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .pl-info {
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .pl-info__label {
+            display: block;
+            color: var(--gysl-muted, #afc1e6);
+            font-size: .68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .pl-info__value {
+            color: #fff;
+            font-size: .9rem;
+            font-weight: 800;
+        }
+
+        .pl-badge {
+            display: inline-flex;
+            width: fit-content;
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .pl-badge--alta {
+            background: rgba(46, 204, 113, .15);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .35);
+        }
+
+        .pl-badge--pendiente {
+            background: rgba(241, 184, 45, .15);
+            color: var(--gysl-yellow, #f1b82d);
+            border: 1px solid rgba(241, 184, 45, .35);
+        }
+
+        .pl-card__btn {
+            margin-top: auto;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(241, 184, 45, .45);
+            background: transparent;
+            color: var(--gysl-yellow, #f1b82d);
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .pl-card__btn:hover {
+            background: rgba(241, 184, 45, .08);
+        }
+
+        .pl-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .68);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .pl-modal.is-open {
+            display: flex;
+        }
+
+        .pl-modal__card {
+            width: min(560px, 100%);
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(20, 52, 94, .6), transparent 60%),
+                var(--gysl-superdark, #060e1e);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, .55);
+            position: relative;
+        }
+
+        .pl-modal__close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(255, 255, 255, .07);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .pl-detail {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .pl-detail__photo {
+            width: 150px;
+            height: 190px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gysl-muted, #afc1e6);
+        }
+
+        .pl-detail__photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pl-detail__rows {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pl-detail__row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .pl-detail__label {
+            color: var(--gysl-muted, #afc1e6);
+            font-size: .75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .pl-detail__value {
+            color: #fff;
+            font-weight: 800;
+            text-align: right;
+        }
+
+        @media (max-width: 640px) {
+            .pl-hero__main {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .pl-hero__title {
+                font-size: 36px;
+            }
+
+            .pl-detail {
+                grid-template-columns: 1fr;
+            }
+
+            .pl-detail__photo {
+                width: 100%;
+                height: 260px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main id="page-content">
+
+        <section class="pl-hero">
+            <div class="pl-hero__inner">
+                <span class="pl-hero__eyebrow">Plantilla GYSL</span>
+
+                <div class="pl-hero__main">
+                    <div id="pl-escudo-wrap"></div>
+
+                    <div>
+                        <h1 class="pl-hero__title" id="pl-title">Plantilla</h1>
+                        <p class="pl-hero__subtitle" id="pl-subtitle">
+                            Jugadores y entrenadores del equipo seleccionado.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="pl-divider"></div>
+
+        <section class="pl-section">
+            <div class="pl-section__wrap">
+
+                <div id="pl-loading" class="pl-status">Cargando plantilla...</div>
+                <div id="pl-empty" class="pl-status" style="display:none;"></div>
+
+                <div id="pl-content" style="display:none;">
+                    <div class="pl-tabs">
+                        <button class="pl-tab is-active" data-tab="jugadores">Jugadores</button>
+                        <button class="pl-tab" data-tab="entrenadores">Entrenadores</button>
+                    </div>
+
+                    <div class="pl-panel is-active" id="panel-jugadores">
+                        <div class="pl-grid" id="jugadores-grid"></div>
+                    </div>
+
+                    <div class="pl-panel" id="panel-entrenadores">
+                        <div class="pl-grid" id="entrenadores-grid"></div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <div class="pl-modal" id="detalle-modal">
+        <div class="pl-modal__card">
+            <button class="pl-modal__close" onclick="cerrarDetalle()">✕</button>
+            <h2 style="margin:0;color:#fff;font-size:1.4rem;font-weight:900;" id="detalle-title">
+                Detalle jugador
+            </h2>
+            <div class="pl-detail" id="detalle-content"></div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            const params = new URLSearchParams(window.location.search);
+            const idEquipo = params.get("equipo");
+            const idLiga = params.get("liga");
+
+            const loading = document.getElementById("pl-loading");
+            const empty = document.getElementById("pl-empty");
+            const content = document.getElementById("pl-content");
+
+            const title = document.getElementById("pl-title");
+            const subtitle = document.getElementById("pl-subtitle");
+            const escudoWrap = document.getElementById("pl-escudo-wrap");
+
+            const jugadoresGrid = document.getElementById("jugadores-grid");
+            const entrenadoresGrid = document.getElementById("entrenadores-grid");
+
+            let jugadoresData = [];
+            let entrenadoresData = [];
+            let equipoActual = null;
+
+            function texto(valor, fallback = "—") {
+                return String(valor ?? "").trim() || fallback;
+            }
+
+            function inicial(nombre) {
+                return texto(nombre, "?").charAt(0).toUpperCase();
+            }
+
+            function mostrarError(mensaje) {
+                loading.style.display = "none";
+                content.style.display = "none";
+                empty.textContent = mensaje;
+                empty.classList.add("pl-status--error");
+                empty.style.display = "block";
+            }
+
+            function mostrarContenido() {
+                loading.style.display = "none";
+                empty.style.display = "none";
+                content.style.display = "block";
+            }
+
+            function fotoJugador(jugador) {
+                const foto = jugador.foto_path || jugador.foto || "";
+
+                if (!foto) {
+                    return `<div class="pl-card__foto">Sin foto</div>`;
+                }
+
+                return `
+                    <div class="pl-card__foto">
+                        <img src="${API}${foto}" alt="${texto(jugador.nombre)}"
+                             onerror="this.parentElement.innerHTML='Sin foto'">
+                    </div>
+                `;
+            }
+
+            function fotoEntrenador(entrenador) {
+                const foto = entrenador.foto_path || entrenador.foto || "";
+
+                if (!foto) {
+                    return `<div class="pl-card__foto">Sin foto</div>`;
+                }
+
+                return `
+                    <div class="pl-card__foto">
+                        <img src="${API}${foto}" alt="${texto(entrenador.nombre)}"
+                             onerror="this.parentElement.innerHTML='Sin foto'">
+                    </div>
+                `;
+            }
+
+            function renderHero() {
+                if (!equipoActual) return;
+
+                const club = texto(equipoActual.club ?? equipoActual.nombre, "Equipo");
+                const categoria = texto(equipoActual.categoria, "Sin categoría");
+                const escudo = equipoActual.escudo ? API + equipoActual.escudo : "";
+
+                title.textContent = club;
+                subtitle.textContent = `${categoria} · ${jugadoresData.length} jugadores · ${entrenadoresData.length} entrenadores`;
+
+                escudoWrap.innerHTML = escudo
+                    ? `<img src="${escudo}" class="pl-hero__escudo" alt="${club}" onerror="this.outerHTML='<div class=&quot;pl-hero__no-escudo&quot;>${inicial(club)}</div>'">`
+                    : `<div class="pl-hero__no-escudo">${inicial(club)}</div>`;
+            }
+
+            function renderJugadores() {
+                if (!jugadoresData.length) {
+                    jugadoresGrid.innerHTML = `<div class="pl-status">No hay jugadores en esta plantilla.</div>`;
+                    return;
+                }
+
+                jugadoresGrid.innerHTML = jugadoresData.map(j => {
+                    const nombre = `${texto(j.nombre, "")} ${texto(j.apellido, "")}`.trim() || "Jugador";
+                    const dorsal = j.dorsal ? j.dorsal : "—";
+                    const estado = texto(j.estado, "ALTA").toUpperCase();
+                    const badgeClass = estado === "PENDIENTE" ? "pl-badge--pendiente" : "pl-badge--alta";
+
+                    return `
+                        <article class="pl-card">
+                            <div class="pl-card__top">
+                                ${fotoJugador(j)}
+                                <div>
+                                    <h3 class="pl-card__name">${nombre}</h3>
+                                    <div class="pl-card__role">Jugador</div>
+                                </div>
+                            </div>
+
+                            <div class="pl-card__info">
+                                <div class="pl-info">
+                                    <span class="pl-info__label">Dorsal</span>
+                                    <span class="pl-info__value">${dorsal}</span>
+                                </div>
+                                <div class="pl-info">
+                                    <span class="pl-info__label">Nacimiento</span>
+                                    <span class="pl-info__value">${texto(j.fecha_nacimiento)}</span>
+                                </div>
+                            </div>
+
+                            <span class="pl-badge ${badgeClass}">${estado}</span>
+
+                            <button class="pl-card__btn" onclick="abrirDetalle(${j.id_jugador})">
+                                Ver detalle
+                            </button>
+                        </article>
+                    `;
+                }).join("");
+            }
+
+            function renderEntrenadores() {
+                if (!entrenadoresData.length) {
+                    entrenadoresGrid.innerHTML = `<div class="pl-status">No hay entrenadores asignados a este equipo.</div>`;
+                    return;
+                }
+
+                entrenadoresGrid.innerHTML = entrenadoresData.map(e => {
+                    const nombre = `${texto(e.nombre, "")} ${texto(e.apellido, "")}`.trim() || "Entrenador";
+
+                    return `
+                        <article class="pl-card">
+                            <div class="pl-card__top">
+                                ${fotoEntrenador(e)}
+                                <div>
+                                    <h3 class="pl-card__name">${nombre}</h3>
+                                    <div class="pl-card__role">Entrenador asignado</div>
+                                </div>
+                            </div>
+
+                            <div class="pl-card__info">
+                                <div class="pl-info">
+                                    <span class="pl-info__label">Email</span>
+                                    <span class="pl-info__value">${texto(e.email, "Sin email")}</span>
+                                </div>
+                                <div class="pl-info">
+                                    <span class="pl-info__label">Teléfono</span>
+                                    <span class="pl-info__value">${texto(e.telefono, "Sin teléfono")}</span>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }).join("");
+            }
+
+            window.abrirDetalle = async function (idJugador) {
+                try {
+                    const res = await fetch(
+                        API + `/plantillas/detalle?id_jugador=${idJugador}&id_equipo=${idEquipo}&id_liga=${idLiga}`,
+                        { credentials: "include" }
+                    );
+
+                    const data = await res.json();
+
+                    if (!res.ok || !data.data) {
+                        if (typeof showToast === "function") {
+                            showToast(data.message || "Error cargando detalle", "error");
+                        }
+                        return;
+                    }
+
+                    const j = data.data;
+                    const nombre = `${texto(j.nombre, "")} ${texto(j.apellido, "")}`.trim();
+                    const foto = j.foto_path ? `${API}${j.foto_path}` : "";
+
+                    document.getElementById("detalle-title").textContent = nombre || "Detalle jugador";
+
+                    document.getElementById("detalle-content").innerHTML = `
+                        <div class="pl-detail__photo">
+                            ${foto
+                            ? `<img src="${foto}" alt="${nombre}" onerror="this.parentElement.innerHTML='Sin foto'">`
+                            : "Sin foto"}
+                        </div>
+
+                        <div class="pl-detail__rows">
+                            <div class="pl-detail__row">
+                                <span class="pl-detail__label">Nombre</span>
+                                <span class="pl-detail__value">${texto(j.nombre)}</span>
+                            </div>
+                            <div class="pl-detail__row">
+                                <span class="pl-detail__label">Apellido</span>
+                                <span class="pl-detail__value">${texto(j.apellido)}</span>
+                            </div>
+                            <div class="pl-detail__row">
+                                <span class="pl-detail__label">Fecha nac.</span>
+                                <span class="pl-detail__value">${texto(j.fecha_nacimiento)}</span>
+                            </div>
+                            <div class="pl-detail__row">
+                                <span class="pl-detail__label">Dorsal</span>
+                                <span class="pl-detail__value">${j.dorsal || "Sin asignar"}</span>
+                            </div>
+                            <div class="pl-detail__row">
+                                <span class="pl-detail__label">Estado</span>
+                                <span class="pl-detail__value">${texto(j.estado, "ALTA")}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById("detalle-modal").classList.add("is-open");
+                } catch (error) {
+                    console.error("[Detalle jugador]", error);
+                    if (typeof showToast === "function") {
+                        showToast("Error de conexión", "error");
+                    }
+                }
+            };
+
+            window.cerrarDetalle = function () {
+                document.getElementById("detalle-modal").classList.remove("is-open");
+            };
+
+            document.getElementById("detalle-modal").addEventListener("click", function (e) {
+                if (e.target === this) cerrarDetalle();
+            });
+
+            document.querySelectorAll(".pl-tab").forEach(tab => {
+                tab.addEventListener("click", function () {
+                    const tabName = this.dataset.tab;
+
+                    document.querySelectorAll(".pl-tab").forEach(t => t.classList.remove("is-active"));
+                    document.querySelectorAll(".pl-panel").forEach(p => p.classList.remove("is-active"));
+
+                    this.classList.add("is-active");
+                    document.getElementById("panel-" + tabName).classList.add("is-active");
+                });
+            });
+
+            async function cargarDatos() {
+                if (!idEquipo || !idLiga) {
+                    mostrarError("Faltan parámetros: equipo y liga.");
+                    return;
+                }
+
+                try {
+                    const [resEquipo, resJugadores, resEntrenadores] = await Promise.all([
+                        fetch(API + `/equipos/${idEquipo}`, { credentials: "include" }),
+                        fetch(API + `/plantillas?id_equipo=${idEquipo}&id_liga=${idLiga}`, { credentials: "include" }),
+                        fetch(API + `/equipos/${idEquipo}/entrenadores?id_liga=${idLiga}`, { credentials: "include" })
+                    ]);
+
+                    const dataEquipo = await resEquipo.json();
+                    const dataJugadores = await resJugadores.json();
+                    const dataEntrenadores = await resEntrenadores.json();
+
+                    if (!resEquipo.ok || dataEquipo.success === false) {
+                        throw new Error(dataEquipo.message || "Error al cargar equipo");
+                    }
+
+                    equipoActual = dataEquipo.data || null;
+                    jugadoresData = dataJugadores.data || [];
+                    entrenadoresData = dataEntrenadores.data || [];
+
+                    renderHero();
+                    renderJugadores();
+                    renderEntrenadores();
+                    mostrarContenido();
+                } catch (error) {
+                    console.error("[Plantilla]", error);
+                    mostrarError("No se pudo cargar la plantilla.");
+                }
+            }
+
+            cargarDatos();
+        })();
+    </script>
+
+</body>
+
+</html>

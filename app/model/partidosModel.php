@@ -2,22 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  PartidosModel
- * ============================================================================
- *  Gestión completa de partidos en la liga.
- *
- *  NOTA: Este modelo asume que la BD ya tiene la migración 06 aplicada:
- *    - id_equipo_local  (antes id_equipo1)
- *    - id_equipo_visitante (antes id_equipo2)
- *    - goles_local      (antes goles_equipo1)
- *    - goles_visitante  (antes goles_equipo2)
- *    - jornada          (campo nuevo VARCHAR(50))
- *  Ver: migrations/06_partidos_v2.sql
- * ============================================================================
- */
-
 class PartidosModel
 {
     private PDO $db;
@@ -27,37 +11,18 @@ class PartidosModel
         $this->db = Database::getInstance();
     }
 
-    // =========================================================================
-    //  HELPER
-    // =========================================================================
-
     public function getDb(): PDO
     {
         return $this->db;
     }
 
-    // =========================================================================
-    //  SELECT: getAll con JOINs enriquecidos y filtros opcionales
-    // =========================================================================
-
-    /**
-     * Devuelve todos los partidos con datos de liga y equipos.
-     *
-     * Filtros soportados (claves del array $filtros):
-     *   - id_liga   (int)    → coincidencia exacta
-     *   - fecha     (string) → coincide con DATE(p.fecha) = ?
-     *   - id_equipo (int)    → local O visitante
-     *   - jornada   (string) → coincidencia exacta
-     *   - estado    (string) → coincidencia exacta
-     *   - lugar     (string) → LIKE %...%
-     */
     public function getAll(array $filtros = []): array
     {
         $sql = "
             SELECT
                 p.id_partido,
                 p.id_liga,
-                p.jornada,
+                p.tipo_ronda,
                 p.fecha,
                 p.lugar,
                 p.arbitro,
@@ -98,9 +63,9 @@ class PartidosModel
             $params[] = (int) $filtros['id_equipo'];
         }
 
-        if (isset($filtros['jornada']) && $filtros['jornada'] !== '') {
-            $sql    .= " AND p.jornada = ?";
-            $params[] = $filtros['jornada'];
+        if (isset($filtros['tipo_ronda']) && $filtros['tipo_ronda'] !== '') {
+            $sql    .= " AND p.tipo_ronda = ?";
+            $params[] = $filtros['tipo_ronda'];
         }
 
         if (isset($filtros['estado']) && $filtros['estado'] !== '') {
@@ -130,7 +95,7 @@ class PartidosModel
             SELECT
                 p.id_partido,
                 p.id_liga,
-                p.jornada,
+                p.tipo_ronda,
                 p.fecha,
                 p.lugar,
                 p.arbitro,
@@ -171,7 +136,7 @@ class PartidosModel
     {
         $stmt = $this->db->prepare("
             INSERT INTO partidos
-                (id_liga, jornada, fecha, lugar, arbitro,
+                (id_liga, tipo_ronda, fecha, lugar, arbitro,
                  id_equipo_local, id_equipo_visitante,
                  goles_local, goles_visitante, estado)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -179,7 +144,7 @@ class PartidosModel
 
         $stmt->execute([
             $datos['id_liga'],
-            $datos['jornada'],
+            $datos['tipo_ronda'],
             $datos['fecha'],
             $datos['lugar'],
             $datos['arbitro']           ?? null,
@@ -206,7 +171,7 @@ class PartidosModel
         $stmt = $this->db->prepare("
             UPDATE partidos SET
                 id_liga              = ?,
-                jornada              = ?,
+                tipo_ronda           = ?,
                 fecha                = ?,
                 lugar                = ?,
                 arbitro              = ?,
@@ -220,7 +185,7 @@ class PartidosModel
 
         $stmt->execute([
             $datos['id_liga'],
-            $datos['jornada'],
+            $datos['tipo_ronda'],
             $datos['fecha'],
             $datos['lugar'],
             $datos['arbitro']           ?? null,
@@ -293,17 +258,9 @@ class PartidosModel
         return $stmt->rowCount();
     }
 
-    // =========================================================================
-    //  VALIDACIONES DE NEGOCIO
-    // =========================================================================
-
-    /**
-     * Comprueba si ya existe un partido con los mismos equipos (en cualquier orden)
-     * dentro de la misma liga y jornada.
-     */
     public function existeDuplicado(
         int     $idLiga,
-        string  $jornada,
+        string  $tipo_ronda,
         int     $idLocal,
         int     $idVisitante,
         ?int    $excluirId = null
@@ -311,7 +268,7 @@ class PartidosModel
         $sql = "
             SELECT 1 FROM partidos
             WHERE id_liga  = ?
-              AND jornada  = ?
+              AND tipo_ronda  = ?
               AND (
                     (id_equipo_local = ? AND id_equipo_visitante = ?)
                  OR (id_equipo_local = ? AND id_equipo_visitante = ?)
@@ -319,7 +276,7 @@ class PartidosModel
         ";
         $params = [
             $idLiga,
-            $jornada,
+            $tipo_ronda,
             $idLocal,
             $idVisitante,
             $idVisitante,
@@ -414,5 +371,22 @@ class PartidosModel
         );
         $stmt->execute([$idEquipo]);
         return (bool) $stmt->fetchColumn();
+    }
+
+
+    public function getFormatoLiga(int $idLiga): ?string
+    {
+        $stmt = $this->db->prepare("
+        SELECT formato_liga
+        FROM ligas
+        WHERE id_liga = ?
+        LIMIT 1
+    ");
+
+        $stmt->execute([$idLiga]);
+
+        $formato = $stmt->fetchColumn();
+
+        return $formato ? strtoupper((string)$formato) : null;
     }
 }

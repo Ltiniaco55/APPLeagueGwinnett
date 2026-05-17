@@ -356,6 +356,17 @@
         (function () {
             "use strict";
 
+            const paramsInicio = new URLSearchParams(window.location.search);
+            const formatoInicio = (paramsInicio.get("formato") || "JORNADAS").toUpperCase();
+            const idLigaInicio = paramsInicio.get("liga");
+
+            if (formatoInicio !== "JORNADAS") {
+                window.location.replace(
+                    `resultados.html?liga=${encodeURIComponent(idLigaInicio || "")}&formato=${encodeURIComponent(formatoInicio)}`
+                );
+                return;
+            }
+
             const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
 
             const elLoading = document.getElementById("clas-loading");

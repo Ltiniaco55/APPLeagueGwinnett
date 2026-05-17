@@ -5,6 +5,7 @@
  *  - Prevents duplicate injection
  *  - Preserves `liga` and `formato` query params across links
  *  - Highlights the active link based on current pathname
+ *  - Oculta Clasificación cuando formato es ELIMINATORIA o AMISTOSO
  * ═══════════════════════════════════════════════════════════
  */
 
@@ -85,6 +86,27 @@
         });
     }
 
+    /* ── Format-based visibility ───────────────────────────── */
+
+    /**
+     * Oculta el enlace Clasificación cuando el formato es ELIMINATORIA o AMISTOSO.
+     * El <li> debe tener data-secun-hide="clasificacion" en header_secun.html.
+     */
+    function aplicarVisibilidadPorFormato() {
+        const params = new URLSearchParams(window.location.search);
+        const formato = (params.get('formato') || '').toUpperCase().trim();
+
+        // Clasificación solo visible en formato JORNADAS
+        var liClasificacion = document.querySelector('[data-secun-hide="clasificacion"]');
+        if (liClasificacion) {
+            if (formato === 'ELIMINATORIA' || formato === 'AMISTOSO') {
+                liClasificacion.style.display = 'none';
+            } else {
+                liClasificacion.style.display = '';
+            }
+        }
+    }
+
     /* ── Active link detection ─────────────────────────────── */
 
     function initActiveHeaderSecunLink() {
@@ -118,6 +140,7 @@
 
         injectHeaderSecun(html);
         buildHeaderSecunLinks();
+        aplicarVisibilidadPorFormato();
         initActiveHeaderSecunLink();
     }
 

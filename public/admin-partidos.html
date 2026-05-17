@@ -172,6 +172,12 @@
             border: 1px solid rgba(241, 184, 45, .3);
         }
 
+        .gysl-badge--vencido {
+            background: rgba(241, 184, 45, .16);
+            color: var(--gysl-yellow, #f1b82d);
+            border: 1px solid rgba(241, 184, 45, .35);
+        }
+
         /* ── Modal detalle ─────────────────────────────────── */
         .gysl-detail-overlay {
             position: fixed;
@@ -393,7 +399,7 @@
                             <th>Visitante</th>
                             <th style="text-align:center;">Goles</th>
                             <th>Fecha y hora</th>
-                            <th>Jornada</th>
+                            <th>Tipo de ronda</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -427,10 +433,12 @@
                             <option value="">— Seleccionar liga —</option>
                         </select>
                     </div>
-                    <!-- Jornada -->
+                    <!-- Tipo de ronda -->
                     <div class="gysl-admin-form-group">
-                        <label for="pf-jornada">Jornada *</label>
-                        <input type="text" id="pf-jornada" placeholder="Ej: J1, Jornada 5" required>
+                        <label for="pf-tipo-ronda">Tipo de ronda *</label>
+                        <select id="pf-tipo-ronda" required>
+                            <option value="">— Selecciona una liga primero —</option>
+                        </select>
                     </div>
                 </div>
 
@@ -580,15 +588,21 @@
             /* ═══════════════════════════════════════════════
                HELPERS
             ═══════════════════════════════════════════════ */
-            function estadoBadge(estado) {
+            function estadoBadge(estado, partido = null) {
+                if (partido && esPartidoProgramadoVencido(partido)) {
+                    return `<span class="gysl-badge gysl-badge--vencido">Pendiente resultado</span>`;
+                }
+
                 const map = {
                     programado: "gysl-badge--programado",
                     jugado: "gysl-badge--jugado",
                     cancelado: "gysl-badge--cancelado",
                     pendiente: "gysl-badge--pendiente",
                 };
+
                 const cls = map[estado] ?? "gysl-badge--pendiente";
                 const label = estado ? estado.charAt(0).toUpperCase() + estado.slice(1) : "—";
+
                 return `<span class="gysl-badge ${cls}">${label}</span>`;
             }
 
@@ -611,6 +625,26 @@
                 const gv = p.goles_visitante ?? null;
                 if (gl === null && gv === null) return "— : —";
                 return `${gl ?? "—"} : ${gv ?? "—"}`;
+            }
+
+            function esPartidoProgramadoVencido(partido) {
+                const fecha = new Date(partido.fecha);
+                const estado = String(partido.estado ?? "").toLowerCase();
+
+                return estado === "programado" &&
+                    !isNaN(fecha.getTime()) &&
+                    fecha < new Date();
+            }
+
+            function avisarPartidosProgramadosVencidos(partidos) {
+                const vencidos = partidos.filter(esPartidoProgramadoVencido);
+
+                if (!vencidos.length) return;
+
+                showToast(
+                    `Hay ${vencidos.length} partido(s) programado(s) con fecha vencida. Revisa resultados o cancélalos.`,
+                    "warning"
+                );
             }
 
             /* ═══════════════════════════════════════════════
@@ -646,21 +680,9 @@
                     const dP = await rP.json();
                     let data = Array.isArray(dP) ? dP : (dP.data ?? []);
 
-                    // Si no hay filtros, mostrar los 12 más próximos por fecha
-                    if (!params.toString()) {
-                        const now = new Date();
-                        data = data
-                            .filter(p => p.fecha && new Date(p.fecha) >= now)
-                            .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
-                            .slice(0, 12);
-                        if (data.length === 0) {
-                            // Si no hay próximos, los 12 más recientes
-                            const all = Array.isArray(dP) ? dP : (dP.data ?? []);
-                            data = all.slice(0, 12);
-                        }
-                    }
-
                     partidosData = data;
+
+                    avisarPartidosProgramadosVencidos(partidosData);
                 } catch (err) {
                     console.error("Error cargando partidos:", err);
                     partidosData = [];
@@ -788,8 +810,8 @@
                             <div style="font-size:13px;">${formatFecha(p.fecha)}</div>
                             <div style="font-size:11px; color:var(--gysl-muted);">${formatHora(p.fecha)}</div>
                         </td>
-                        <td style="color:var(--gysl-muted); font-size:13px;">${p.jornada ?? "—"}</td>
-                        <td>${estadoBadge(p.estado)}</td>
+                        <td style="color:var(--gysl-muted); font-size:13px;">${p.tipo_ronda ?? "—"}</td>
+                        <td>${estadoBadge(p.estado, p)}</td>
                         <td>
                             <div class="gysl-admin-table__actions">
                                 <button class="gysl-admin-table__btn" onclick="openDetail(${id})">Ver</button>
@@ -815,13 +837,13 @@
                         </div>
                         <div class="gysl-partido-card__meta">
                             <span><strong>Liga:</strong> ${p.nombre_liga ?? "—"}</span>
-                            <span><strong>Jornada:</strong> ${p.jornada ?? "—"}</span>
+                            <span><strong>Ronda:</strong> ${p.tipo_ronda ?? "—"}</span>
                             <span><strong>Fecha:</strong> ${formatFecha(p.fecha)}</span>
                             <span><strong>Hora:</strong> ${formatHora(p.fecha)}</span>
                             <span style="grid-column: span 2;"><strong>Lugar:</strong> ${p.lugar ?? "—"}</span>
                         </div>
                         <div class="gysl-partido-card__footer">
-                            ${estadoBadge(p.estado)}
+                            ${estadoBadge(p.estado, p)}
                             <div class="gysl-partido-card__actions">
                                 <button class="gysl-admin-table__btn" onclick="openDetail(${id})">Ver</button>
                                 <button class="gysl-admin-table__btn gysl-admin-table__btn--edit" onclick="editPartido(${id})">Editar</button>
@@ -845,6 +867,47 @@
                     const nm = l.nombre_liga ?? l.nom ?? "Sin nombre";
                     sel.innerHTML += `<option value="${id}">${nm} (${l.categoria ?? ""})</option>`;
                 });
+            }
+
+            function cargarTiposRondaPorLiga(idLiga) {
+                const select = document.getElementById("pf-tipo-ronda");
+                select.innerHTML = "";
+
+                if (!idLiga) {
+                    select.innerHTML = '<option value="">— Selecciona una liga primero —</option>';
+                    select.disabled = true;
+                    return;
+                }
+
+                const liga = ligasData.find(l => String(l.id_liga ?? l.id) === String(idLiga));
+                const formato = (liga?.formato_liga ?? "JORNADAS").toUpperCase();
+
+                let opciones = [];
+
+                if (formato === "JORNADAS") {
+                    for (let i = 1; i <= 32; i++) {
+                        opciones.push("Jornada " + i);
+                    }
+
+                    select.disabled = false;
+                } else if (formato === "ELIMINATORIA") {
+                    opciones = [
+                        "Fase de grupos",
+                        "Octavos de final",
+                        "Cuartos de final",
+                        "Semifinal",
+                        "Final"
+                    ];
+
+                    select.disabled = false;
+                } else if (formato === "AMISTOSO") {
+                    opciones = ["Amistoso"];
+                    select.disabled = true;
+                }
+
+                select.innerHTML = opciones
+                    .map(op => `<option value="${op}">${op}</option>`)
+                    .join("");
             }
 
             // Filtra equiposData por ligas_ids localmente (sin fetch adicional)
@@ -883,14 +946,14 @@
                 selectEl.innerHTML = '<option value="">— Seleccionar —</option>' + opts;
             }
 
-            // Cuando se elige liga en el form → filtrar equipos localmente
+
             window.onLigaChange = function () {
                 const idLiga = document.getElementById("pf-liga").value;
-                // Resetear selects de equipos al cambiar liga (evita equipos de liga anterior)
+
                 cargarEquiposPorLiga(idLiga);
+                cargarTiposRondaPorLiga(idLiga);
             };
 
-            // Alias de compatibilidad (llamado en reset del formulario)
             function populateFormEquipos(list) {
                 rellenarSelectEquipos(document.getElementById("pf-local"), list.length ? list : null);
                 rellenarSelectEquipos(document.getElementById("pf-visitante"), list.length ? list : null);
@@ -906,7 +969,8 @@
                 // Reset
                 document.getElementById("partido-edit-id").value = "";
                 document.getElementById("pf-liga").value = "";
-                document.getElementById("pf-jornada").value = "";
+                document.getElementById("pf-tipo-ronda").innerHTML = '<option value="">— Selecciona una liga primero —</option>';
+                document.getElementById("pf-tipo-ronda").disabled = true;
                 document.getElementById("pf-local").value = "";
                 document.getElementById("pf-visitante").value = "";
                 document.getElementById("pf-fecha-dia").value = "";
@@ -923,7 +987,11 @@
                     title.textContent = "Editar Partido";
                     document.getElementById("partido-edit-id").value = partido.id_partido;
                     document.getElementById("pf-liga").value = partido.id_liga ?? "";
-                    document.getElementById("pf-jornada").value = partido.jornada ?? "";
+
+                    cargarEquiposPorLiga(partido.id_liga);
+                    cargarTiposRondaPorLiga(partido.id_liga);
+
+                    document.getElementById("pf-tipo-ronda").value = partido.tipo_ronda ?? "";
                     document.getElementById("pf-lugar").value = partido.lugar ?? "";
                     document.getElementById("pf-arbitro").value = partido.arbitro ?? "";
                     document.getElementById("pf-estado").value = partido.estado ?? "programado";
@@ -944,8 +1012,6 @@
                         }
                     }
 
-                    // Cargar equipos de la liga filtrando localmente por ligas_ids
-                    cargarEquiposPorLiga(partido.id_liga);
                     document.getElementById("pf-local").value = partido.id_equipo_local ?? "";
                     document.getElementById("pf-visitante").value = partido.id_equipo_visitante ?? "";
                 } else {
@@ -964,13 +1030,11 @@
                 if (p) openPartidoForm(p);
             };
 
-            /* ═══════════════════════════════════════════════
-               SUBMIT FORMULARIO
-            ═══════════════════════════════════════════════ */
+
             window.submitPartido = async function () {
                 const editId = document.getElementById("partido-edit-id").value;
                 const idLiga = document.getElementById("pf-liga").value;
-                const jornada = document.getElementById("pf-jornada").value.trim();
+                const tipoRonda = document.getElementById("pf-tipo-ronda").value.trim();
                 const idLocal = document.getElementById("pf-local").value;
                 const idVisita = document.getElementById("pf-visitante").value;
                 const fechaDia = document.getElementById("pf-fecha-dia").value;
@@ -981,7 +1045,7 @@
                 const golesV = document.getElementById("pf-goles-visitante").value;
                 const estado = document.getElementById("pf-estado").value;
 
-                if (!idLiga || !jornada || !idLocal || !idVisita || !fechaDia || !hora || !lugar) {
+                if (!idLiga || !tipoRonda || !idLocal || !idVisita || !fechaDia || !hora || !lugar) {
                     showToast("Rellena todos los campos obligatorios", "error");
                     return;
                 }
@@ -994,7 +1058,7 @@
 
                 const body = {
                     id_liga: parseInt(idLiga),
-                    jornada: jornada,
+                    tipo_ronda: tipoRonda,
                     fecha_dia: fechaDia,
                     hora: hora + ":00",
                     lugar: lugar,
@@ -1114,7 +1178,7 @@
                 if (!p) return;
 
                 document.getElementById("detail-liga-jornada").textContent =
-                    `${p.nombre_liga ?? "—"} · ${p.jornada ?? ""}`;
+                    `${p.nombre_liga ?? "—"} · ${p.tipo_ronda ?? ""}`;
                 document.getElementById("detail-local").textContent = p.club_local ?? "—";
                 document.getElementById("detail-visitante").textContent = p.club_visitante ?? "—";
                 document.getElementById("detail-score").textContent = scoreStr(p);
