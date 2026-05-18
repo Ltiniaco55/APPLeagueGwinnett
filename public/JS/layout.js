@@ -93,16 +93,30 @@
         const btn = document.getElementById('gysl-btn-fav');
         if (!btn) return;
 
-        let active = false;
-        btn.addEventListener('click', () => {
-            active = !active;
+        btn.addEventListener('click', async () => {
+            try {
+                const res = await fetch(
+                    '/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/auth/me',
+                    {
+                        credentials: 'include'
+                    }
+                );
 
-            btn.style.color = active ? 'var(--gysl-yellow)' : '';
-            btn.style.borderColor = active ? 'var(--gysl-yellow)' : '';
-            btn.style.background = active ? 'rgba(241,184,45,.15)' : '';
+                const data = await res.json();
 
-            const poly = btn.querySelector('polygon');
-            if (poly) poly.setAttribute('fill', active ? 'currentColor' : 'none');
+                if (data.success) {
+                    window.location.href =
+                        '/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/equiposFavoritos.html';
+                    return;
+                }
+
+                document.dispatchEvent(
+                    new CustomEvent('gysl:userBtnClicked', { bubbles: true })
+                );
+
+            } catch (error) {
+                console.error('Error comprobando sesión:', error);
+            }
         });
     }
 

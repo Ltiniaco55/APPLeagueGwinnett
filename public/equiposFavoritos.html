@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL — Equipos favoritos</title>
+
+    <link rel="stylesheet" href="./CSS/layout.css">
+    <link rel="stylesheet" href="./CSS/contact.css">
+    <link rel="stylesheet" href="./CSS/mini-menu.css">
+    <link rel="stylesheet" href="./CSS/toast.css">
+
+    <script src="./JS/layout.js?v=2" defer></script>
+    <script src="./JS/contact.js" defer></script>
+    <script src="./JS/login.js" defer></script>
+    <script src="./JS/sesionactiva.js" defer></script>
+    <script src="./JS/toast.js" defer></script>
+
+    <style>
+        :root {
+            --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        .fav-hero {
+            padding: 42px 0 34px;
+            background:
+                linear-gradient(90deg, rgba(6, 14, 30, .96), rgba(6, 14, 30, .78)),
+                radial-gradient(ellipse at 80% 20%, rgba(241, 184, 45, .18), transparent 50%),
+                var(--gysl-superdark, #060e1e);
+        }
+
+        .fav-hero__inner,
+        .fav-section__wrap {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .fav-hero__eyebrow {
+            color: var(--gysl-yellow, #f1b82d);
+            font-size: .8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-family: var(--font-primary);
+        }
+
+        .fav-hero__title {
+            margin: 10px 0 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 48px;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        .fav-hero__subtitle {
+            margin: 14px 0 0;
+            max-width: 620px;
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.7;
+        }
+
+        .fav-divider {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(241, 184, 45, .85), transparent);
+        }
+
+        .fav-section {
+            padding: 42px 0 60px;
+            background: var(--gysl-superdark, #060e1e);
+        }
+
+        .fav-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .fav-toolbar__title {
+            margin: 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1.35rem;
+            font-weight: 900;
+        }
+
+        .fav-search {
+            width: 100%;
+            min-width: 260px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background:
+                linear-gradient(135deg,
+                    rgba(18, 44, 78, 0.95),
+                    rgba(10, 26, 50, 0.95));
+            color: #ffffff;
+            font-family: var(--font-primary);
+            font-weight: 700;
+            font-size: 0.95rem;
+            outline: none;
+            box-sizing: border-box;
+            transition:
+                border-color 0.22s ease,
+                box-shadow 0.22s ease,
+                transform 0.18s ease;
+        }
+
+        .fav-search::placeholder {
+            color: rgba(175, 193, 230, .6);
+        }
+
+        .fav-search:focus {
+            border-color: var(--gysl-yellow, #f1b82d);
+            box-shadow:
+                0 0 0 3px rgba(241, 184, 45, 0.14),
+                0 10px 28px rgba(0, 0, 0, 0.28);
+            transform: translateY(-1px);
+        }
+
+        .fav-dropdown {
+            position: relative;
+            width: 100%;
+            margin-bottom: 14px;
+        }
+
+        .fav-dropdown__toggle {
+            width: 100%;
+            padding: 15px 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(241, 184, 45, .75);
+            background: linear-gradient(135deg, rgba(18, 44, 78, .95), rgba(10, 26, 50, .95));
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: .95rem;
+            font-weight: 900;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fav-dropdown__menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            display: none;
+            max-height: 260px;
+            overflow-y: auto;
+            padding: 8px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: #102642;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, .45);
+            z-index: 20;
+        }
+
+        .fav-dropdown.is-open .fav-dropdown__menu {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .fav-dropdown__option {
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-weight: 800;
+            cursor: pointer;
+            border: 0;
+            background: transparent;
+            text-align: left;
+        }
+
+        .fav-dropdown__option:hover {
+            background: rgba(241, 184, 45, .14);
+            color: var(--gysl-yellow, #f1b82d);
+        }
+
+        .fav-dropdown__option.is-disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .fav-dropdown.is-disabled {
+            opacity: .55;
+            pointer-events: none;
+        }
+
+        #btn-agregar-favorito {
+            width: 100%;
+            margin-top: 6px;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+        }
+
+        .fav-status {
+            padding: 22px 24px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .12);
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-weight: 800;
+        }
+
+        .fav-status--error {
+            color: var(--gysl-red, #d72626);
+            border-color: rgba(215, 38, 38, .35);
+        }
+
+        .fav-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 26px;
+        }
+
+        .fav-panel {
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, .11);
+            background:
+                radial-gradient(ellipse at 20% 15%, rgba(20, 52, 94, .28), transparent 60%),
+                rgba(8, 22, 45, .62);
+            padding: 22px;
+        }
+
+        .fav-panel__title {
+            margin: 0 0 16px;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1.05rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+        }
+
+        .fav-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .fav-card {
+            display: grid;
+            grid-template-columns: 64px 1fr auto;
+            gap: 14px;
+            align-items: center;
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background: rgba(255, 255, 255, .04);
+            transition: border-color .2s ease, transform .2s ease, background .2s ease;
+        }
+
+        .fav-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(241, 184, 45, .35);
+            background: rgba(241, 184, 45, .045);
+        }
+
+        .fav-card__shield {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .12);
+            padding: 7px;
+        }
+
+        .fav-card__fallback {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .12);
+            color: var(--gysl-yellow, #f1b82d);
+            font-weight: 900;
+            font-size: 1.3rem;
+        }
+
+        .fav-card__name {
+            margin: 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .fav-card__meta {
+            margin-top: 5px;
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: .82rem;
+            font-weight: 700;
+        }
+
+        .fav-card__actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .fav-btn {
+            border: 1px solid rgba(255, 255, 255, .18);
+            background: rgba(255, 255, 255, .06);
+            color: #fff;
+            border-radius: 10px;
+            padding: 9px 13px;
+            font-family: var(--font-primary);
+            font-weight: 900;
+            font-size: .78rem;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .fav-btn:hover {
+            border-color: var(--gysl-yellow, #f1b82d);
+            color: var(--gysl-yellow, #f1b82d);
+        }
+
+        .fav-btn--gold {
+            background: var(--gysl-yellow, #f1b82d);
+            color: var(--gysl-superdark, #060e1e);
+            border-color: var(--gysl-yellow, #f1b82d);
+        }
+
+        .fav-btn--gold:hover {
+            color: var(--gysl-superdark, #060e1e);
+            filter: brightness(1.04);
+        }
+
+        .fav-btn--danger {
+            color: #ff5f6d;
+            border-color: rgba(215, 38, 38, .32);
+        }
+
+        .fav-leagues {
+            grid-column: 1 / -1;
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .fav-leagues.is-open {
+            display: block;
+        }
+
+        .fav-league-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-weight: 800;
+        }
+
+        .fav-league-row+.fav-league-row {
+            border-top: 1px solid rgba(255, 255, 255, .06);
+        }
+
+        .fav-league-row strong {
+            color: #fff;
+        }
+
+        .fav-panel-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .fav-counter {
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: .78rem;
+            font-weight: 800;
+        }
+
+        .fav-search--panel {
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+        }
+
+        .fav-search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 460px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .fav-search-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .10);
+        }
+
+        .fav-team-mini {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .fav-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .12);
+            color: var(--gysl-yellow, #f1b82d);
+            font-weight: 900;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .fav-team-mini h3 {
+            margin: 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .fav-team-mini p {
+            margin: 4px 0 0;
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: .82rem;
+            font-weight: 700;
+        }
+
+        .fav-btn.is-disabled,
+        .fav-btn:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        @media (max-width: 900px) {
+            .fav-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .fav-hero__title {
+                font-size: 36px;
+            }
+
+            .fav-card {
+                grid-template-columns: 52px 1fr;
+            }
+
+            .fav-card__actions {
+                grid-column: 1 / -1;
+                justify-content: flex-start;
+            }
+
+            .fav-search {
+                width: 100%;
+                min-width: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main id="page-content">
+
+        <section class="fav-hero">
+            <div class="fav-hero__inner">
+                <span class="fav-hero__eyebrow">Mi cuenta GYSL</span>
+                <h1 class="fav-hero__title">Equipos favoritos</h1>
+                <p class="fav-hero__subtitle">
+                    Gestiona tus equipos favoritos y accede rápido a su competición, clasificación o resultados.
+                </p>
+            </div>
+        </section>
+
+        <div class="fav-divider"></div>
+
+        <section class="fav-section">
+            <div class="fav-section__wrap">
+
+                <div id="fav-loading" class="fav-status">
+                    Cargando equipos favoritos...
+                </div>
+
+                <div id="fav-error" class="fav-status fav-status--error" style="display:none;"></div>
+
+                <div id="fav-content" style="display:none;">
+                    <div class="fav-toolbar">
+                        <h2 class="fav-toolbar__title">Mis equipos</h2>
+                        <input type="text" class="fav-search" id="fav-search" placeholder="Buscar equipo...">
+                    </div>
+
+                    <div class="fav-layout">
+                        <div class="fav-panel">
+                            <h3 class="fav-panel__title">Equipos favoritos</h3>
+                            <div id="favoritos-empty" class="fav-status" style="display:none;">
+                                No tienes equipos favoritos configurados todavía.
+                            </div>
+                            <div class="fav-grid" id="favoritos-grid"></div>
+                        </div>
+
+                        <div class="fav-panel">
+                            <h3 class="fav-panel__title">Añadir favorito</h3>
+
+                            <div class="fav-dropdown" id="dropdown-liga">
+                                <button class="fav-dropdown__toggle" type="button" id="btn-dropdown-liga">
+                                    — Selecciona una liga en curso —
+                                    <span>⌄</span>
+                                </button>
+                                <div class="fav-dropdown__menu" id="menu-dropdown-liga"></div>
+                            </div>
+
+                            <div class="fav-dropdown is-disabled" id="dropdown-equipo">
+                                <button class="fav-dropdown__toggle" type="button" id="btn-dropdown-equipo" disabled>
+                                    — Selecciona primero una liga —
+                                    <span>⌄</span>
+                                </button>
+                                <div class="fav-dropdown__menu" id="menu-dropdown-equipo"></div>
+                            </div>
+
+                            <button class="fav-btn fav-btn--gold" type="button" id="btn-agregar-favorito" disabled>
+                                Añadir favorito
+                            </button>
+
+                            <div id="equipos-empty" class="fav-status" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            const loading = document.getElementById("fav-loading");
+            const errorBox = document.getElementById("fav-error");
+            const content = document.getElementById("fav-content");
+            const favoritosGrid = document.getElementById("favoritos-grid");
+            const favoritosEmpty = document.getElementById("favoritos-empty");
+            const equiposEmpty = document.getElementById("equipos-empty");
+            const searchInput = document.getElementById("fav-search");
+            const dropdownLiga = document.getElementById("dropdown-liga");
+            const btnDropdownLiga = document.getElementById("btn-dropdown-liga");
+            const menuDropdownLiga = document.getElementById("menu-dropdown-liga");
+
+            const dropdownEquipo = document.getElementById("dropdown-equipo");
+            const btnDropdownEquipo = document.getElementById("btn-dropdown-equipo");
+            const menuDropdownEquipo = document.getElementById("menu-dropdown-equipo");
+            const btnAgregarFavorito = document.getElementById("btn-agregar-favorito");
+
+            let equiposData = [];
+            let ligasData = [];
+            let favoritosData = [];
+            let ligaSeleccionada = null;
+            let equipoSeleccionado = null;
+
+            function texto(valor, fallback = "—") {
+                return String(valor ?? "").trim() || fallback;
+            }
+
+            function obtenerIdEquipo(equipo) {
+                return Number(equipo.id_equipo ?? equipo.id);
+            }
+
+            function obtenerIdsLigas(equipo) {
+                let ligas = equipo.ligas_ids || [];
+
+                if (typeof ligas === "string") {
+                    ligas = ligas.split(",").map(id => id.trim());
+                }
+
+                if (!Array.isArray(ligas)) return [];
+
+                return ligas.map(Number);
+            }
+
+            function obtenerInicial(nombre) {
+                return texto(nombre, "?").charAt(0).toUpperCase();
+            }
+
+            function obtenerEscudoHtml(equipo) {
+                const club = texto(equipo.club ?? equipo.nombre, "Equipo");
+                const escudo = equipo.escudo ? API + equipo.escudo : "";
+
+                if (!escudo) {
+                    return `<div class="fav-card__fallback">${obtenerInicial(club)}</div>`;
+                }
+
+                return `
+                    <img
+                        src="${escudo}"
+                        alt="${club}"
+                        class="fav-card__shield"
+                        onerror="this.outerHTML='<div class=&quot;fav-card__fallback&quot;>${obtenerInicial(club)}</div>'"
+                    >
+                `;
+            }
+
+            function obtenerLiga(idLiga) {
+                return ligasData.find(liga => Number(liga.id_liga ?? liga.id) === Number(idLiga));
+            }
+
+            function obtenerUrlLiga(liga) {
+                const idLiga = liga.id_liga ?? liga.id;
+                const formato = texto(liga.formato_liga, "JORNADAS").toUpperCase();
+
+                if (formato === "JORNADAS") {
+                    return `clasificacion.html?liga=${idLiga}&formato=${formato}`;
+                }
+
+                return `resultados.html?liga=${idLiga}&formato=${formato}`;
+            }
+
+            function esFavorito(idEquipo) {
+                return favoritosData.some(fav => Number(fav.id_equipo ?? fav.id) === Number(idEquipo));
+            }
+
+            function mostrarError(mensaje) {
+                loading.style.display = "none";
+                content.style.display = "none";
+                errorBox.textContent = mensaje;
+                errorBox.style.display = "block";
+            }
+
+            function mostrarContenido() {
+                loading.style.display = "none";
+                errorBox.style.display = "none";
+                content.style.display = "block";
+            }
+
+            function cardEquipo(equipo, favorito) {
+                const idEquipo = obtenerIdEquipo(equipo);
+                const club = texto(equipo.club ?? equipo.nombre, "Equipo sin nombre");
+                const categoria = texto(equipo.categoria, "Sin categoría");
+                const ligasEquipo = obtenerIdsLigas(equipo)
+                    .map(obtenerLiga)
+                    .filter(Boolean);
+
+                const ligasHtml = ligasEquipo.length
+                    ? ligasEquipo.map(liga => {
+                        const nombreLiga = texto(liga.nombre_liga ?? liga.nom ?? liga.nombre, "Liga");
+                        const formato = texto(liga.formato_liga, "JORNADAS").toUpperCase();
+                        const url = obtenerUrlLiga(liga);
+
+                        return `
+                            <div class="fav-league-row">
+                                <span>
+                                    <strong>${nombreLiga}</strong><br>
+                                    <small>${formato}</small>
+                                </span>
+                                <button class="fav-btn fav-btn--gold" type="button" onclick="window.location.href='${url}'">
+                                    Ir
+                                </button>
+                            </div>
+                        `;
+                    }).join("")
+                    : `<div class="fav-league-row"><span>Este equipo no tiene ligas asociadas.</span></div>`;
+
+                return `
+                    <article class="fav-card" data-equipo="${idEquipo}">
+                        ${obtenerEscudoHtml(equipo)}
+
+                        <div>
+                            <h3 class="fav-card__name">${club}</h3>
+                            <div class="fav-card__meta">${categoria}</div>
+                        </div>
+
+                        <div class="fav-card__actions">
+                            ${favorito
+                        ? `<button class="fav-btn" type="button" onclick="toggleLigas(${idEquipo})">Ligas ▾</button>
+                                   <button class="fav-btn fav-btn--danger" type="button" onclick="quitarFavorito(${idEquipo})">Quitar</button>`
+                        : `<button class="fav-btn fav-btn--gold" type="button" onclick="agregarFavorito(${idEquipo})">Añadir</button>`
+                    }
+                        </div>
+
+                        <div class="fav-leagues" id="ligas-equipo-${idEquipo}">
+                            ${ligasHtml}
+                        </div>
+                    </article>
+                `;
+            }
+
+            function cerrarDropdowns() {
+                dropdownLiga.classList.remove("is-open");
+                dropdownEquipo.classList.remove("is-open");
+            }
+
+            function cargarDropdownLigas() {
+                const ligasEnCurso = ligasData.filter(
+                    liga => String(liga.estado_liga || "").toUpperCase() === "EN_CURSO"
+                );
+
+                menuDropdownLiga.innerHTML = "";
+                ligaSeleccionada = null;
+                equipoSeleccionado = null;
+
+                btnDropdownLiga.innerHTML = `
+                    — Selecciona una liga en curso —
+                    <span>⌄</span>
+                `;
+
+                btnDropdownEquipo.innerHTML = `
+                    — Selecciona primero una liga —
+                    <span>⌄</span>
+                `;
+
+                btnDropdownEquipo.disabled = true;
+                btnAgregarFavorito.disabled = true;
+                dropdownEquipo.classList.add("is-disabled");
+
+                ligasEnCurso.forEach(liga => {
+                    const idLiga = Number(liga.id_liga);
+                    const nombre = texto(liga.nombre_liga);
+                    const categoria = texto(liga.categoria);
+
+                    const item = document.createElement("button");
+                    item.type = "button";
+                    item.className = "fav-dropdown__option";
+                    item.textContent = `${nombre} · ${categoria}`;
+
+                    item.addEventListener("click", function () {
+                        ligaSeleccionada = idLiga;
+
+                        btnDropdownLiga.innerHTML = `
+                ${nombre} · ${categoria}
+                        <span>⌄</span>
+                    `;
+
+                        cargarDropdownEquipos();
+                        cerrarDropdowns();
+                    });
+
+                    menuDropdownLiga.appendChild(item);
+                });
+            }
+
+            function cargarDropdownEquipos() {
+                menuDropdownEquipo.innerHTML = "";
+                equipoSeleccionado = null;
+                btnAgregarFavorito.disabled = true;
+
+                const idsFavoritos = favoritosData.map(f => Number(f.id_equipo));
+
+                const equiposLiga = equiposData.filter(equipo =>
+                    obtenerIdsLigas(equipo).includes(ligaSeleccionada)
+                );
+
+                if (!equiposLiga.length) {
+                    btnDropdownEquipo.innerHTML = `
+                    Sin equipos disponibles
+                    <span>⌄</span>
+                `;
+                    return;
+                }
+
+                dropdownEquipo.classList.remove("is-disabled");
+                btnDropdownEquipo.disabled = false;
+
+                btnDropdownEquipo.innerHTML = `
+                    — Selecciona un equipo —
+                    <span>⌄</span>
+                `;
+
+                equiposLiga.forEach(equipo => {
+                    const idEquipo = obtenerIdEquipo(equipo);
+                    const yaEsFavorito = idsFavoritos.includes(idEquipo);
+
+                    const item = document.createElement("button");
+                    item.type = "button";
+                    item.className = "fav-dropdown__option";
+                    item.textContent = `${texto(equipo.club)} · ${texto(equipo.categoria)}`;
+
+                    if (yaEsFavorito) {
+                        item.classList.add("is-disabled");
+                        item.disabled = true;
+                        item.textContent += " · ya añadido";
+                    } else {
+                        item.addEventListener("click", function () {
+                            equipoSeleccionado = idEquipo;
+
+                            btnDropdownEquipo.innerHTML = `
+                    ${texto(equipo.club)} · ${texto(equipo.categoria)}
+                    <span>⌄</span>
+                `;
+
+                            btnAgregarFavorito.disabled = false;
+                            cerrarDropdowns();
+                        });
+                    }
+
+                    menuDropdownEquipo.appendChild(item);
+                });
+            }
+
+            function renderFavoritos() {
+                const termino = searchInput.value.trim().toLowerCase();
+
+                const favoritosFiltrados = favoritosData.filter(equipo => {
+                    const club = texto(equipo.club ?? equipo.nombre, "").toLowerCase();
+                    const categoria = texto(equipo.categoria, "").toLowerCase();
+
+                    return !termino || club.includes(termino) || categoria.includes(termino);
+                });
+
+                favoritosGrid.innerHTML = "";
+
+                if (!favoritosFiltrados.length) {
+                    favoritosEmpty.style.display = "block";
+                    return;
+                }
+
+                favoritosEmpty.style.display = "none";
+
+                favoritosGrid.innerHTML = favoritosFiltrados
+                    .map(equipo => cardEquipo(equipo, true))
+                    .join("");
+            }
+
+            function render() {
+                renderFavoritos();
+                cargarDropdownLigas();
+                mostrarContenido();
+            }
+
+            window.toggleLigas = function (idEquipo) {
+                const box = document.getElementById("ligas-equipo-" + idEquipo);
+                if (!box) return;
+
+                box.classList.toggle("is-open");
+            };
+
+            window.agregarFavorito = async function (idEquipo) {
+                try {
+                    const res = await fetch(API + "/favoritos/equipos", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id_equipo: Number(idEquipo) })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || data.success === false) {
+                        throw new Error(data.message || "No se pudo añadir el favorito");
+                    }
+
+                    showToast("Equipo añadido a favoritos", "success");
+                    await cargarDatos();
+                } catch (error) {
+                    console.error("[Favoritos añadir]", error);
+                    showToast(error.message || "Error al añadir favorito", "error");
+                }
+            };
+
+            window.quitarFavorito = async function (idEquipo) {
+                try {
+                    const res = await fetch(API + "/favoritos/equipos", {
+                        method: "DELETE",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id_equipo: Number(idEquipo) })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || data.success === false) {
+                        throw new Error(data.message || "No se pudo quitar el favorito");
+                    }
+
+                    showToast("Equipo quitado de favoritos", "success");
+                    await cargarDatos();
+                } catch (error) {
+                    console.error("[Favoritos quitar]", error);
+                    showToast(error.message || "Error al quitar favorito", "error");
+                }
+            };
+
+            async function cargarDatos() {
+                try {
+                    const [resEquipos, resLigas, resFavoritos] = await Promise.all([
+                        fetch(API + "/equipos", { credentials: "include" }),
+                        fetch(API + "/ligas", { credentials: "include" }),
+                        fetch(API + "/favoritos/equipos", { credentials: "include" })
+                    ]);
+
+                    const dataEquipos = await resEquipos.json();
+                    const dataLigas = await resLigas.json();
+                    const dataFavoritos = await resFavoritos.json();
+
+                    if (!resEquipos.ok || dataEquipos.success === false) {
+                        throw new Error(dataEquipos.message || "Error al cargar equipos");
+                    }
+
+                    if (!resLigas.ok || dataLigas.success === false) {
+                        throw new Error(dataLigas.message || "Error al cargar ligas");
+                    }
+
+                    if (!resFavoritos.ok || dataFavoritos.success === false) {
+                        throw new Error(dataFavoritos.message || "Error al cargar favoritos");
+                    }
+
+                    equiposData = Array.isArray(dataEquipos) ? dataEquipos : (dataEquipos.data || []);
+                    ligasData = Array.isArray(dataLigas) ? dataLigas : (dataLigas.data || []);
+                    favoritosData = Array.isArray(dataFavoritos) ? dataFavoritos : (dataFavoritos.data || []);
+
+                    render();
+                } catch (error) {
+                    console.error("[Equipos favoritos]", error);
+                    mostrarError(error.message || "No se pudieron cargar los equipos favoritos.");
+                }
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener("input", renderFavoritos);
+            }
+
+            btnAgregarFavorito.addEventListener("click", function () {
+                const idEquipo = Number(selectEquipoFavorito.value);
+
+                if (!idEquipo) return;
+
+                agregarFavorito(idEquipo);
+            });
+
+            btnDropdownLiga.addEventListener("click", function () {
+                dropdownLiga.classList.toggle("is-open");
+                dropdownEquipo.classList.remove("is-open");
+            });
+
+            btnDropdownEquipo.addEventListener("click", function () {
+                if (btnDropdownEquipo.disabled) return;
+
+                dropdownEquipo.classList.toggle("is-open");
+                dropdownLiga.classList.remove("is-open");
+            });
+
+            document.addEventListener("click", function (e) {
+                if (!dropdownLiga.contains(e.target) && !dropdownEquipo.contains(e.target)) {
+                    cerrarDropdowns();
+                }
+            });
+
+            cargarDatos();
+
+        })();
+    </script>
+</body>
+
+</html>

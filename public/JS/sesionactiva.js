@@ -206,7 +206,7 @@
                 break;
 
             case "favoritos":
-                window.location.href = BASE_PATH + "/favoritos.html";
+                window.location.href = BASE_PATH + "/equiposFavoritos.html";
                 break;
 
             case "equipos":
