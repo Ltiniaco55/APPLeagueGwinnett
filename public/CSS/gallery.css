@@ -1,8 +1,3 @@
-/* ==========================================================
-   GYSL — gallery.css
-   Galería asimétrica controlada
-   ========================================================== */
-
 .gysl-gallery-hero {
     background:
         radial-gradient(ellipse at 25% 30%, rgba(20, 52, 94, .75), transparent 58%),
@@ -101,8 +96,6 @@
     box-shadow: 0 6px 25px rgba(241, 184, 45, .20);
 }
 
-/* Sections */
-
 .gysl-gallery-section {
     padding: 58px 0 16px;
     background: var(--gysl-superdark);
@@ -132,7 +125,6 @@
     line-height: 1.6;
 }
 
-/* Galería asimétrica controlada */
 
 .gysl-masonry {
     width: 90%;
@@ -186,8 +178,6 @@
     filter: saturate(1.05) contrast(1.02);
     transition: transform var(--gysl-transition), filter var(--gysl-transition);
 }
-
-/* Responsive */
 
 @media (max-width: 980px) {
     .gysl-gallery-shortcuts {

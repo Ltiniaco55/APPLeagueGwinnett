@@ -15,7 +15,6 @@
     <script src="./JS/adminNav.js" defer></script>
     <script src="./JS/toast.js" defer></script>
     <style>
-        /* Custom Select-like Dropdown for Checkboxes */
         .gysl-custom-select {
             position: relative;
             width: 100%;
@@ -67,14 +66,12 @@
             overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.12);
             background: var(--gysl-superdark, #0a1128);
-            /* fallback if var invalid */
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
             padding: 8px;
             border-radius: 8px;
             color: var(--gysl-white, #fff);
         }
 
-        /* Show the dropdown list when active */
         .gysl-custom-select.is-active .gysl-equipo-ligas {
             display: block;
             animation: fadeInDown 0.15s ease-out;
@@ -304,8 +301,6 @@
         </div>
 
     </div>
-
-    <!-- ═══ CREATE / EDIT FORM MODAL ═══ -->
     <div class="gysl-admin-form-overlay" id="equipo-form-overlay">
         <div class="gysl-admin-form-card">
             <h3 id="equipo-form-title">Nuevo Equipo</h3>
@@ -323,14 +318,12 @@
                 <div class="gysl-admin-form-group">
                     <label>Ligas disponibles</label>
                     <div class="gysl-custom-select" id="gysl-ligas-dropdown">
-                        <!-- Botón simulando dropdown -->
                         <div class="gysl-custom-select__box" onclick="toggleLigasDropdown()">
                             <span id="equipo-ligas-summary">Seleccionar ligas...</span>
                             <svg class="gysl-custom-select__icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                         </div>
-                        <!-- Lista oculta que se despliega -->
                         <div id="equipo-ligas-container" class="gysl-equipo-ligas">
                             <div style="font-size: 0.9rem; color: #888; padding: 10px;">Cargando ligas...</div>
                         </div>
@@ -369,7 +362,7 @@
             let equiposData = [];
             let ligasData = [];
 
-            let viewMode = 'list'; // 'list' | 'cards'
+            let viewMode = 'list';
 
             const tbody = document.getElementById("equipos-tbody");
             const tableWrapper = document.getElementById("equipos-table-wrapper");
@@ -388,9 +381,6 @@
                 window.location.href = "admin-jugadores.html?equipo=" + idEquipo;
             };
 
-            // No longer loading ligas as the Equipos model doesn't link to them.
-
-            /* ─── Fetch data ────────────────────────────────── */
             async function loadData() {
                 loading.style.display = "flex";
                 tableWrapper.style.display = "none";
@@ -398,7 +388,7 @@
                 empty.style.display = "none";
 
                 try {
-                    // Cargar ambas colecciones en paralelo
+
                     const [resEq, resLig] = await Promise.all([
                         fetch(API + "/equipos", { credentials: "include" }),
                         fetch(API + "/ligas", { credentials: "include" })
@@ -460,13 +450,11 @@
                 }
             };
 
-            // Exponer para onClick global en los custom select
             window.toggleLigasDropdown = function () {
                 const dropdown = document.getElementById("gysl-ligas-dropdown");
                 dropdown.classList.toggle("is-active");
             };
 
-            // Cerrar al clickear fuera
             document.addEventListener('click', function (e) {
                 const dropdown = document.getElementById("gysl-ligas-dropdown");
                 if (dropdown && !dropdown.contains(e.target)) {
@@ -499,7 +487,6 @@
                 updateLigasSummary();
             }
 
-            /* ─── Render ─────────────────────────────────────── */
             window.renderEquipos = function () {
                 const filterLiga = document.getElementById("filter-liga").value;
                 const filterSearch = document.getElementById("filter-search").value.toLowerCase();
@@ -536,7 +523,6 @@
                     const desc = e.descripcion ?? "—";
                     const imgUrl = e.escudo ? (API + e.escudo) : "./assets/img/placeholder.png";
 
-                    // Nombres de ligas
                     let ligasNombres = "—";
                     if (e.ligas_ids && e.ligas_ids.length > 0 && ligasData.length > 0) {
                         ligasNombres = e.ligas_ids.map(lid => {
@@ -586,7 +572,6 @@
                 cardsGrid.innerHTML = cards;
             }
 
-            /* ─── Form ───────────────────────────────────────── */
             window.openEquipoForm = function (equipo = null) {
                 const overlay = document.getElementById("equipo-form-overlay");
                 const title = document.getElementById("equipo-form-title");
@@ -619,7 +604,6 @@
 
                 document.getElementById("equipo-escudo").value = "";
 
-                // Cerrar dropdown por si quedó abierto anteriormente
                 document.getElementById("gysl-ligas-dropdown").classList.remove("is-active");
 
                 overlay.classList.add("is-open");
@@ -634,7 +618,6 @@
                 if (eq) openEquipoForm(eq);
             };
 
-            /* ─── Submit ─────────────────────────────────────── */
             window.submitEquipo = async function () {
                 const editId = document.getElementById("equipo-edit-id").value;
                 const chks = document.querySelectorAll(".gysl-liga-chk:checked");
@@ -669,7 +652,7 @@
                 try {
                     let res;
                     if (editId) {
-                        // PUT /equipos/{id}
+
                         res = await fetch(API + "/equipos/" + editId, {
                             method: "PUT",
                             credentials: "include",
@@ -677,7 +660,7 @@
                             body: JSON.stringify(body)
                         });
                     } else {
-                        // POST /equipos
+
                         res = await fetch(API + "/equipos", {
                             method: "POST",
                             credentials: "include",
@@ -719,7 +702,6 @@
                 }
             };
 
-            /* ─── Delete ─────────────────────────────────────── */
             window.deleteEquipo = async function (id) {
                 const confirmado = await showConfirm(
                     "Eliminar equipo",
@@ -750,7 +732,6 @@
                 }
             };
 
-            /* ─── Init ───────────────────────────────────────── */
             async function init() {
                 await loadData();
             }

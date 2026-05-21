@@ -1,9 +1,3 @@
-/**
- * ==========================================================
- * GYSL — gallery.js
- * Smooth scroll para navegación de secciones de galería
- * ==========================================================
- */
 (function () {
     "use strict";
 

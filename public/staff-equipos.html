@@ -16,7 +16,6 @@
 
     <script src="./JS/adminNav.js" defer></script>
     <style>
-        /* Custom Select-like Dropdown for Checkboxes */
         .gysl-custom-select {
             position: relative;
             width: 100%;
@@ -68,14 +67,12 @@
             overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.12);
             background: var(--gysl-superdark, #0a1128);
-            /* fallback if var invalid */
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
             padding: 8px;
             border-radius: 8px;
             color: var(--gysl-white, #fff);
         }
 
-        /* Show the dropdown list when active */
         .gysl-custom-select.is-active .gysl-equipo-ligas {
             display: block;
             animation: fadeInDown 0.15s ease-out;
@@ -244,7 +241,7 @@
                 <p class="gysl-admin__subtitle">Consulta de los equipos asignados</p>
             </div>
             <nav class="gysl-admin__breadcrumb">
-                <a href="home.html">Staff</a> / Equipos
+                <a href="home.html">Home</a> / Equipos
             </nav>
         </header>
 
@@ -311,7 +308,7 @@
             let equiposData = [];
             let ligasData = [];
 
-            let viewMode = 'list'; // 'list' | 'cards'
+            let viewMode = 'list';
 
             const tbody = document.getElementById("equipos-tbody");
             const tableWrapper = document.getElementById("equipos-table-wrapper");
@@ -327,12 +324,18 @@
             };
 
             window.goToJugadores = function (idEquipo) {
-                window.location.href = "admin-jugadores.html?equipo=" + idEquipo;
+                const filterLiga = document.getElementById("filter-liga").value;
+
+                const params = new URLSearchParams();
+                params.append("equipo", idEquipo);
+
+                if (filterLiga) {
+                    params.append("liga", filterLiga);
+                }
+
+                window.location.href = "staff-jugadores.html?" + params.toString();
             };
 
-            // No longer loading ligas as the Equipos model doesn't link to them.
-
-            /* ─── Fetch data ────────────────────────────────── */
             async function loadData() {
                 loading.style.display = "flex";
                 tableWrapper.style.display = "none";
@@ -347,7 +350,6 @@
                     const dataEq = await resEq.json();
                     equiposData = Array.isArray(dataEq) ? dataEq : (dataEq.data || []);
 
-                    // Obtener las ligas filtradas desde el endpoint
                     ligasData = dataEq.ligas_staff || [];
 
                 } catch (err) {
@@ -382,13 +384,11 @@
                 }
             }
 
-            // Exponer para onClick global en los custom select
             window.toggleLigasDropdown = function () {
                 const dropdown = document.getElementById("gysl-ligas-dropdown");
                 dropdown.classList.toggle("is-active");
             };
 
-            // Cerrar al clickear fuera
             document.addEventListener('click', function (e) {
                 const dropdown = document.getElementById("gysl-ligas-dropdown");
                 if (dropdown && !dropdown.contains(e.target)) {
@@ -418,7 +418,6 @@
                 }).join("");
             }
 
-            /* ─── Render ─────────────────────────────────────── */
             window.renderEquipos = function () {
                 const filterLiga = document.getElementById("filter-liga").value;
                 const filterSearch = document.getElementById("filter-search").value.toLowerCase();
@@ -455,7 +454,6 @@
                     const desc = e.descripcion ?? "—";
                     const imgUrl = e.escudo ? (API + e.escudo) : "./assets/img/placeholder.png";
 
-                    // Nombres de ligas
                     let ligasNombres = "—";
                     if (e.ligas_ids && e.ligas_ids.length > 0 && ligasData.length > 0) {
                         ligasNombres = e.ligas_ids.map(lid => {
@@ -492,7 +490,6 @@
             }
 
 
-            /* ─── Init ───────────────────────────────────────── */
             async function init() {
                 await loadData();
             }

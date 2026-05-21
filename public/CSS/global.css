@@ -1,49 +1,30 @@
-/* ==========================================================
-   GYSL — GLOBAL DESIGN TOKENS
-   Fuente: home.css (fonts) + layout.css (colors/layout)
-   ========================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
-
 
 :root {
 
-    /* ======================================================
-       🎨 COLOR SYSTEM (layout.css)
-       ====================================================== */
-
-    /* Brand blues */
     --gysl-superdark: #08162D;
     --gysl-dark: #0A2345;
     --gysl-blue: #0B2A4A;
     --gysl-light: #14345E;
     --gysl-superlight: #193B6A;
 
-    /* Accent */
     --gysl-red: #D72626;
     --gysl-red2: #C83432;
     --gysl-yellow: #F1B82D;
     --gysl-yellow2: #F5C400;
 
-    /* Neutral */
     --gysl-white: #FFFFFF;
     --gysl-text: #EAF1FF;
     --gysl-muted: #AFC1E6;
     --gysl-line: rgba(255, 255, 255, .10);
 
-    /* ======================================================
-       🔤 TYPOGRAPHY SYSTEM (home.css)
-       ====================================================== */
-
-    /* Font families */
     --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     --font-secondary: "Bebas Neue", sans-serif;
     --font-anton: "Anton", sans-serif;
     --font-oswald: "Oswald", sans-serif;
 
-    /* Alias global usado en layout */
     --gysl-font: var(--font-primary);
 
-    /* Font weights */
     --fw-light: 300;
     --fw-regular: 400;
     --fw-medium: 500;
@@ -51,12 +32,10 @@
     --fw-bold: 700;
     --fw-black: 900;
 
-    /* Font scale — hero */
     --fs-hero-title: 64px;
     --fs-hero-subtitle: 20px;
     --fs-hero-text: 15px;
 
-    /* Font scale — global */
     --fs-h1: 48px;
     --fs-h2: 36px;
     --fs-h3: 28px;
@@ -68,23 +47,15 @@
     --fs-body: 16px;
     --fs-body-sm: 14px;
 
-    /* Line height */
     --lh-tight: 1.1;
     --lh-normal: 1.5;
     --lh-relaxed: 1.7;
 
-    /* Letter spacing */
     --tracking-tight: -1px;
     --tracking-normal: 0;
     --tracking-wide: .5px;
 }
 
-/* ==========================================================
-   GYSL — SYSTEM MESSAGE CARD (GLOBAL)
-   Uso: cookies / codes / success / error / warning / info
-   ========================================================== */
-
-/* Overlay (modal-ish) */
 .gysl-msg-overlay {
     position: fixed;
     inset: 0;
@@ -102,32 +73,24 @@
     display: flex;
 }
 
-/* Card base */
 .gysl-msg-card {
-    /* themeable via CSS vars */
     --msg-accent: var(--gysl-yellow);
     --msg-accent-2: var(--gysl-yellow2);
     --msg-ink: var(--gysl-superdark);
-
     width: min(520px, 100%);
     border-radius: 16px;
     padding: 22px 22px 18px;
-
     color: var(--gysl-text);
     border: 1px solid rgba(255, 255, 255, .14);
-
     background:
         radial-gradient(ellipse at 20% 15%, rgba(25, 59, 106, .55) 0%, transparent 55%),
         radial-gradient(ellipse at 75% 70%, rgba(11, 42, 74, .55) 0%, transparent 60%),
         rgba(255, 255, 255, .06);
-
     box-shadow:
         0 20px 60px rgba(0, 0, 0, .55),
         inset 0 1px 0 rgba(255, 255, 255, .08);
-
     position: relative;
     overflow: hidden;
-
     animation: gyslMsgIn .22s ease-out;
 }
 
@@ -143,7 +106,6 @@
     }
 }
 
-/* Top accent bar */
 .gysl-msg-card::after {
     content: "";
     position: absolute;
@@ -161,7 +123,6 @@
     opacity: .9;
 }
 
-/* Shine sweep */
 .gysl-msg-card::before {
     content: "";
     position: absolute;
@@ -175,7 +136,6 @@
     pointer-events: none;
 }
 
-/* Close button */
 .gysl-msg-close {
     position: absolute;
     top: 12px;
@@ -199,14 +159,12 @@
     background: rgba(241, 184, 45, .10);
 }
 
-/* Header (icon + text) */
 .gysl-msg-head {
     display: grid;
     grid-template-columns: 54px 1fr;
     gap: 14px;
     align-items: center;
     padding-right: 40px;
-    /* space for close button */
 }
 
 .gysl-msg-icon {
@@ -261,7 +219,6 @@
     text-decoration: underline;
 }
 
-/* Actions */
 .gysl-msg-actions {
     display: flex;
     gap: 12px;
@@ -270,7 +227,6 @@
     margin-top: 16px;
 }
 
-/* Buttons */
 .gysl-msg-btn {
     height: 38px;
     padding: 0 16px;
@@ -285,7 +241,6 @@
     user-select: none;
 }
 
-/* Primary */
 .gysl-msg-btn.is-primary {
     background: var(--msg-accent);
     color: var(--msg-ink);
@@ -316,7 +271,6 @@
         0 2px 6px rgba(0, 0, 0, .30);
 }
 
-/* Secondary */
 .gysl-msg-btn.is-secondary {
     background: rgba(255, 255, 255, .06);
     color: var(--gysl-text);
@@ -336,10 +290,6 @@
     box-shadow: none;
 }
 
-/* ==========================================================
-   Variantes (solo cambian variables, no el layout)
-   ========================================================== */
-
 .gysl-msg-card.is-success {
     --msg-accent: var(--gysl-yellow);
     --msg-accent-2: var(--gysl-yellow2);
@@ -358,14 +308,12 @@
     --msg-ink: #fff;
 }
 
-/* “Info” más frío (azul claro) */
 .gysl-msg-card.is-info {
     --msg-accent: var(--gysl-superlight);
     --msg-accent-2: var(--gysl-light);
     --msg-ink: #fff;
 }
 
-/* Ajustes responsive */
 @media (max-width: 520px) {
     .gysl-msg-card {
         padding: 18px 16px 14px;
@@ -390,60 +338,39 @@
     }
 }
 
-
-/* ==========================================================
-   GYSL — ENTITY CARD (GLOBAL)
-   Uso: ligas, equipos, listados, dashboards
-   ========================================================== */
-
 .gysl-card {
-    /* tamaño más cuadrado */
     width: 240px;
     aspect-ratio: 1 / 1;
-
-    /* base visual GYSL */
     background:
         radial-gradient(ellipse at 25% 20%, rgba(20, 52, 94, .55), transparent 60%),
         radial-gradient(ellipse at 80% 70%, rgba(11, 42, 74, .55), transparent 60%),
         var(--gysl-superdark);
-
     border: 1px solid var(--gysl-line);
-
-    /* borde menos suave */
     border-radius: 6px;
-
-    /* estructura */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
     padding: 18px;
-
     text-align: center;
     color: var(--gysl-text);
     font-family: var(--font-primary);
     font-weight: var(--fw-bold);
-
     cursor: pointer;
     user-select: none;
-
-    /* sombras más serias */
     box-shadow:
         0 16px 40px rgba(0, 0, 0, .45),
         inset 0 1px 0 rgba(255, 255, 255, .06);
-
     transition:
         transform .22s ease,
         box-shadow .22s ease,
         border-color .22s ease,
         background .22s ease;
-
     position: relative;
     overflow: hidden;
 }
 
-/* top accent line GYSL */
 .gysl-card::after {
     content: "";
     position: absolute;
@@ -458,7 +385,6 @@
             transparent 100%);
 }
 
-/* hover */
 .gysl-card:hover {
     transform: translateY(-6px) scale(1.02);
     border-color: rgba(241, 184, 45, .45);
@@ -468,14 +394,9 @@
         0 0 0 1px rgba(241, 184, 45, .25);
 }
 
-/* click */
 .gysl-card:active {
     transform: translateY(0) scale(.98);
 }
-
-/* ==========================================================
-   CONTENIDO INTERNO (opcional pero útil)
-   ========================================================== */
 
 .gysl-card__icon {
     width: 64px;
@@ -498,7 +419,6 @@
     height: 34px;
 }
 
-/* título */
 .gysl-card__title {
     font-size: 1rem;
     font-weight: var(--fw-black);
@@ -506,7 +426,6 @@
     color: var(--gysl-white);
 }
 
-/* texto */
 .gysl-card__desc {
     font-size: .85rem;
     color: var(--gysl-muted);
@@ -514,7 +433,6 @@
     line-height: 1.5;
 }
 
-/* estado activo / seleccionado */
 .gysl-card.is-active {
     border-color: var(--gysl-yellow);
     box-shadow:
@@ -522,13 +440,11 @@
         0 24px 60px rgba(0, 0, 0, .55);
 }
 
-/* deshabilitado */
 .gysl-card.is-disabled {
     opacity: .45;
     pointer-events: none;
 }
 
-/* responsive */
 @media (max-width:600px) {
     .gysl-card {
         width: 100%;

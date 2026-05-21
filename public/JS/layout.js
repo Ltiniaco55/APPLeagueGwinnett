@@ -1,14 +1,3 @@
-/**
- * ═══════════════════════════════════════════════════════════
- *  GYSL — layout.js (UPDATED)
- *  Injects Header and Footer as direct children of <body>.
- *  - Header always first child of body
- *  - Footer always last child of body
- *  - Prevent duplicates if script runs twice
- *  - Burger toggle + active link + footer year + fav btn + user btn
- * ═══════════════════════════════════════════════════════════
- */
-
 (function () {
     'use strict';
 
@@ -16,8 +5,8 @@
     const HEADER_URL = BASE_PATH + '/layouts/header.html';
     const FOOTER_URL = BASE_PATH + '/layouts/footer.html';
 
-    const HEADER_MARKER_ID = 'gysl-header'; // must exist in header.html
-    const FOOTER_MARKER_ID = 'gysl-footer'; // must exist in footer.html
+    const HEADER_MARKER_ID = 'gysl-header';
+    const FOOTER_MARKER_ID = 'gysl-footer';
 
     async function fetchLayout(url) {
         try {
@@ -143,10 +132,9 @@
                 if (label) {
                     label.textContent = (data.data.nombre + ' ' + (data.data.apellido || '')).trim();
                 }
-                // Usuario autenticado: el botón ya no abre el modal de login
                 if (btn) btn.onclick = null;
             }
-        } catch (_) { /* sin sesión */ }
+        } catch (_) { }
     }
 
     async function init() {
@@ -168,7 +156,7 @@
         initFooterYear();
         initFavBtn();
         initUserBtn();
-        checkSession(); // Mostrar nombre si ya hay sesión activa
+        checkSession();
     }
 
     if (document.readyState === 'loading') {

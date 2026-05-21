@@ -6,8 +6,6 @@
     const BASE_PATH = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public";
     const LOGIN_URL = BASE_PATH + "/layouts/login.html";
 
-
-    /* ───────── fetch html ───────── */
     async function fetchHTML(url) {
         try {
             const res = await fetch(url);
@@ -19,14 +17,11 @@
         }
     }
 
-    /* ───────── trigger globally available ───────── */
     window.findLoginTrigger = function () {
         attemptOpenModal();
     };
 
     let isModalInjected = false;
-
-    // Lógica de sesión movida a sesionactiva.js
 
     function loadScript(src) {
         return new Promise((resolve, reject) => {
@@ -70,10 +65,8 @@
         const overlay = document.getElementById("login-modal-overlay");
         const wrapper = document.getElementById("login-wrapper");
 
-        // Reset states just in case
         if (wrapper) wrapper.classList.remove("right-panel-active");
 
-        // Reset forgot password flow
         document.getElementById("login-form") && (document.getElementById("login-form").style.display = "flex");
         document.getElementById("forgot-password-flow") && (document.getElementById("forgot-password-flow").style.display = "none");
         document.getElementById("forgot-step-1") && (document.getElementById("forgot-step-1").style.display = "flex");
@@ -86,7 +79,6 @@
     function closeModal() {
         const overlay = document.getElementById("login-modal-overlay");
 
-        // Si hay un registro pendiente de verificar, cancelarlo y borrar el usuario
         if (typeof window.cancelarRegistroPendiente === "function") {
             window.cancelarRegistroPendiente();
         }
@@ -94,14 +86,11 @@
         if (overlay) overlay.classList.remove("active");
     }
 
-
-    /* ───────── Wire Events for Modal ───────── */
     function wireEvents() {
         const overlay = document.getElementById("login-modal-overlay");
         const wrapper = document.getElementById("login-wrapper");
         const closeBtn = document.getElementById("login-close-btn");
 
-        // EVENT DELEGATION: Aseguramos que los clicks siempre reaccionen incluso tras inyectar HTML
         if (wrapper && !wrapper.dataset.animationWired) {
             wrapper.dataset.animationWired = "true";
 
@@ -120,7 +109,6 @@
             });
         }
 
-        // CLOSE
         if (closeBtn && !closeBtn.dataset.wired) {
             closeBtn.dataset.wired = "true";
             closeBtn.addEventListener("click", closeModal);
@@ -133,14 +121,9 @@
             });
         }
 
-        // INIT MODULARIZED LOGIC
-        // Initializamos el registro y la recuperación de clave
         if (window.initForgotPasswordFlow) window.initForgotPasswordFlow();
         if (window.initRegisterForm) window.initRegisterForm();
 
-        // ============================================
-        // FORMS SUBMISSION (Fetch real) -> LOGIN
-        // ============================================
         const loginForm = document.getElementById("login-form");
         if (loginForm && !loginForm.dataset.wired) {
             loginForm.dataset.wired = "true";
@@ -156,7 +139,7 @@
                     const res = await fetch(exactUrl, {
                         method: 'POST',
                         body: formData,
-                        credentials: 'include' // importante para sesión/cookies
+                        credentials: 'include'
                     });
 
                     const data = await res.json();
@@ -164,12 +147,10 @@
                     if (res.ok && data.success) {
                         loginForm.reset();
 
-                        // Actualizar el header con nombre + apellido llamando a la función global
                         if (data.data && typeof window.actualizarHeaderUsuario === 'function') {
                             window.actualizarHeaderUsuario(data.data);
                         }
 
-                        // Comprobar e inyectar nav de admin si corresponde
                         if (typeof window.checkAdminNav === 'function') {
                             window.checkAdminNav();
                         }
@@ -185,11 +166,8 @@
             });
         }
 
-        // La comprobación de sesión activa al montar el modal ya la hace sesionactiva.js
-        // comprobarSesionActiva();
     }
 
-    /* ───────── Global Password Toggle ───────── */
     document.addEventListener("click", (e) => {
         const btn = e.target.closest(".pwd-toggle-btn");
         if (!btn) return;
@@ -199,7 +177,6 @@
 
         if (!input) return;
 
-        // Toggle the type attribute
         input.type = input.type === "password" ? "text" : "password";
     });
 

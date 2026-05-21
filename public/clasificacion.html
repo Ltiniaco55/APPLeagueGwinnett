@@ -18,14 +18,9 @@
     <script src="./JS/toast.js" defer></script>
 
     <style>
-        /* ==========================================================
-           CLASIFICACION PAGE — Inline Styles
-           ========================================================== */
-
         :root {
             --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 
-            /* ───── FONT WEIGHTS ───── */
             --fw-light: 300;
             --fw-regular: 400;
             --fw-medium: 500;
@@ -33,10 +28,8 @@
             --fw-bold: 700;
             --fw-black: 900;
 
-            /* ───── HERO SCALE ───── */
             --fs-hero-title: 64px;
 
-            /* ───── GLOBAL SCALE ───── */
             --fs-h1: 48px;
             --fs-h2: 36px;
             --fs-h3: 28px;
@@ -45,17 +38,13 @@
             --fs-body: 16px;
             --fs-body-sm: 14px;
 
-            /* ───── LINE HEIGHT ───── */
             --lh-tight: 1.1;
             --lh-normal: 1.5;
             --lh-relaxed: 1.7;
 
-            /* ───── LETTER SPACING ───── */
             --tracking-tight: -1px;
             --tracking-wide: .5px;
         }
-
-        /* ── Hero ──────────────────────────────────────────────── */
 
         .clas-hero {
             padding: 32px 0 28px;
@@ -100,8 +89,6 @@
             line-height: var(--lh-relaxed);
         }
 
-        /* ── Divider ───────────────────────────────────────────── */
-
         .clas-divider {
             height: 3px;
             background: linear-gradient(90deg,
@@ -109,8 +96,6 @@
                     rgba(241, 184, 45, .85),
                     rgba(241, 184, 45, 0));
         }
-
-        /* ── Section ───────────────────────────────────────────── */
 
         .clas-section {
             padding: 34px 0 50px;
@@ -122,8 +107,6 @@
             max-width: 1200px;
             margin: 0 auto;
         }
-
-        /* ── Loading / Empty / Error ───────────────────────────── */
 
         .clas-status {
             padding: 22px 24px;
@@ -141,16 +124,12 @@
             color: var(--gysl-red, #D72626);
         }
 
-        /* ── Table wrapper (responsive) ────────────────────────── */
-
         .clas-table-wrap {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             border-radius: 6px;
             border: 1px solid var(--gysl-line, rgba(255, 255, 255, .10));
         }
-
-        /* ── Table ─────────────────────────────────────────────── */
 
         .clas-table {
             width: 100%;
@@ -183,7 +162,6 @@
             width: 44px;
         }
 
-        /* Equipo column left-aligned */
         .clas-table th:nth-child(2) {
             text-align: left;
         }
@@ -208,20 +186,16 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* ── Position number ───────────────────────────────────── */
-
         .clas-pos {
             font-weight: 800;
             font-size: .82rem;
             color: var(--gysl-muted, #AFC1E6);
         }
 
-        /* Gold highlight for 1st */
         .clas-pos--1 {
             color: var(--gysl-yellow, #F1B82D);
         }
 
-        /* 1st row subtle gold bg */
         .clas-table tbody tr.clas-row--1 {
             background: rgba(241, 184, 45, .06);
         }
@@ -229,8 +203,6 @@
         .clas-table tbody tr.clas-row--1:hover {
             background: rgba(241, 184, 45, .10);
         }
-
-        /* ── Team cell ─────────────────────────────────────────── */
 
         .clas-team {
             display: flex;
@@ -260,15 +232,11 @@
             font-weight: 500;
         }
 
-        /* ── PTS column highlight ──────────────────────────────── */
-
         .clas-pts {
             font-weight: 900;
             font-size: .95rem;
             color: var(--gysl-yellow, #F1B82D);
         }
-
-        /* ── DG positive / negative ────────────────────────────── */
 
         .clas-dg--pos {
             color: #2ECC71;
@@ -277,8 +245,6 @@
         .clas-dg--neg {
             color: var(--gysl-red, #D72626);
         }
-
-        /* ── Responsive ────────────────────────────────────────── */
 
         @media (max-width: 640px) {
             .clas-hero__title {
@@ -300,7 +266,6 @@
 
     <main id="page-content">
 
-        <!-- ═══ HERO ═══════════════════════════════════════════ -->
         <section class="clas-hero">
             <div class="clas-hero__inner">
                 <span class="clas-hero__eyebrow">Competición GYSL</span>
@@ -313,17 +278,13 @@
 
         <div class="clas-divider"></div>
 
-        <!-- ═══ TABLE SECTION ══════════════════════════════════ -->
         <section class="clas-section">
             <div class="clas-section__wrap">
 
-                <!-- Loading -->
                 <div id="clas-loading" class="clas-status">Cargando clasificación…</div>
 
-                <!-- Error / Empty -->
                 <div id="clas-empty" class="clas-status" style="display:none;"></div>
 
-                <!-- Table -->
                 <div id="clas-table-wrap" class="clas-table-wrap" style="display:none;">
                     <table class="clas-table" id="clas-table">
                         <thead>
@@ -349,7 +310,6 @@
 
     </main>
 
-    <!-- ═══ PAGE SCRIPT ════════════════════════════════════════ -->
     <script>
         (function () {
             "use strict";
@@ -373,8 +333,6 @@
             const elTbody = document.getElementById("clas-tbody");
             const elSubtitle = document.getElementById("clas-subtitle");
 
-            /* ── Helpers ──────────────────────────────────────── */
-
             function texto(valor, fallback) {
                 if (fallback === undefined) fallback = "—";
                 return String(valor ?? "").trim() || fallback;
@@ -384,8 +342,6 @@
                 const params = new URLSearchParams(window.location.search);
                 return params.get("liga");
             }
-
-            /* ── Render functions ─────────────────────────────── */
 
             function renderClasificacion(data) {
                 elLoading.style.display = "none";
@@ -398,7 +354,6 @@
                     return;
                 }
 
-                // Optional: update subtitle with first row's category or liga info
                 const firstCat = data[0].categoria;
                 if (firstCat) {
                     elSubtitle.textContent = "Tabla de posiciones — " + firstCat;
@@ -474,8 +429,6 @@
                 elEmpty.style.display = "";
             }
 
-            /* ── Data loading ─────────────────────────────────── */
-
             async function cargarClasificacion() {
                 const idLiga = getLigaId();
 
@@ -525,7 +478,6 @@
                 }
             }
 
-            /* ── Init ─────────────────────────────────────────── */
             cargarClasificacion();
         })();
     </script>

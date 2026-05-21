@@ -15,7 +15,6 @@
     <script src="./JS/adminNav.js" defer></script>
 
     <style>
-        /* ─── Tabs ──────────────────────────────── */
         .gysl-tabs {
             display: flex;
             gap: 4px;
@@ -53,7 +52,6 @@
             display: block;
         }
 
-        /* ─── Filters ───────────────────────────── */
         .gysl-filters {
             display: flex;
             gap: 12px;
@@ -100,7 +98,6 @@
             color: var(--gysl-white);
         }
 
-        /* ─── Alta Form ─────────────────────────── */
         .gysl-alta-card {
             background: radial-gradient(ellipse at 20% 15%, rgba(20, 52, 94, .35), transparent 60%), rgba(8, 22, 45, .5);
             border: 1px solid var(--gysl-line);
@@ -122,9 +119,6 @@
             gap: 14px;
         }
 
-
-
-        /* ─── Status badge ──────────────────────── */
         .gysl-badge {
             display: inline-flex;
             align-items: center;
@@ -155,8 +149,6 @@
             border: 1px solid rgba(215, 38, 38, 0.25);
         }
 
-
-        /* ─── Aviso coincidencia ────────────────── */
         .gysl-aviso-box {
             background: rgba(241, 184, 45, .08);
             border: 1px solid rgba(241, 184, 45, .25);
@@ -167,7 +159,6 @@
             color: var(--gysl-yellow);
         }
 
-        /* ─── Detail modal ──────────────────────── */
         .gysl-detail-grid {
             display: grid;
             grid-template-columns: 140px 1fr;
@@ -221,7 +212,6 @@
             font-weight: var(--fw-bold);
         }
 
-        /* ─── Pendiente info ────────────────────── */
         .gysl-revision-badge {
             display: inline-flex;
             align-items: center;
@@ -259,28 +249,25 @@
                 <p class="gysl-admin__subtitle">Alta, baja y seguimiento de jugadores de tus equipos</p>
             </div>
             <nav class="gysl-admin__breadcrumb">
-                <a href="home.html">Staff</a> / Jugadores
+                <a href="staff-equipos.html">Equipos</a> / Jugadores
             </nav>
         </header>
 
         <div class="gysl-admin__content">
 
-            <!-- ═══ TABS ═══ -->
+
             <div class="gysl-tabs" id="main-tabs">
                 <button class="gysl-tab is-active" data-tab="solicitar-alta" id="tab-alta">+ Solicitar Alta</button>
                 <button class="gysl-tab" data-tab="plantilla" id="tab-plantilla">Plantilla</button>
                 <button class="gysl-tab" data-tab="pendientes" id="tab-pendientes">Pendientes</button>
             </div>
 
-            <!-- ═══════════════════════════════════════════ -->
-            <!-- TAB 1: SOLICITAR ALTA                       -->
-            <!-- ═══════════════════════════════════════════ -->
             <div class="gysl-tab-panel is-active" id="panel-solicitar-alta">
 
                 <div class="gysl-alta-card" style="margin-bottom: 32px;">
                     <h3>Solicitar Alta Individual</h3>
 
-                    <!-- Selector de liga y equipo (filtrados al staff) -->
+
                     <div class="gysl-filters" style="margin-bottom: 20px;">
                         <div class="gysl-filter-group">
                             <label for="alta-liga">Liga <span style="color:var(--gysl-red);">*</span></label>
@@ -296,7 +283,7 @@
                         </div>
                     </div>
 
-                    <!-- Datos base del jugador -->
+
                     <div class="gysl-alta-form-grid">
                         <div class="gysl-admin-form-group">
                             <label for="alta-nombre">Nombre <span style="color:var(--gysl-red);">*</span></label>
@@ -313,7 +300,7 @@
                         </div>
                     </div>
 
-                    <!-- Archivos -->
+
                     <div class="gysl-alta-form-grid" style="margin-top: 16px;">
                         <div class="gysl-admin-form-group">
                             <label for="alta-foto">Foto jugador <span
@@ -329,7 +316,7 @@
                         </div>
                     </div>
 
-                    <!-- Datos de padres/tutor (visibles solo si menor de 18) -->
+
                     <div id="alta-padres-section" style="display:none; margin-top:20px;
                         padding:16px; border-radius:10px;
                         background:rgba(241,184,45,.06); border:1px solid rgba(241,184,45,.2);">
@@ -367,69 +354,53 @@
                 </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════ -->
-            <!-- TAB 2: PLANTILLA                            -->
-            <!-- ═══════════════════════════════════════════ -->
+
             <div class="gysl-tab-panel" id="panel-plantilla">
 
                 <div class="gysl-filters">
+                    <input type="hidden" id="plt-equipo">
+                    <input type="hidden" id="plt-liga">
+
                     <div class="gysl-filter-group">
-                        <label for="plt-equipo">Equipo</label>
-                        <select id="plt-equipo" onchange="cargarPlantilla()">
+                        <label for="plt-equipo-select">Filtrar por equipo</label>
+                        <select id="plt-equipo-select" onchange="onPlantillaEquipoChange()">
                             <option value="">— Todos mis equipos —</option>
                         </select>
                     </div>
-                    <div class="gysl-filter-group">
-                        <label for="plt-liga">Liga</label>
-                        <select id="plt-liga" onchange="cargarPlantilla()">
-                            <option value="">— Todas las ligas —</option>
-                        </select>
+
+                    <div id="plt-loading" class="gysl-admin-loading" style="display:none;">Cargando plantilla...</div>
+
+                    <div id="plt-empty" class="gysl-admin-empty" style="display:none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <p>No hay jugadores en tu plantilla</p>
                     </div>
-                    <div class="gysl-filter-group">
-                        <label for="plt-nombre">Buscar jugador</label>
-                        <input type="text" id="plt-nombre" placeholder="Nombre o apellido..."
-                            oninput="cargarPlantilla()">
-                    </div>
-                    <div class="gysl-filter-group">
-                        <label for="plt-categoria">Categoría</label>
-                        <select id="plt-categoria" onchange="cargarPlantilla()">
-                            <option value="">— Todas —</option>
-                        </select>
+
+                    <div class="gysl-admin-table-wrapper" id="plt-table-wrapper" style="display:none;">
+                        <table class="gysl-admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Dorsal</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Fecha Nac.</th>
+                                    <th>Foto</th>
+                                    <th>Equipo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plt-tbody"></tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div id="plt-loading" class="gysl-admin-loading" style="display:none;">Cargando plantilla...</div>
 
-                <div id="plt-empty" class="gysl-admin-empty" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    <p>No hay jugadores en tu plantilla</p>
-                </div>
-
-                <div class="gysl-admin-table-wrapper" id="plt-table-wrapper" style="display:none;">
-                    <table class="gysl-admin-table">
-                        <thead>
-                            <tr>
-                                <th>Dorsal</th>
-                                <th>Nombre</th>
-                                <th>Apellido</th>
-                                <th>Fecha Nac.</th>
-                                <th>Foto</th>
-                                <th>Equipo</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="plt-tbody"></tbody>
-                    </table>
-                </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════ -->
-            <!-- TAB 3: PENDIENTES                           -->
-            <!-- ═══════════════════════════════════════════ -->
+
             <div class="gysl-tab-panel" id="panel-pendientes">
 
                 <div id="pend-loading" class="gysl-admin-loading">Cargando pendientes...</div>
@@ -461,410 +432,396 @@
                     </table>
                 </div>
             </div>
-
         </div>
-    </div>
 
-    <!-- ═══ DETALLE MODAL ═══ -->
-    <div class="gysl-admin-form-overlay" id="detalle-overlay">
-        <div class="gysl-admin-form-card" style="width: min(560px, 95%);">
-            <h3 id="detalle-title">Ficha del Jugador</h3>
-            <div class="gysl-detail-grid" id="detalle-content"></div>
-            <div style="margin-top: 20px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;"
-                id="detalle-actions"></div>
-            <div class="gysl-admin-form-actions" style="margin-top: 16px;">
-                <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="cerrarDetalle()">Cerrar</button>
+
+        <div class="gysl-admin-form-overlay" id="detalle-overlay">
+            <div class="gysl-admin-form-card" style="width: min(560px, 95%);">
+                <h3 id="detalle-title">Ficha del Jugador</h3>
+                <div class="gysl-detail-grid" id="detalle-content"></div>
+                <div style="margin-top: 20px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;"
+                    id="detalle-actions"></div>
+                <div class="gysl-admin-form-actions" style="margin-top: 16px;">
+                    <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="cerrarDetalle()">Cerrar</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        (function () {
-            "use strict";
+        <script>
+            (function () {
+                "use strict";
 
-            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
-            const BASE_PATH = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public";
+                const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+                const BASE_PATH = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public";
 
-            // — Verificar acceso STAFF —
-            (async function checkAccess() {
-                const res = await fetch(API + "/auth/me", { credentials: "include" }).catch(() => null);
-                if (!res || !res.ok) { window.location.href = BASE_PATH + "/home.html"; return; }
-                const data = await res.json().catch(() => ({}));
+                async function checkAccess() {
+                    const res = await fetch(API + "/auth/me", {
+                        credentials: "include"
+                    }).catch(() => null);
 
-                usuarioActual = data?.data || null;
-                rolActual = String(usuarioActual?.rol || "").toUpperCase();
+                    if (!res || !res.ok) {
+                        window.location.href = BASE_PATH + "/home.html";
+                        return false;
+                    }
 
-                if (rolActual !== "STAFF" && rolActual !== "ADMIN") {
-                    // Devolver 404-like: redirigir a home con error
-                    document.body.innerHTML = `
-                        <div style="display:flex;align-items:center;justify-content:center;height:100vh;
-                            background:#0a1128;color:#fff;flex-direction:column;gap:16px;font-family:sans-serif;">
+                    const data = await res.json().catch(() => ({}));
+
+                    usuarioActual = data?.data || null;
+                    rolActual = String(usuarioActual?.rol || "").toUpperCase();
+
+                    if (rolActual !== "STAFF" && rolActual !== "ADMIN") {
+                        document.body.innerHTML = `
+                        <div style="
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            height:100vh;
+                            background:#0a1128;
+                            color:#fff;
+                            flex-direction:column;
+                            gap:16px;
+                            font-family:sans-serif;
+                        ">
                             <h1 style="font-size:80px;margin:0;opacity:.3">404</h1>
                             <p style="color:#a1a1aa;">Página no disponible</p>
-                            <a href="${BASE_PATH}/home.html" style="color:#f1b82d;">Volver al inicio</a>
-                        </div>`;
-                }
-            })();
+                            <a href="${BASE_PATH}/home.html" style="color:#f1b82d;">
+                                Volver al inicio
+                            </a>
+                        </div>
+                    `;
+                        return false;
+                    }
 
-            let allLigas = [];
-            let allEquipos = [];
-            let plantillaData = [];
-            let pendientesData = [];
-
-            let usuarioActual = null;
-            let rolActual = "";
-
-            function aplicarModoPorRol() {
-                const esAdmin = rolActual === "ADMIN";
-
-                const tabAlta = document.getElementById("tab-alta");
-                const tituloAlta = document.querySelector("#panel-solicitar-alta .gysl-alta-card h3");
-                const btnAlta = document.getElementById("btn-solicitar-alta");
-                const subtitle = document.querySelector(".gysl-admin__subtitle");
-
-                if (tabAlta) {
-                    tabAlta.textContent = esAdmin ? "+ Alta Jugador" : "+ Solicitar Alta";
+                    return true;
                 }
 
-                if (tituloAlta) {
-                    tituloAlta.textContent = esAdmin ? "Alta directa de jugador" : "Solicitar Alta Individual";
+                let allLigas = [];
+                let allEquipos = [];
+                let plantillaData = [];
+                let pendientesData = [];
+                let usuarioActual = null;
+                let rolActual = "";
+
+                function aplicarModoPorRol() {
+                    const esAdmin = rolActual === "ADMIN";
+
+                    const tabAlta = document.getElementById("tab-alta");
+                    const tituloAlta = document.querySelector("#panel-solicitar-alta .gysl-alta-card h3");
+                    const btnAlta = document.getElementById("btn-solicitar-alta");
+                    const subtitle = document.querySelector(".gysl-admin__subtitle");
+
+                    if (tabAlta) {
+                        tabAlta.textContent = esAdmin ? "+ Alta Jugador" : "+ Solicitar Alta";
+                    }
+
+                    if (tituloAlta) {
+                        tituloAlta.textContent = esAdmin ? "Alta directa de jugador" : "Solicitar Alta Individual";
+                    }
+
+                    if (btnAlta) {
+                        btnAlta.textContent = esAdmin ? "Dar de Alta" : "Solicitar Alta";
+                    }
+
+                    if (subtitle) {
+                        subtitle.textContent = esAdmin
+                            ? "Alta directa y seguimiento de jugadores de tus equipos"
+                            : "Alta, baja y seguimiento de jugadores de tus equipos";
+                    }
                 }
 
-                if (btnAlta) {
-                    btnAlta.textContent = esAdmin ? "Dar de Alta" : "Solicitar Alta";
-                }
 
-                if (subtitle) {
-                    subtitle.textContent = esAdmin
-                        ? "Alta directa y seguimiento de jugadores de tus equipos"
-                        : "Alta, baja y seguimiento de jugadores de tus equipos";
-                }
-            }
+                document.getElementById("main-tabs").addEventListener("click", (e) => {
+                    if (!e.target.classList.contains("gysl-tab")) return;
+                    const tabId = e.target.dataset.tab;
+                    document.querySelectorAll(".gysl-tab").forEach(t => t.classList.remove("is-active"));
+                    document.querySelectorAll(".gysl-tab-panel").forEach(p => p.classList.remove("is-active"));
+                    e.target.classList.add("is-active");
+                    document.getElementById("panel-" + tabId).classList.add("is-active");
 
-            // ─────────────────── TABS ─────────────────────
-            document.getElementById("main-tabs").addEventListener("click", (e) => {
-                if (!e.target.classList.contains("gysl-tab")) return;
-                const tabId = e.target.dataset.tab;
-                document.querySelectorAll(".gysl-tab").forEach(t => t.classList.remove("is-active"));
-                document.querySelectorAll(".gysl-tab-panel").forEach(p => p.classList.remove("is-active"));
-                e.target.classList.add("is-active");
-                document.getElementById("panel-" + tabId).classList.add("is-active");
+                    if (tabId === "plantilla") cargarPlantilla();
+                    if (tabId === "pendientes") cargarPendientes();
+                });
 
-                if (tabId === "plantilla") cargarPlantilla();
-                if (tabId === "pendientes") cargarPendientes();
-            });
 
-            // ─────────────────── LOAD GLOBALS ─────────────
-            async function loadGlobalData() {
-                try {
-                    const [equiposRes] = await Promise.all([
-                        fetch(API + "/staff/equipos", { credentials: "include" })
-                    ]);
-                    const equiposJson = await equiposRes.json();
-                    allEquipos = Array.isArray(equiposJson) ? equiposJson : (equiposJson.data || []);
+                async function loadGlobalData() {
+                    try {
+                        const [equiposRes] = await Promise.all([
+                            fetch(API + "/staff/equipos", { credentials: "include" })
+                        ]);
+                        const equiposJson = await equiposRes.json();
+                        allEquipos = Array.isArray(equiposJson) ? equiposJson : (equiposJson.data || []);
 
-                    // Derivar ligas únicas de los propios equipos del staff
-                    const ligasMap = {};
-                    allEquipos.forEach(e => {
-                        (e.ligas || []).forEach(l => {
-                            if (l && l.id_liga) ligasMap[l.id_liga] = l;
-                        });
-                        // Compatibilidad: si el equipo trae ligas_ids + nombre_liga
-                        if (e.ligas_ids && e.nombre_liga) {
-                            e.ligas_ids.forEach((id, i) => {
-                                if (!ligasMap[id]) {
-                                    ligasMap[id] = { id_liga: id, nombre_liga: Array.isArray(e.nombre_liga) ? e.nombre_liga[i] : e.nombre_liga, categoria: e.categoria || '' };
-                                }
+
+                        const ligasMap = {};
+                        allEquipos.forEach(e => {
+                            (e.ligas || []).forEach(l => {
+                                if (l && l.id_liga) ligasMap[l.id_liga] = l;
                             });
+
+                            if (e.ligas_ids && e.nombre_liga) {
+                                e.ligas_ids.forEach((id, i) => {
+                                    if (!ligasMap[id]) {
+                                        ligasMap[id] = { id_liga: id, nombre_liga: Array.isArray(e.nombre_liga) ? e.nombre_liga[i] : e.nombre_liga, categoria: e.categoria || '' };
+                                    }
+                                });
+                            }
+                        });
+                        allLigas = Object.values(ligasMap);
+
+                        if (allLigas.length === 0) {
+                            console.warn("Los equipos del staff no traen ligas asociadas. Revisa /staff/equipos.");
                         }
-                    });
-                    allLigas = Object.values(ligasMap);
-
-                    // Si allLigas vacío, cargar global (fallback)
-                    if (allLigas.length === 0) {
-                        const ligasRes = await fetch(API + "/ligas", { credentials: "include" });
-                        const ligasJson = await ligasRes.json();
-                        allLigas = Array.isArray(ligasJson) ? ligasJson : (ligasJson.data || []);
+                    } catch (err) {
+                        console.error("Error cargando datos globales:", err);
                     }
-                } catch (err) {
-                    console.error("Error cargando datos globales:", err);
+                    populateAllDropdowns();
                 }
-                populateAllDropdowns();
-            }
 
-            function populateAllDropdowns() {
-                // Ligas en alta individual
-                populateLigaSelect(document.getElementById("alta-liga"));
+                function populateAllDropdowns() {
+                    populateLigaSelect(document.getElementById("alta-liga"));
+                    populatePlantillaEquipos();
+                }
 
-                // TODO BORRAR — ALTA MASIVA DESACTIVADA
-                // // Ligas en lote
-                // populateLigaSelect(document.getElementById("lote-liga"));
+                function populateLigaSelect(sel) {
+                    const cur = sel.value;
+                    sel.innerHTML = '<option value="">— Seleccionar liga —</option>';
 
-                // Plantilla: equipos del staff
-                populateEquiposPlt();
-
-                // Categorías únicas de los equipos del staff
-                populateCategorias();
-            }
-
-            function populateLigaSelect(sel) {
-                const cur = sel.value;
-                sel.innerHTML = '<option value="">— Seleccionar liga —</option>';
-                // Solo ligas de los equipos del staff
-                allLigas.forEach(l => {
-                    const id = l.id_liga ?? l.id;
-                    const nom = l.nombre_liga ?? l.nombre ?? 'Sin nombre';
-                    const cat = l.categoria ?? '';
-                    sel.innerHTML += `<option value="${id}">${nom}${cat ? ' (' + cat + ')' : ''}</option>`;
-                });
-                if (cur) sel.value = cur;
-            }
-
-            function populateEquipoSelect(sel, id_liga) {
-                const cur = sel.value;
-                sel.innerHTML = '<option value="">— Seleccionar equipo —</option>';
-                if (!id_liga) return;
-                const lid = parseInt(id_liga, 10);
-                // Solo equipos del staff que participen en esa liga
-                allEquipos
-                    .filter(e => {
-                        const ids = (e.ligas_ids || []).map(Number);
-                        const objIds = (e.ligas || []).map(l => Number(l.id_liga));
-                        return ids.includes(lid) || objIds.includes(lid);
-                    })
-                    .forEach(e => {
-                        const id = e.id_equipo ?? e.id;
-                        const nom = e.club ?? e.nombre ?? 'Sin nombre';
-                        sel.innerHTML += `<option value="${id}">${nom}</option>`;
+                    allLigas.forEach(l => {
+                        const id = l.id_liga ?? l.id;
+                        const nom = l.nombre_liga ?? l.nombre ?? 'Sin nombre';
+                        const cat = l.categoria ?? '';
+                        sel.innerHTML += `<option value="${id}">${nom}${cat ? ' (' + cat + ')' : ''}</option>`;
                     });
-                if (cur) sel.value = cur;
-            }
-
-            function populateEquiposPlt() {
-                const sel = document.getElementById("plt-equipo");
-                sel.innerHTML = '<option value="">— Todos mis equipos —</option>';
-                allEquipos.forEach(e => {
-                    const id = e.id_equipo ?? e.id;
-                    const nom = e.club ?? e.nombre ?? "Sin nombre";
-                    sel.innerHTML += `<option value="${id}">${nom}</option>`;
-                });
-
-                // Ligas
-                const selLiga = document.getElementById("plt-liga");
-                selLiga.innerHTML = '<option value="">— Todas las ligas —</option>';
-                allLigas.forEach(l => {
-                    const id = l.id_liga ?? l.id;
-                    const nom = l.nombre_liga ?? l.nombre ?? "Sin nombre";
-                    selLiga.innerHTML += `<option value="${id}">${nom}</option>`;
-                });
-            }
-
-            function populateCategorias() {
-                const cats = [...new Set(allEquipos.map(e => e.categoria).filter(Boolean))].sort();
-                const sel = document.getElementById("plt-categoria");
-                sel.innerHTML = '<option value="">— Todas —</option>';
-                cats.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
-            }
-
-            window.onAltaLigaChange = function () {
-                populateEquipoSelect(document.getElementById("alta-equipo"), document.getElementById("alta-liga").value);
-            };
-
-            // ─────────────────── CAMBIO FECHA (menor/mayor) ───
-            window.onAltaFechaChange = function () {
-                const fechaVal = document.getElementById('alta-fecha').value;
-                if (!fechaVal) return;
-                const hoy = new Date();
-                const nac = new Date(fechaVal);
-                let edad = hoy.getFullYear() - nac.getFullYear();
-                const m = hoy.getMonth() - nac.getMonth();
-                if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
-                const seccion = document.getElementById('alta-padres-section');
-                seccion.style.display = (edad < 18) ? 'block' : 'none';
-            };
-
-            // ─────────────────── TAB 1: ALTA INDIVIDUAL ───
-            window.enviarAltaIndividual = async function () {
-                const id_liga = document.getElementById('alta-liga').value;
-                const id_equipo = document.getElementById('alta-equipo').value;
-                const nombre = document.getElementById('alta-nombre').value.trim();
-                const apellido = document.getElementById('alta-apellido').value.trim();
-                const fecha = document.getElementById('alta-fecha').value;
-                const fotoFile = document.getElementById('alta-foto').files[0];
-                const docFile = document.getElementById('alta-documento').files[0];
-
-                if (!id_liga || !id_equipo || !nombre || !apellido || !fecha) {
-                    showToast('Por favor rellena todos los campos obligatorios', 'error'); return;
-                }
-                if (!docFile) {
-                    showToast('El documento de identidad es obligatorio', 'error'); return;
+                    if (cur) sel.value = cur;
                 }
 
-                // Validar si menor y faltan datos de padres
-                const hoy = new Date();
-                const nac = new Date(fecha);
-                let edad = hoy.getFullYear() - nac.getFullYear();
-                const mo = hoy.getMonth() - nac.getMonth();
-                if (mo < 0 || (mo === 0 && hoy.getDate() < nac.getDate())) edad--;
-                const esmenor = edad < 18;
+                function populateEquipoSelect(sel, id_liga) {
+                    const cur = sel.value;
+                    sel.innerHTML = '<option value="">— Seleccionar equipo —</option>';
+                    if (!id_liga) return;
+                    const lid = parseInt(id_liga, 10);
 
-                if (esmenor) {
-                    const np = document.getElementById('alta-nombres-padres').value.trim();
-                    const ep = document.getElementById('alta-email-padres').value.trim();
-                    const tp = document.getElementById('alta-telefono-padres').value.trim();
-                    if (!np || !ep || !tp) {
-                        showToast('Jugador menor de 18: completa los datos del tutor', 'error'); return;
+                    allEquipos
+                        .filter(e => {
+                            const ids = (e.ligas_ids || []).map(Number);
+                            const objIds = (e.ligas || []).map(l => Number(l.id_liga));
+                            return ids.includes(lid) || objIds.includes(lid);
+                        })
+                        .forEach(e => {
+                            const id = e.id_equipo ?? e.id;
+                            const nom = e.club ?? e.nombre ?? 'Sin nombre';
+                            sel.innerHTML += `<option value="${id}">${nom}</option>`;
+                        });
+                    if (cur) sel.value = cur;
+                }
+
+                window.onAltaLigaChange = function () {
+                    populateEquipoSelect(document.getElementById("alta-equipo"), document.getElementById("alta-liga").value);
+                };
+
+
+                window.onAltaFechaChange = function () {
+                    const fechaVal = document.getElementById('alta-fecha').value;
+                    if (!fechaVal) return;
+                    const hoy = new Date();
+                    const nac = new Date(fechaVal);
+                    let edad = hoy.getFullYear() - nac.getFullYear();
+                    const m = hoy.getMonth() - nac.getMonth();
+                    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+                    const seccion = document.getElementById('alta-padres-section');
+                    seccion.style.display = (edad < 18) ? 'block' : 'none';
+                };
+
+
+                window.enviarAltaIndividual = async function () {
+                    const id_liga = document.getElementById('alta-liga').value;
+                    const id_equipo = document.getElementById('alta-equipo').value;
+                    const nombre = document.getElementById('alta-nombre').value.trim();
+                    const apellido = document.getElementById('alta-apellido').value.trim();
+                    const fecha = document.getElementById('alta-fecha').value;
+                    const fotoFile = document.getElementById('alta-foto').files[0];
+                    const docFile = document.getElementById('alta-documento').files[0];
+
+                    if (!id_liga || !id_equipo || !nombre || !apellido || !fecha) {
+                        showToast('Por favor rellena todos los campos obligatorios', 'error'); return;
                     }
-                }
+                    if (!docFile) {
+                        showToast('El documento de identidad es obligatorio', 'error'); return;
+                    }
 
-                document.getElementById('alta-aviso').style.display = 'none';
-                document.getElementById('btn-solicitar-alta').disabled = true;
-                document.getElementById('btn-solicitar-alta').textContent =
-                    rolActual === "ADMIN" ? "Procesando..." : "Enviando...";
 
-                try {
-                    const fd = new FormData();
-                    fd.append('id_liga', id_liga);
-                    fd.append('id_equipo', id_equipo);
-                    fd.append('nombre', nombre);
-                    fd.append('apellido', apellido);
-                    fd.append('fecha_nacimiento', fecha);
-                    fd.append('documento_identidad', docFile);
-                    if (fotoFile) fd.append('foto', fotoFile);
+                    const hoy = new Date();
+                    const nac = new Date(fecha);
+                    let edad = hoy.getFullYear() - nac.getFullYear();
+                    const mo = hoy.getMonth() - nac.getMonth();
+                    if (mo < 0 || (mo === 0 && hoy.getDate() < nac.getDate())) edad--;
+                    const esmenor = edad < 18;
+
                     if (esmenor) {
-                        fd.append('nombres_padres', document.getElementById('alta-nombres-padres').value.trim());
-                        fd.append('email_padres', document.getElementById('alta-email-padres').value.trim());
-                        fd.append('telefono_padres', document.getElementById('alta-telefono-padres').value.trim());
-                    }
-
-                    const endpointAlta = rolActual === "ADMIN"
-                        ? "/admin/jugadores/alta-directa"
-                        : "/staff/jugadores/alta";
-
-                    const res = await fetch(API + endpointAlta, {
-                        method: 'POST',
-                        credentials: 'include',
-                        body: fd
-                    });
-                    const data = await res.json();
-
-                    if (res.ok && data.success) {
-                        showToast(
-                            data.message || (rolActual === "ADMIN"
-                                ? "Jugador dado de alta correctamente"
-                                : "Solicitud enviada correctamente"),
-                            "success"
-                        );
-                        // Limpiar formulario
-                        ['alta-nombre', 'alta-apellido', 'alta-fecha',
-                            'alta-nombres-padres', 'alta-email-padres', 'alta-telefono-padres'
-                        ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-                        document.getElementById('alta-foto').value = '';
-                        document.getElementById('alta-documento').value = '';
-                        document.getElementById('alta-padres-section').style.display = 'none';
-
-                        if (data.avisos && data.avisos.length > 0) {
-                            const html = data.avisos.map(a =>
-                                `<strong>${a.nombre} ${a.apellido}</strong> ya está en otro equipo`
-                            ).join('<br>');
-                            const box = document.getElementById('alta-aviso');
-                            box.innerHTML = '⚠ ' + (data.aviso_msg || '') + '<br>' + html;
-                            box.style.display = 'block';
+                        const np = document.getElementById('alta-nombres-padres').value.trim();
+                        const ep = document.getElementById('alta-email-padres').value.trim();
+                        const tp = document.getElementById('alta-telefono-padres').value.trim();
+                        if (!np || !ep || !tp) {
+                            showToast('Jugador menor de 18: completa los datos del tutor', 'error'); return;
                         }
-                    } else {
-                        showToast(data.message || 'Error al enviar la solicitud', 'error');
                     }
-                } catch (err) {
-                    showToast('Error de conexión', 'error');
-                } finally {
-                    document.getElementById('btn-solicitar-alta').disabled = false;
+
+                    document.getElementById('alta-aviso').style.display = 'none';
+                    document.getElementById('btn-solicitar-alta').disabled = true;
                     document.getElementById('btn-solicitar-alta').textContent =
-                        rolActual === "ADMIN" ? "Dar de Alta" : "Solicitar Alta";
-                }
-            };
+                        rolActual === "ADMIN" ? "Procesando..." : "Enviando...";
 
-            // ─────────────────── TAB 2: PLANTILLA ─────────
-            window.cargarPlantilla = async function () {
-                const id_equipo = document.getElementById("plt-equipo").value;
-                const id_liga = document.getElementById("plt-liga").value;
-                const nombre = document.getElementById("plt-nombre").value.trim();
-                const categoria = document.getElementById("plt-categoria").value;
+                    try {
+                        const fd = new FormData();
+                        fd.append('id_liga', id_liga);
+                        fd.append('id_equipo', id_equipo);
+                        fd.append('nombre', nombre);
+                        fd.append('apellido', apellido);
+                        fd.append('fecha_nacimiento', fecha);
+                        fd.append('documento_identidad', docFile);
+                        if (fotoFile) fd.append('foto', fotoFile);
+                        if (esmenor) {
+                            fd.append('nombres_padres', document.getElementById('alta-nombres-padres').value.trim());
+                            fd.append('email_padres', document.getElementById('alta-email-padres').value.trim());
+                            fd.append('telefono_padres', document.getElementById('alta-telefono-padres').value.trim());
+                        }
 
-                const pltLoading = document.getElementById("plt-loading");
-                const pltEmpty = document.getElementById("plt-empty");
-                const pltTable = document.getElementById("plt-table-wrapper");
+                        const endpointAlta = rolActual === "ADMIN"
+                            ? "/admin/jugadores/alta-directa"
+                            : "/staff/jugadores/alta";
 
-                pltLoading.style.display = "flex";
-                pltEmpty.style.display = "none";
-                pltTable.style.display = "none";
+                        const res = await fetch(API + endpointAlta, {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: fd
+                        });
+                        const data = await res.json();
 
-                const params = new URLSearchParams();
-                if (id_equipo) params.append("id_equipo", id_equipo);
-                if (id_liga) params.append("id_liga", id_liga);
-                if (nombre) params.append("nombre", nombre);
-                if (categoria) params.append("categoria", categoria);
+                        if (res.ok && data.success) {
+                            showToast(
+                                data.message || (rolActual === "ADMIN"
+                                    ? "Jugador dado de alta correctamente"
+                                    : "Solicitud enviada correctamente"),
+                                "success"
+                            );
 
-                try {
-                    const res = await fetch(API + "/staff/jugadores/plantilla?" + params.toString(), { credentials: "include" });
-                    const data = await res.json();
-                    plantillaData = data.data || [];
-                } catch (err) {
-                    console.error("Error plantilla:", err);
-                    plantillaData = [];
-                }
+                            ['alta-nombre', 'alta-apellido', 'alta-fecha',
+                                'alta-nombres-padres', 'alta-email-padres', 'alta-telefono-padres'
+                            ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+                            document.getElementById('alta-foto').value = '';
+                            document.getElementById('alta-documento').value = '';
+                            document.getElementById('alta-padres-section').style.display = 'none';
 
-                pltLoading.style.display = "none";
+                            if (data.avisos && data.avisos.length > 0) {
+                                const html = data.avisos.map(a =>
+                                    `<strong>${a.nombre} ${a.apellido}</strong> ya está en otro equipo`
+                                ).join('<br>');
+                                const box = document.getElementById('alta-aviso');
+                                box.innerHTML = '⚠ ' + (data.aviso_msg || '') + '<br>' + html;
+                                box.style.display = 'block';
+                            }
+                        } else {
+                            showToast(data.message || 'Error al enviar la solicitud', 'error');
+                        }
+                    } catch (err) {
+                        showToast('Error de conexión', 'error');
+                    } finally {
+                        document.getElementById('btn-solicitar-alta').disabled = false;
+                        document.getElementById('btn-solicitar-alta').textContent =
+                            rolActual === "ADMIN" ? "Dar de Alta" : "Solicitar Alta";
+                    }
+                };
 
-                if (plantillaData.length === 0) {
-                    pltEmpty.style.display = "flex";
-                    return;
-                }
 
-                pltTable.style.display = "block";
-                renderPlantilla();
-            };
+                window.cargarPlantilla = async function () {
+                    const id_equipo = document.getElementById("plt-equipo").value;
 
-            function renderPlantilla() {
-                const tbody = document.getElementById("plt-tbody");
-                tbody.innerHTML = plantillaData.map(j => {
-                    const dorsal = j.dorsal ?? "—";
-                    const foto = j.foto_path ? (API + j.foto_path) : null;
-                    const esPendiente = j.estado === "PENDIENTE";
-                    const accion = j.accion_solicitada || null;
+                    const pltLoading = document.getElementById("plt-loading");
+                    const pltEmpty = document.getElementById("plt-empty");
+                    const pltTable = document.getElementById("plt-table-wrapper");
 
-                    let estadoBadge;
-                    if (esPendiente && accion === "ALTA") {
-                        estadoBadge = `<span class="gysl-badge gysl-badge--pendiente">⏳ Pendiente Alta</span>`;
-                    } else if (esPendiente && accion === "BAJA") {
-                        estadoBadge = `<span class="gysl-badge gysl-badge--baja">⏳ Pendiente Baja</span>`;
-                    } else {
-                        estadoBadge = `<span class="gysl-badge gysl-badge--alta">✓ Activo</span>`;
+                    pltLoading.style.display = "flex";
+                    pltEmpty.style.display = "none";
+                    pltTable.style.display = "none";
+
+                    try {
+                        let endpoint = API + "/staff/jugadores/plantilla";
+
+                        if (id_equipo) {
+                            endpoint += "?id_equipo=" + encodeURIComponent(id_equipo);
+                        }
+
+                        const res = await fetch(endpoint, {
+                            credentials: "include"
+                        });
+
+                        const data = await res.json();
+                        const jugadores = data.data || [];
+
+                        plantillaData = id_equipo
+                            ? jugadores.filter(j =>
+                                String(j.id_equipo ?? j.equipo_id ?? "") === String(id_equipo)
+                            )
+                            : jugadores;
+
+                    } catch (err) {
+                        console.error("Error plantilla:", err);
+                        plantillaData = [];
                     }
 
-                    const fotoHtml = foto
-                        ? `<img src="${foto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
-                        : `<span style="color:var(--gysl-muted);font-size:12px;">Sin foto</span>`;
+                    pltLoading.style.display = "none";
 
-                    let acciones = `<button class="gysl-admin-btn gysl-admin-btn--secondary" style="font-size:12px;padding:5px 10px;"
+                    if (!plantillaData.length) {
+                        pltEmpty.style.display = "flex";
+                        pltEmpty.querySelector("p").textContent = "No hay jugadores disponibles";
+                        return;
+                    }
+
+                    pltTable.style.display = "block";
+                    renderPlantilla();
+                };
+
+                function renderPlantilla() {
+                    const tbody = document.getElementById("plt-tbody");
+                    tbody.innerHTML = plantillaData.map(j => {
+                        const dorsal = j.dorsal ?? "—";
+                        const foto = j.foto_path ? (API + j.foto_path) : null;
+                        const esPendiente = j.estado === "PENDIENTE";
+                        const accion = j.accion_solicitada || null;
+
+                        let estadoBadge;
+                        if (esPendiente && accion === "ALTA") {
+                            estadoBadge = `<span class="gysl-badge gysl-badge--pendiente">⏳ Pendiente Alta</span>`;
+                        } else if (esPendiente && accion === "BAJA") {
+                            estadoBadge = `<span class="gysl-badge gysl-badge--baja">⏳ Pendiente Baja</span>`;
+                        } else {
+                            estadoBadge = `<span class="gysl-badge gysl-badge--alta">✓ Activo</span>`;
+                        }
+
+                        const fotoHtml = foto
+                            ? `<img src="${foto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
+                            : `<span style="color:var(--gysl-muted);font-size:12px;">Sin foto</span>`;
+
+                        let acciones = `<button class="gysl-admin-btn gysl-admin-btn--secondary" style="font-size:12px;padding:5px 10px;"
                         onclick="abrirDetalle(${JSON.stringify(j).split('"').join('&quot;')})">Ver</button>`;
 
-                    if (!esPendiente) {
-                        // Foto: solo si no existe
-                        if (!j.foto_path) {
-                            acciones += ` <button class="gysl-admin-btn gysl-admin-btn--secondary" style="font-size:12px;padding:5px 10px;"
-                                onclick="abrirSubirFoto(${j.id_jugador})">📷 Foto</button>`;
-                        }
-                        // Dorsal: solo si no existe
-                        if (!j.dorsal) {
-                            acciones += ` <button class="gysl-admin-btn gysl-admin-btn--secondary" style="font-size:12px;padding:5px 10px;"
-                                onclick="abrirAsignarDorsal(${j.id_jugador},${j.id_equipo},${j.id_liga})">🔢 Dorsal</button>`;
-                        }
-                        // Solicitar baja
-                        acciones += ` <button class="gysl-admin-btn gysl-admin-btn--danger" style="font-size:12px;padding:5px 10px;"
-                            onclick="solicitarBaja(${j.id})">✖ Baja</button>`;
-                    }
+                        if (!esPendiente) {
 
-                    return `<tr>
+                            if (!j.foto_path) {
+                                acciones += ` <button class="gysl-admin-btn gysl-admin-btn--secondary" style="font-size:12px;padding:5px 10px;"
+                                onclick="abrirSubirFoto(${j.id_jugador})">📷 Foto</button>`;
+                            }
+
+                            if (!j.dorsal) {
+                                acciones += ` <button class="gysl-admin-btn gysl-admin-btn--secondary" style="font-size:12px;padding:5px 10px;"
+                                onclick="abrirAsignarDorsal(${j.id_jugador},${j.id_equipo},${j.id_liga})">🔢 Dorsal</button>`;
+                            }
+
+                            acciones += ` <button class="gysl-admin-btn gysl-admin-btn--danger" style="font-size:12px;padding:5px 10px;"
+                            onclick="solicitarBaja(${j.id})">✖ Baja</button>`;
+                        }
+
+                        return `<tr>
                         <td>${dorsal}</td>
                         <td>${j.nombre ?? ""}</td>
                         <td>${j.apellido ?? ""}</td>
@@ -874,51 +831,50 @@
                         <td>${estadoBadge}</td>
                         <td style="white-space:nowrap;">${acciones}</td>
                     </tr>`;
-                }).join("");
-            }
-
-            // ─────────────────── TAB 3: PENDIENTES ────────
-            async function cargarPendientes() {
-                const loading = document.getElementById("pend-loading");
-                const empty = document.getElementById("pend-empty");
-                const table = document.getElementById("pend-table-wrapper");
-
-                loading.style.display = "flex";
-                empty.style.display = "none";
-                table.style.display = "none";
-
-                try {
-                    const res = await fetch(API + "/staff/jugadores/pendientes", { credentials: "include" });
-                    const data = await res.json();
-                    pendientesData = data.data || [];
-                } catch (err) {
-                    console.error("Error pendientes:", err);
-                    pendientesData = [];
+                    }).join("");
                 }
 
-                loading.style.display = "none";
+                async function cargarPendientes() {
+                    const loading = document.getElementById("pend-loading");
+                    const empty = document.getElementById("pend-empty");
+                    const table = document.getElementById("pend-table-wrapper");
 
-                if (pendientesData.length === 0) {
-                    empty.style.display = "flex";
-                    return;
+                    loading.style.display = "flex";
+                    empty.style.display = "none";
+                    table.style.display = "none";
+
+                    try {
+                        const res = await fetch(API + "/staff/jugadores/pendientes", { credentials: "include" });
+                        const data = await res.json();
+                        pendientesData = data.data || [];
+                    } catch (err) {
+                        console.error("Error pendientes:", err);
+                        pendientesData = [];
+                    }
+
+                    loading.style.display = "none";
+
+                    if (pendientesData.length === 0) {
+                        empty.style.display = "flex";
+                        return;
+                    }
+
+                    table.style.display = "block";
+                    renderPendientes();
                 }
 
-                table.style.display = "block";
-                renderPendientes();
-            }
+                function renderPendientes() {
+                    const tbody = document.getElementById("pend-tbody");
+                    tbody.innerHTML = pendientesData.map(p => {
+                        const accionBadge = p.accion_solicitada === "ALTA"
+                            ? `<span class="gysl-badge gysl-badge--alta">Alta</span>`
+                            : `<span class="gysl-badge gysl-badge--baja">Baja</span>`;
 
-            function renderPendientes() {
-                const tbody = document.getElementById("pend-tbody");
-                tbody.innerHTML = pendientesData.map(p => {
-                    const accionBadge = p.accion_solicitada === "ALTA"
-                        ? `<span class="gysl-badge gysl-badge--alta">Alta</span>`
-                        : `<span class="gysl-badge gysl-badge--baja">Baja</span>`;
+                        const fecha = p.fecha_solicitud
+                            ? new Date(p.fecha_solicitud).toLocaleDateString("es-ES")
+                            : "—";
 
-                    const fecha = p.fecha_solicitud
-                        ? new Date(p.fecha_solicitud).toLocaleDateString("es-ES")
-                        : "—";
-
-                    return `<tr>
+                        return `<tr>
                         <td>${p.nombre ?? ""}</td>
                         <td>${p.apellido ?? ""}</td>
                         <td>${p.fecha_nacimiento ?? ""}</td>
@@ -929,23 +885,23 @@
                         <td style="color:var(--gysl-muted);font-size:12px;">ID #${p.id_usuario_solicitante ?? "?"}</td>
                         <td style="color:var(--gysl-muted);font-size:12px;">${fecha}</td>
                     </tr>`;
-                }).join("");
-            }
+                    }).join("");
+                }
 
-            // ─────────────────── DETALLE MODAL ────────────
-            window.abrirDetalle = function (jugadorRaw) {
-                const j = (typeof jugadorRaw === "string") ? JSON.parse(jugadorRaw) : jugadorRaw;
-                document.getElementById("detalle-title").textContent = `${j.nombre} ${j.apellido}`;
 
-                const foto = j.foto_path
-                    ? `<img src="${API + j.foto_path}" alt="Foto">`
-                    : `<span>Sin foto</span>`;
+                window.abrirDetalle = function (jugadorRaw) {
+                    const j = (typeof jugadorRaw === "string") ? JSON.parse(jugadorRaw) : jugadorRaw;
+                    document.getElementById("detalle-title").textContent = `${j.nombre} ${j.apellido}`;
 
-                let accionEstado = j.estado === "ALTA"
-                    ? `<span class="gysl-badge gysl-badge--alta">✓ Activo</span>`
-                    : `<span class="gysl-badge gysl-badge--pendiente">⏳ ${j.accion_solicitada || "Pendiente"}</span>`;
+                    const foto = j.foto_path
+                        ? `<img src="${API + j.foto_path}" alt="Foto">`
+                        : `<span>Sin foto</span>`;
 
-                document.getElementById("detalle-content").innerHTML = `
+                    let accionEstado = j.estado === "ALTA"
+                        ? `<span class="gysl-badge gysl-badge--alta">✓ Activo</span>`
+                        : `<span class="gysl-badge gysl-badge--pendiente">⏳ ${j.accion_solicitada || "Pendiente"}</span>`;
+
+                    document.getElementById("detalle-content").innerHTML = `
                     <div class="gysl-detail-photo">${foto}</div>
                     <div class="gysl-detail-info">
                         <div class="gysl-detail-row">
@@ -978,126 +934,171 @@
                         </div>
                     </div>`;
 
-                document.getElementById("detalle-actions").innerHTML = "";
-                document.getElementById("detalle-overlay").classList.add("is-open");
-            };
+                    document.getElementById("detalle-actions").innerHTML = "";
+                    document.getElementById("detalle-overlay").classList.add("is-open");
+                };
 
-            window.cerrarDetalle = function () {
-                document.getElementById("detalle-overlay").classList.remove("is-open");
-            };
+                window.cerrarDetalle = function () {
+                    document.getElementById("detalle-overlay").classList.remove("is-open");
+                };
 
-            // ─────────────────── SOLICITAR BAJA ───────────
-            window.solicitarBaja = async function (id_relacion) {
-                const confirmado = await showConfirm(
-                    "Solicitar baja",
-                    "¿Confirmas solicitar la baja de este jugador? El administrador deberá aprobarla.",
-                    "danger",
-                    "Solicitar baja"
-                );
 
-                if (!confirmado) return;
+                window.solicitarBaja = async function (id_relacion) {
+                    const confirmado = await showConfirm(
+                        "Solicitar baja",
+                        "¿Confirmas solicitar la baja de este jugador? El administrador deberá aprobarla.",
+                        "danger",
+                        "Solicitar baja"
+                    );
 
-                try {
-                    const res = await fetch(`${API}/staff/jugadores/${id_relacion}/solicitar-baja`, {
-                        method: "PATCH",
-                        credentials: "include"
-                    });
-                    const data = await res.json();
-
-                    if (res.ok && data.success) {
-                        showToast(data.message || "Baja solicitada", "success");
-                        cargarPlantilla();
-                    } else {
-                        showToast(data.message || "Error al solicitar baja", "error");
-                    }
-                } catch (err) {
-                    showToast("Error de conexión", "error");
-                }
-            };
-
-            // ─────────────────── SUBIR FOTO ───────────────
-            window.abrirSubirFoto = function (id_jugador) {
-                const inp = document.createElement("input");
-                inp.type = "file";
-                inp.accept = "image/jpeg,image/png,image/webp";
-                inp.onchange = async () => {
-                    const file = inp.files[0];
-                    if (!file) return;
-                    const fd = new FormData();
-                    fd.append("foto", file);
+                    if (!confirmado) return;
 
                     try {
-                        const res = await fetch(`${API}/staff/jugadores/${id_jugador}/foto`, {
-                            method: "POST",
-                            credentials: "include",
-                            body: fd
+                        const res = await fetch(`${API}/staff/jugadores/${id_relacion}/solicitar-baja`, {
+                            method: "PATCH",
+                            credentials: "include"
                         });
                         const data = await res.json();
+
                         if (res.ok && data.success) {
-                            showToast("Foto subida correctamente", "success");
+                            showToast(data.message || "Baja solicitada", "success");
                             cargarPlantilla();
                         } else {
-                            showToast(data.message || "Error al subir foto", "error");
+                            showToast(data.message || "Error al solicitar baja", "error");
                         }
                     } catch (err) {
                         showToast("Error de conexión", "error");
                     }
                 };
-                inp.click();
-            };
 
-            // ─────────────────── ASIGNAR DORSAL ───────────
-            window.abrirAsignarDorsal = function (id_jugador, id_equipo, id_liga) {
-                const dorsal = prompt("Introduce el número de dorsal:");
-                if (!dorsal || isNaN(+dorsal) || +dorsal < 1) {
-                    showToast("Dorsal inválido", "error"); return;
+
+                window.abrirSubirFoto = function (id_jugador) {
+                    const inp = document.createElement("input");
+                    inp.type = "file";
+                    inp.accept = "image/jpeg,image/png,image/webp";
+                    inp.onchange = async () => {
+                        const file = inp.files[0];
+                        if (!file) return;
+                        const fd = new FormData();
+                        fd.append("foto", file);
+
+                        try {
+                            const res = await fetch(`${API}/staff/jugadores/${id_jugador}/foto`, {
+                                method: "POST",
+                                credentials: "include",
+                                body: fd
+                            });
+                            const data = await res.json();
+                            if (res.ok && data.success) {
+                                showToast("Foto subida correctamente", "success");
+                                cargarPlantilla();
+                            } else {
+                                showToast(data.message || "Error al subir foto", "error");
+                            }
+                        } catch (err) {
+                            showToast("Error de conexión", "error");
+                        }
+                    };
+                    inp.click();
+                };
+
+
+                window.abrirAsignarDorsal = function (id_jugador, id_equipo, id_liga) {
+                    const dorsal = prompt("Introduce el número de dorsal:");
+                    if (!dorsal || isNaN(+dorsal) || +dorsal < 1) {
+                        showToast("Dorsal inválido", "error"); return;
+                    }
+
+                    fetch(`${API}/staff/jugadores/dorsal`, {
+                        method: "PATCH",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id_jugador, id_equipo, id_liga, dorsal: +dorsal })
+                    })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                showToast("Dorsal asignado", "success");
+                                cargarPlantilla();
+                            } else {
+                                showToast(data.message || "Error al asignar dorsal", "error");
+                            }
+                        })
+                        .catch(() => showToast("Error de conexión", "error"));
+                };
+
+
+                function populatePlantillaEquipos() {
+                    const sel = document.getElementById("plt-equipo-select");
+
+                    sel.innerHTML = '<option value="">— Todos mis equipos —</option>';
+
+                    allEquipos.forEach(e => {
+                        const id = e.id_equipo ?? e.id;
+                        const nombre = e.club ?? e.nombre ?? "Equipo";
+                        const categoria = e.categoria ? ` (${e.categoria})` : "";
+
+                        sel.innerHTML += `
+                            <option value="${id}">
+                                ${nombre}${categoria}
+                            </option>
+                        `;
+                    });
                 }
 
-                fetch(`${API}/staff/jugadores/dorsal`, {
-                    method: "PATCH",
-                    credentials: "include",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id_jugador, id_equipo, id_liga, dorsal: +dorsal })
-                })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast("Dorsal asignado", "success");
-                            cargarPlantilla();
-                        } else {
-                            showToast(data.message || "Error al asignar dorsal", "error");
-                        }
-                    })
-                    .catch(() => showToast("Error de conexión", "error"));
-            };
+                window.onPlantillaEquipoChange = function () {
+                    const seleccionado = document.getElementById("plt-equipo-select").value;
+                    document.getElementById("plt-equipo").value = seleccionado;
+                    cargarPlantilla();
+                };
 
-            // ─────────────────── INIT ─────────────────────
-            async function init() {
-                aplicarModoPorRol();
-                await loadGlobalData();
-                // Aplicar filtros de URL si vienen (ej: desde staff-equipos.html)
-                const params = new URLSearchParams(window.location.search);
-                const equipo = params.get("equipo");
-                const liga = params.get("liga");
-                if (equipo || liga) {
-                    // Activar tab plantilla
+
+                async function init() {
+                    const accesoOk = await checkAccess();
+                    if (!accesoOk) return;
+
+                    aplicarModoPorRol();
+                    await loadGlobalData();
+
+                    const params = new URLSearchParams(window.location.search);
+                    const equipo = params.get("equipo");
+                    const liga = params.get("liga");
+
                     document.querySelectorAll(".gysl-tab").forEach(t => t.classList.remove("is-active"));
                     document.querySelectorAll(".gysl-tab-panel").forEach(p => p.classList.remove("is-active"));
+
                     document.getElementById("tab-plantilla").classList.add("is-active");
                     document.getElementById("panel-plantilla").classList.add("is-active");
-                    if (equipo) document.getElementById("plt-equipo").value = equipo;
-                    if (liga) document.getElementById("plt-liga").value = liga;
+
+                    if (!equipo) {
+                        document.getElementById("plt-equipo").value = "";
+                        cargarPlantilla();
+                        return;
+                    }
+
+                    document.getElementById("plt-equipo").value = equipo;
+
+                    if (liga) {
+                        document.getElementById("plt-liga").value = liga;
+                    }
+
+                    const equipoActual = allEquipos.find(e => String(e.id_equipo ?? e.id) === String(equipo));
+                    const nombreEquipo = equipoActual
+                        ? `${equipoActual.club ?? equipoActual.nombre ?? "Equipo"}${equipoActual.categoria ? " (" + equipoActual.categoria + ")" : ""}`
+                        : "Equipo seleccionado";
+
+                    document.getElementById("plt-equipo-select").value = equipo;
+
                     cargarPlantilla();
                 }
-            }
 
-            if (document.readyState === "loading") {
-                document.addEventListener("DOMContentLoaded", init);
-            } else {
-                init();
-            }
-        })();
-    </script>
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", init);
+                } else {
+                    init();
+                }
+            })();
+        </script>
 
 </body>
 

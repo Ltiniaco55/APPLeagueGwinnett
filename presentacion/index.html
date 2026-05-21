@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1280, initial-scale=1.0">
+
+    <title>Gwinnett Soccer League Hub — Defensa</title>
+
+    <link rel="icon" href="../public/escudos/gwinnett.svg">
+
+    <style>
+        :root {
+            --bg: #060e1e;
+            --dark: #08162d;
+            --blue: #0b2a4a;
+            --line: rgba(255, 255, 255, .12);
+            --gold: #f1b82d;
+            --gold2: #ffd35a;
+            --muted: #afc1e6;
+            --white: #fff;
+            --red: #d72626;
+
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            color: var(--white);
+        }
+
+        body {
+            background:
+                radial-gradient(ellipse at 18% 12%, rgba(241, 184, 45, .16), transparent 35%),
+                radial-gradient(ellipse at 82% 70%, rgba(20, 52, 94, .75), transparent 55%),
+                linear-gradient(135deg, #060e1e, #08162d 55%, #030814);
+        }
+
+        .deck {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: none;
+            padding: 58px 76px 64px;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: grid;
+            animation: slideIn .32s ease both;
+        }
+
+        .slide::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(rgba(255, 255, 255, .026) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, .026) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, .7), transparent 80%);
+            pointer-events: none;
+        }
+
+        .slide::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .slide::-webkit-scrollbar-thumb {
+            background: rgba(241, 184, 45, .45);
+            border-radius: 999px;
+        }
+
+        .slide::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, .06);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .top {
+            position: absolute;
+            top: 26px;
+            left: 76px;
+            right: 76px;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand img {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            align-self: center;
+        }
+
+        .center {
+            text-align: center;
+            justify-self: center;
+        }
+
+        .kicker {
+            margin-bottom: 14px;
+            color: var(--gold);
+            font-size: 13px;
+            font-weight: 950;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+        }
+
+        .title {
+            margin: 0;
+            color: #fff;
+            font-size: 58px;
+            line-height: .98;
+            letter-spacing: -1.8px;
+            font-weight: 950;
+            text-wrap: balance;
+        }
+
+        .title.sm {
+            font-size: 48px;
+        }
+
+        .subtitle {
+            margin: 22px 0 0;
+            max-width: 780px;
+            color: var(--muted);
+            font-size: 20px;
+            line-height: 1.55;
+            font-weight: 650;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 390px;
+            gap: 68px;
+            align-items: center;
+        }
+
+        .logoCard {
+            min-height: 390px;
+            padding: 34px;
+            border-radius: 32px;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at 50% 20%, rgba(241, 184, 45, .28), transparent 42%),
+                rgba(255, 255, 255, .06);
+            border: 1px solid var(--line);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, .4);
+        }
+
+        .logoCard img {
+            width: 230px;
+            filter: drop-shadow(0 18px 32px rgba(0, 0, 0, .45));
+        }
+
+        .btns {
+            display: flex;
+            gap: 14px;
+            margin-top: 34px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 20px;
+            border: 0;
+            border-radius: 14px;
+            background: var(--gold);
+            color: #06101e;
+            font-size: 14px;
+            font-weight: 950;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, .32);
+        }
+
+        .btn.sec {
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .16);
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-top: 36px;
+        }
+
+        .grid3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 34px;
+        }
+
+        .card {
+            padding: 24px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, .055);
+            border: 1px solid var(--line);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, .22);
+        }
+
+        .gold {
+            background: rgba(241, 184, 45, .12);
+            border-color: rgba(241, 184, 45, .34);
+        }
+
+        .card h3 {
+            margin: 0 0 10px;
+            font-size: 20px;
+            font-weight: 950;
+        }
+
+        .card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.55;
+            font-weight: 650;
+        }
+
+        ul.clean {
+            margin: 16px 0 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+
+        .clean li {
+            display: flex;
+            gap: 10px;
+            color: #dbe8ff;
+            font-size: 16px;
+            line-height: 1.35;
+            font-weight: 750;
+        }
+
+        .clean li::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 8px;
+            height: 8px;
+            margin-top: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .diagram {
+            margin-top: 34px;
+            padding: 28px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, .055);
+            border: 1px solid rgba(255, 255, 255, .14);
+        }
+
+        .arch {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 13px;
+        }
+
+        .box {
+            min-height: 96px;
+            padding: 18px 12px;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 950;
+            background: rgba(8, 22, 45, .75);
+            border: 1px solid var(--line);
+        }
+
+        .box.core {
+            background: rgba(241, 184, 45, .16);
+            border-color: rgba(241, 184, 45, .4);
+            color: var(--gold2);
+        }
+
+        .code {
+            margin-top: 26px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #050a14;
+            border: 1px solid var(--line);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .34);
+        }
+
+        .code div {
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, .06);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 850;
+        }
+
+        .code pre {
+            margin: 0;
+            padding: 18px 20px;
+            color: #dbe8ff;
+            font-size: 15px;
+            line-height: 1.55;
+            white-space: pre-wrap;
+        }
+
+        .code,
+        .code * {
+            text-align: left;
+        }
+
+        .code pre {
+            margin: 0;
+            padding: 18px 20px;
+            white-space: pre-wrap;
+            font-family: "Courier New", monospace;
+            line-height: 1.6;
+        }
+
+        .tok {
+            color: var(--gold);
+            font-weight: 950;
+        }
+
+        .flow {
+            display: flex;
+            gap: 14px;
+            margin-top: 42px;
+        }
+
+        .step {
+            position: relative;
+            flex: 1;
+            min-height: 92px;
+            padding: 16px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid var(--line);
+        }
+
+        .step:not(:last-child)::after {
+            content: "→";
+            position: absolute;
+            right: -18px;
+            top: 42%;
+            color: var(--gold);
+            font-size: 24px;
+            font-weight: 950;
+        }
+
+        .num {
+            margin-bottom: 8px;
+            color: var(--gold);
+            font-size: 13px;
+            font-weight: 950;
+        }
+
+        .st {
+            margin-bottom: 8px;
+            font-size: 17px;
+            font-weight: 950;
+        }
+
+        .sd {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.4;
+            font-weight: 650;
+        }
+
+        .roles {
+            width: 100%;
+            margin-top: 34px;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+
+        .roles th,
+        .roles td {
+            padding: 18px 20px;
+            text-align: left;
+        }
+
+        .roles th {
+            color: var(--gold);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .roles tbody tr {
+            background: rgba(255, 255, 255, .055);
+        }
+
+        .roles td:first-child {
+            border-radius: 16px 0 0 16px;
+            color: #fff;
+            font-weight: 950;
+        }
+
+        .roles td:last-child {
+            border-radius: 0 16px 16px 0;
+            color: var(--muted);
+            font-weight: 650;
+        }
+
+        .map {
+            width: 100%;
+            margin-top: 28px;
+            border-collapse: collapse;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, .055);
+            border: 1px solid var(--line);
+        }
+
+        .map th,
+        .map td {
+            padding: 13px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .map th {
+            color: var(--gold);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .map td {
+            color: #dbe8ff;
+            font-size: 14px;
+            font-weight: 650;
+        }
+
+        .path {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, .28);
+            color: var(--gold2);
+            font-family: monospace;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .shots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 28px;
+        }
+
+        .shot {
+            min-height: 190px;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, .055);
+            border: 1px solid var(--line);
+        }
+
+        .frame {
+            flex: 1;
+            min-height: 145px;
+            display: grid;
+            place-items: center;
+            padding: 14px;
+            background:
+                linear-gradient(135deg, rgba(11, 42, 74, .58), rgba(8, 22, 45, .74)),
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, .03) 0 8px, transparent 8px 16px);
+            color: rgba(255, 255, 255, .58);
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .cap {
+            padding: 12px 14px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 900;
+            border-top: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .cap small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        .demo {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin-top: 34px;
+        }
+
+        .demo a {
+            padding: 24px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, .055);
+            border: 1px solid var(--line);
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .demo a:hover {
+            border-color: rgba(241, 184, 45, .5);
+            background: rgba(241, 184, 45, .09);
+        }
+
+        .demo strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 21px;
+            font-weight: 950;
+        }
+
+        .demo span {
+            display: block;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.45;
+            font-weight: 650;
+        }
+
+        .badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 26px;
+        }
+
+        .badge {
+            padding: 8px 11px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid var(--line);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .badge.g {
+            background: rgba(241, 184, 45, .16);
+            border-color: rgba(241, 184, 45, .35);
+            color: var(--gold2);
+        }
+
+        .progress {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            z-index: 50;
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        .bar {
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold2));
+            transition: width .28s;
+        }
+
+        .help {
+            position: fixed;
+            right: 28px;
+            bottom: 28px;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, .6);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .key,
+        .nav-btn {
+            min-width: 30px;
+            height: 30px;
+            padding: 0 9px;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .14);
+            color: #fff;
+            display: grid;
+            place-items: center;
+        }
+
+        .nav-btn {
+            width: 38px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 900;
+            transition: all .18s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(241, 184, 45, .18);
+            border-color: rgba(241, 184, 45, .45);
+            transform: translateY(-1px);
+        }
+
+        .note {
+            position: absolute;
+            left: 76px;
+            bottom: 26px;
+            z-index: 4;
+            color: rgba(255, 255, 255, .42);
+            font-size: 12px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="deck" id="deck">
+
+        <section class="slide active">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Defensa proyecto
+                </div>
+                <span>01 / 13</span>
+            </div>
+
+            <div class="content hero">
+                <div>
+                    <div class="kicker">Proyecto final · DAW</div>
+
+                    <h1 class="title">Gwinnett Soccer League Hub</h1>
+
+                    <p class="subtitle">
+                        Plataforma integral para gestionar competiciones, equipos, jugadores, partidos y experiencia
+                        digital de una liga deportiva.
+                    </p>
+
+                    <div class="badges">
+                        <span class="badge g">PHP + MySQL</span>
+                        <span class="badge">Router propio</span>
+                        <span class="badge">Roles</span>
+                        <span class="badge">Frontend modular</span>
+                    </div>
+
+                    <div class="btns">
+                        <a class="btn" href="../public/home.html">Abrir demo pública</a>
+                        <button class="btn sec" data-next>Siguiente →</button>
+                    </div>
+                </div>
+
+                <div class="logoCard">
+                    <img src="../public/escudos/gwinnett.svg" alt="Gwinnett Soccer League Hub">
+                </div>
+            </div>
+
+            <div class="note">
+                Luciano Tiniaco - 2º DAW ESIC - 2026
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Contexto
+                </div>
+                <span>02 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Problema y solución</div>
+
+                <h2 class="title sm">Digitalización del ecosistema operativo de una liga deportiva</h2>
+
+                <div class="grid2">
+                    <div class="card">
+                        <h3>Problema</h3>
+                        <ul class="clean">
+                            <li>Gestión manual de ligas, equipos y jugadores.</li>
+                            <li>Poca trazabilidad en altas y bajas.</li>
+                            <li>Partidos, resultados y clasificación dispersos.</li>
+                            <li>Usuarios sin acceso rápido a su información.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card gold">
+                        <h3>Solución</h3>
+                        <ul class="clean">
+                            <li>Panel administrativo con roles.</li>
+                            <li>Workflow STAFF → ADMIN para validar jugadores.</li>
+                            <li>Portal público dinámico.</li>
+                            <li>Favoritos y calendario para usuario.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Core técnico
+                </div>
+                <span>03 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Arquitectura general</div>
+
+                <h2 class="title sm">Una petición atraviesa capas claras</h2>
+
+                <p class="subtitle">
+                    Cada interacción del usuario sigue un flujo estructurado desde interfaz hasta persistencia
+                </p>
+
+                <div class="diagram">
+                    <div class="arch">
+                        <div class="box">Frontend<br>HTML/CSS/JS</div>
+                        <div class="box core">index.php</div>
+                        <div class="box core">Router.php</div>
+                        <div class="box">Controller</div>
+                        <div class="box">Model</div>
+                        <div class="box core">MySQL<br>Database.php</div>
+                    </div>
+                </div>
+
+                <div class="code">
+                    <div>Flujo mental</div>
+                    <pre><span class="tok">Usuario</span> → acción DOM → fetch() → endpoint → Router → Controller → Model → Database → JSON → render</pre>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Rutas
+                </div>
+                <span>04 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Router + index.php</div>
+
+                <h2 class="title sm">El index actúa como entrada única del backend</h2>
+
+                <div class="grid2">
+                    <div class="card">
+                        <h3>Responsabilidad del index</h3>
+                        <ul class="clean">
+                            <li>Configura cabeceras y CORS.</li>
+                            <li>Carga modelos, controllers y core.</li>
+                            <li>Registra endpoints.</li>
+                            <li>Ejecuta dispatch.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Endpoints clave</h3>
+                        <div class="code">
+                            <div>API REST</div>
+                            <pre>GET    /ligas
+GET    /partidos
+POST   /admin/partidos
+GET    /favoritos/equipos
+DELETE /favoritos/equipos</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Roles
+                </div>
+                <span>05 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Control de acceso</div>
+
+                <h2 class="title sm">Roles claros para evitar acciones no autorizadas</h2>
+
+                <table class="roles">
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>Responsabilidad</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>ADMIN</td>
+                            <td>Control total.</td>
+                            <td>Crear ligas, equipos, partidos y aprobar jugadores.</td>
+                        </tr>
+                        <tr>
+                            <td>STAFF</td>
+                            <td>Gestión operativa de su equipo.</td>
+                            <td>Solicitar altas y bajas.</td>
+                        </tr>
+                        <tr>
+                            <td>USUARIO</td>
+                            <td>Consulta y experiencia personalizada.</td>
+                            <td>Favoritos, calendario y clasificaciones.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Admin
+                </div>
+                <span>06 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Workflow administrativo</div>
+
+                <h2 class="title sm">El ADMIN construye la competición desde cero</h2>
+
+                <div class="flow">
+                    <div class="step">
+                        <div class="num">01</div>
+                        <div class="st">Login admin</div>
+                        <div class="sd">Sesión y rol.</div>
+                    </div>
+
+                    <div class="step">
+                        <div class="num">02</div>
+                        <div class="st">Crear liga</div>
+                        <div class="sd">Temporada, categoría, estado y formato.</div>
+                    </div>
+
+                    <div class="step">
+                        <div class="num">03</div>
+                        <div class="st">Crear equipos</div>
+                        <div class="sd">Alta de clubes.</div>
+                    </div>
+
+                    <div class="step">
+                        <div class="num">04</div>
+                        <div class="st">Asignar equipos</div>
+                        <div class="sd">Relación equipo-liga.</div>
+                    </div>
+
+                    <div class="step">
+                        <div class="num">05</div>
+                        <div class="st">Crear partidos</div>
+                        <div class="sd">Calendario y estados.</div>
+                    </div>
+                </div>
+
+                <div class="btns">
+                    <a class="btn" href="../public/admin-dashboard.html">Ver panel admin</a>
+                    <a class="btn sec" href="../public/admin-partidos.html">Ver partidos admin</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Jugadores
+                </div>
+                <span>07 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Workflow STAFF → ADMIN</div>
+
+                <h2 class="title sm">Las plantillas se protegen con aprobación</h2>
+
+                <div class="flow">
+                    <div class="step">
+                        <div class="num">STAFF</div>
+                        <div class="st">Solicita alta</div>
+                        <div class="sd">No entra directo a plantilla.</div>
+                    </div>
+
+                    <div class="step">
+                        <div class="num">Estado</div>
+                        <div class="st">PENDIENTE</div>
+                        <div class="sd">Queda trazabilidad.</div>
+                    </div>
+
+                    <div class="step">
+                        <div class="num">ADMIN</div>
+                        <div class="st">Revisa</div>
+                        <div class="sd">Aprueba o rechaza.</div>
+                    </div>
+
+                    <div class="step">
+                        <div class="num">Final</div>
+                        <div class="st">ALTA</div>
+                        <div class="sd">Pasa a plantilla oficial.</div>
+                    </div>
+                </div>
+
+                <div class="card gold" style="margin-top:34px">
+                    <h3>Matiz operativo</h3>
+                    <p>El ADMIN también puede hacer altas directas para no bloquear gestión interna.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Competición
+                </div>
+                <span>08 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Motor competitivo</div>
+
+                <h2 class="title sm">El formato define comportamiento y navegación</h2>
+
+                <div class="grid3">
+                    <div class="card gold">
+                        <h3>JORNADAS</h3>
+                        <p>Genera clasificación, puntos, goles y seguimiento.</p>
+                        <br>
+                        <p>../public/resultados.html?<br>liga=95&formato=JORNADA</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>ELIMINATORIA</h3>
+                        <p>Prioriza resultados y fases.</p>
+                        <br>
+                        <p>../public/resultados.html?<br>liga=95&formato=ELIMINATORIA</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>AMISTOSO</h3>
+                        <p>Gestiona partidos sin clasificación.</p>
+                        <br>
+                        <p>../public/resultados.html?<br>liga=94&formato=AMISTOSO
+                        </p>
+                    </div>
+                </div>
+
+                <div class="code">
+                    <div>Regla narrativa</div>
+                    <pre>Formato de liga → navegación → clasificación o resultados → experiencia coherente</pre>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Frontend
+                </div>
+                <span>09 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Layouts reutilizables</div>
+
+                <h2 class="title sm">El frontend evita repetir estructura común</h2>
+
+                <div class="grid2">
+                    <div class="card">
+                        <h3>Inyección real</h3>
+
+                        <div class="code">
+                            <div>layout.js</div>
+                            <pre>const HEADER_URL = BASE_PATH + '/layouts/header.html';
+const FOOTER_URL = BASE_PATH + '/layouts/footer.html';
+
+const headerHTML = await fetchLayout(HEADER_URL);
+injectAtBodyStart(headerHTML);
+
+const footerHTML = await fetchLayout(FOOTER_URL);
+injectAtBodyEnd(footerHTML);</pre>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>layouts/</h3>
+
+                        <div class="code">
+                            <div>Componentes</div>
+                            <pre>header.html
+footer.html
+mini-menu.html
+header_secun.html
+admin-bottom-nav.html</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="diagram">
+                    <div class="flow">
+                        <div class="step">
+                            <div class="num">01</div>
+                            <div class="st">Carga página</div>
+                            <div class="sd">DOMContentLoaded dispara init()</div>
+                        </div>
+
+                        <div class="step">
+                            <div class="num">02</div>
+                            <div class="st">Fetch layouts</div>
+                            <div class="sd">header.html + footer.html</div>
+                        </div>
+
+                        <div class="step">
+                            <div class="num">03</div>
+                            <div class="st">DOM injection</div>
+                            <div class="sd">Se insertan nodos en el body</div>
+                        </div>
+
+                        <div class="step">
+                            <div class="num">04</div>
+                            <div class="st">Inicialización</div>
+                            <div class="sd">burger, sesión, favoritos, active links</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    JavaScript
+                </div>
+                <span>10 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Módulos JS</div>
+
+                <h2 class="title sm">Cada JS tiene una responsabilidad concreta</h2>
+
+                <div class="grid3">
+                    <div class="card">
+                        <h3>login.js</h3>
+                        <p>Gestión autenticación + llamadas backend.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>sesionactiva.js</h3>
+                        <p>Sincroniza el frontend con la sesión PHP activa.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>adminNav.js</h3>
+                        <p>Renderiza navegación administrativa según el rol del usuario.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>proximoPartidos.js</h3>
+                        <p>Consume la API y renderiza próximos partidos, filtros y favoritos.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>header_secun.js</h3>
+                        <p>Gestiona navegación contextual dentro de una liga concreta.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>toast.js</h3>
+                        <p>Muestra mensajes visuales de éxito, error o confirmación.</p>
+                    </div>
+                </div>
+
+
+                <div class="front-flow">
+                    <p class="front-flow-title">Ejemplos reales de flujo frontend</p>
+
+                    <div class="grid2">
+
+                        <div class="card">
+                            <h3>Ejemplo 1 · Próximos partidos</h3>
+
+                            <div class="code">
+                                <div>Flujo real</div>
+                                <pre>HOME
+↓
+proximoPartidos.js
+↓
+GET /partidos/proximos
+↓
+PartidosController
+↓
+JSON
+↓
+Render de cards + filtros + favoritos</pre>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Ejemplo 2 · Login y permisos</h3>
+
+                            <div class="code">
+                                <div>Flujo real</div>
+                                <pre>LOGIN
+↓
+login.js
+↓
+POST /auth/login
+↓
+Autenticacion.php
+↓
+Sesión PHP activa
+↓
+sesionactiva.js + adminNav.js
+↓
+UI adaptada según rol</pre>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Vista producto
+                </div>
+                <span>11 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Vista integral de la plataforma</div>
+
+                <h2 class="title sm">Interfaces reales del producto en funcionamiento</h2>
+
+                <div class="shots">
+                    <div class="shot">
+                        <div class="frame">
+                            <img src="./assets/home.png" alt="Home"
+                                onerror="this.remove();this.parentElement.textContent='assets/home.png'">
+                        </div>
+                        <div class="cap">Home<small>Próximos partidos</small></div>
+                    </div>
+
+                    <div class="shot">
+                        <div class="frame">
+                            <img src="./assets/admin-dashboard.png" alt="Panel Admin"
+                                onerror="this.remove();this.parentElement.textContent='assets/admin-dashboard.png'">
+                        </div>
+                        <div class="cap">Panel Admin<small>Control operativo</small></div>
+                    </div>
+
+                    <div class="shot">
+                        <div class="frame">
+                            <img src="./assets/calendario.png" alt="Calendario"
+                                onerror="this.remove();this.parentElement.textContent='assets/calendario.png'">
+                        </div>
+                        <div class="cap">Calendario<small>Vista mensual</small></div>
+                    </div>
+
+                    <div class="shot">
+                        <div class="frame">
+                            <img src="./assets/favoritos.png" alt="Favoritos"
+                                onerror="this.remove();this.parentElement.textContent='assets/favoritos.png'">
+                        </div>
+                        <div class="cap">Favoritos<small>Usuario</small></div>
+                    </div>
+
+                    <div class="shot">
+                        <div class="frame">
+                            <img src="./assets/admin-ligas.png" alt="Ligas"
+                                onerror="this.remove();this.parentElement.textContent='assets/admin-ligas.png'">
+                        </div>
+                        <div class="cap">Ligas<small>Formato competitivo</small></div>
+                    </div>
+
+                    <div class="shot">
+                        <div class="frame">
+                            <img src="./assets/staff-jugadores.png" alt="Staff"
+                                onerror="this.remove();this.parentElement.textContent='assets/staff-jugadores.png'">
+                        </div>
+                        <div class="cap">Staff<small>Solicitudes</small></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Demo
+                </div>
+                <span>12 / 13</span>
+            </div>
+
+            <div class="content">
+                <div class="kicker">Demo guiada</div>
+
+                <h2 class="title sm">Recorrido funcional del sistema</h2>
+
+                <p class="subtitle">
+                    Distintas pantallas que componen la plataforma.
+                </p>
+
+                <div class="demo">
+                    <a href="../public/home.html">
+                        <strong>Demo pública</strong>
+                        <span>Home, próximos partidos y navegación.</span>
+                    </a>
+
+                    <a href="../public/admin-dashboard.html">
+                        <strong>Panel admin</strong>
+                        <span>Control de roles y administración.</span>
+                    </a>
+
+                    <a href="../public/admin-partidos.html">
+                        <strong>Gestión partidos</strong>
+                        <span>Creación, estados y resultados.</span>
+                    </a>
+
+                    <a href="../public/equiposFavoritos.html">
+                        <strong>Favoritos</strong>
+                        <span>Personalización por usuario.</span>
+                    </a>
+
+                    <a href="../public/calendario.html">
+                        <strong>Calendario</strong>
+                        <span>Vista mensual y filtro por liga.</span>
+                    </a>
+
+                    <a href="../public/ligas.html">
+                        <strong>Ligas</strong>
+                        <span>Ligas activas y próximas.</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="top">
+                <div class="brand">
+                    <img src="../public/escudos/gwinnett.svg" alt="Logo">
+                    Cierre
+                </div>
+                <span>13 / 13</span>
+            </div>
+
+            <div class="content center">
+                <div class="kicker">Conclusiones</div>
+
+                <h2 class="title">Una plataforma sólida para la gestión deportiva digital</h2>
+
+                <p class="subtitle" style="margin-left:auto;margin-right:auto">
+                    Gwinnett Soccer League Hub consolida en una única plataforma la gestión de ligas, equipos,
+                    jugadores,
+                    partidos y usuarios mediante una arquitectura modular, organizada y preparada para escalar.
+                </p>
+
+                <div class="grid3" style="text-align:left">
+                    <div class="card">
+                        <h3>Centralización</h3>
+                        <p>
+                            Unificación de procesos administrativos, competitivos y operativos en una sola plataforma
+                            accesible.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Arquitectura</h3>
+                        <p>
+                            Separación clara entre frontend, routing, controladores, modelos y base de datos para
+                            facilitar mantenimiento.
+                        </p>
+                    </div>
+
+                    <div class="card gold">
+                        <h3>Escalabilidad</h3>
+                        <p>
+                            Diseño modular preparado para incorporar nuevos roles, funcionalidades y competiciones sin
+                            rehacer el sistema.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="progress">
+        <div class="bar" id="bar"></div>
+    </div>
+
+    <div class="help">
+        <button class="nav-btn" id="btn-prev" type="button">←</button>
+        <button class="nav-btn" id="btn-next" type="button">→</button>
+        <span class="key">Espacio</span>
+        <span id="count">1 / 14</span>
+    </div>
+
+    <script>
+        (() => {
+            "use strict";
+
+            const slides = [...document.querySelectorAll(".slide")];
+            const bar = document.getElementById("bar");
+            const count = document.getElementById("count");
+            const btnPrev = document.getElementById("btn-prev");
+            const btnNext = document.getElementById("btn-next");
+
+            let currentIndex = 0;
+
+            function showSlide(index) {
+                if (index < 0 || index >= slides.length) return;
+
+                slides[currentIndex].classList.remove("active");
+
+                currentIndex = index;
+
+                slides[currentIndex].classList.add("active");
+
+                bar.style.width = ((currentIndex + 1) / slides.length * 100) + "%";
+                count.textContent = (currentIndex + 1) + " / " + slides.length;
+            }
+
+            function nextSlide() {
+                showSlide(Math.min(currentIndex + 1, slides.length - 1));
+            }
+
+            function prevSlide() {
+                showSlide(Math.max(currentIndex - 1, 0));
+            }
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "ArrowRight" || event.key === " ") {
+                    event.preventDefault();
+                    nextSlide();
+                }
+
+                if (event.key === "ArrowLeft") {
+                    event.preventDefault();
+                    prevSlide();
+                }
+
+                if (/^[1-9]$/.test(event.key)) {
+                    showSlide(Number(event.key) - 1);
+                }
+            });
+
+            document.querySelectorAll("[data-next]").forEach((button) => {
+                button.addEventListener("click", nextSlide);
+            });
+
+            btnPrev.addEventListener("click", prevSlide);
+            btnNext.addEventListener("click", nextSlide);
+
+            document.addEventListener("click", (event) => {
+                if (event.target.closest("a,button,input,select,textarea")) return;
+
+                event.clientX > innerWidth / 2 ? nextSlide() : prevSlide();
+            });
+
+            showSlide(0);
+        })();
+    </script>
+
+</body>
+
+</html>

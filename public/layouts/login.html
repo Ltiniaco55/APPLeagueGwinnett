@@ -4,7 +4,6 @@
     <div class="login-wrapper" id="login-wrapper">
         <button class="login-close-btn" id="login-close-btn" type="button" aria-label="Cerrar">✕</button>
 
-        <!-- REGISTRATION FORM -->
         <div class="login-form-container login-sign-up-container">
             <form id="register-form" novalidate>
                 <h2>Registration</h2>
@@ -32,7 +31,7 @@
                         </svg>
                     </button>
                 </div>
-                <!-- Párrafo para errores de validación de contraseña/campos -->
+
                 <p id="register-error-msg"
                     style="color: red; font-size: 11px; margin-top: 5px; text-align: left; display: none; width: 100%;">
                 </p>
@@ -50,7 +49,6 @@
                             </path>
                         </svg>
                     </button>
-                    <!-- Facebook example icon -->
                     <button type="button" class="login-social-btn" aria-label="Register with Facebook">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path
@@ -62,7 +60,6 @@
                 </div>
             </form>
 
-            <!-- REGISTRATION VERIFICATION FLOW -->
             <div id="register-verify-flow"
                 style="display: none; width: 100%; text-align: center; flex-direction: column; justify-content: center; align-items: center;">
                 <h2>Verificación</h2>
@@ -85,10 +82,8 @@
             </div>
         </div>
 
-        <!-- LOGIN & FORGOT PWD CONTAINER -->
         <div class="login-form-container login-sign-in-container">
 
-            <!-- MAIN LOGIN -->
             <form id="login-form" novalidate style="position: relative;">
                 <h2>Login</h2>
                 <div class="login-input-group">
@@ -121,7 +116,7 @@
                             </path>
                         </svg>
                     </button>
-                    <!-- Facebook example icon -->
+
                     <button type="button" class="login-social-btn" aria-label="Log in with Facebook">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path
@@ -132,16 +127,14 @@
                 </div>
             </form>
 
-            <!-- FORGOT PASSWORD FLOW (Hidden securely behind JS) -->
             <div id="forgot-password-flow" class="forgot-flow-container" style="display: none;">
-                <!-- Back Button -->
+
                 <button type="button" id="back-to-login-btn" class="back-btn">← Back to Login</button>
 
                 <h2
                     style="font-family: var(--gysl-bebas); font-size: 26px; color: var(--gysl-superdark); margin-bottom: 20px;">
                     Reset Password</h2>
 
-                <!-- STEP 1: Email -->
                 <div id="forgot-step-1" class="forgot-step">
                     <p class="forgot-desc">Introduce tu correo electrónico para enviarte un código de verificación.</p>
                     <div class="login-input-group">
@@ -153,7 +146,6 @@
                     </button>
                 </div>
 
-                <!-- STEP 2: Code -->
                 <div id="forgot-step-2" class="forgot-step" style="display: none;">
                     <p class="forgot-desc">Introduce el código numérico de 6 dígitos que hemos enviado a tu email.</p>
                     <div class="login-input-group">
@@ -165,7 +157,6 @@
                     </button>
                 </div>
 
-                <!-- STEP 3: New Passwords -->
                 <div id="forgot-step-3" class="forgot-step" style="display: none;">
                     <p class="forgot-desc">Crea tu nueva contraseña. Asegúrate de que ambas coinciden.</p>
                     <div class="login-input-group">
@@ -203,17 +194,16 @@
 
         </div>
 
-        <!-- OVERLAY (The moving sliding background) -->
         <div class="login-overlay-container">
             <div class="login-overlay-panel-bg">
-                <!-- PANEL FOR REGISTER (Appears on the left initially) -->
+
                 <div class="login-overlay-panel login-overlay-left">
                     <h2>Hello, Welcome</h2>
                     <p>Don't have an Account?</p>
                     <button type="button" class="login-ghost-btn" id="overlay-signUp"
                         onclick="document.getElementById('login-wrapper').classList.add('right-panel-active');">Register</button>
                 </div>
-                <!-- PANEL FOR LOGIN (Appears on the right when active) -->
+
                 <div class="login-overlay-panel login-overlay-right">
                     <h2>Welcome Back!</h2>
                     <p>Already have an Account?</p>

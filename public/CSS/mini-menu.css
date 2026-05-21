@@ -1,14 +1,7 @@
-/* ==========================================================
-   GYSL — MINI MENU DROPDOWN
-   Premium dark dropdown with user profile header
-   Inspired by the design reference with dark theme
-   ========================================================== */
-
 .gysl-user-dropdown {
   position: relative;
 }
 
-/* ── The dropdown panel ── */
 .gysl-mini-menu {
   position: absolute;
   top: calc(100% + 10px);
@@ -28,7 +21,6 @@
 
   z-index: 3000;
 
-  /* Hidden state */
   opacity: 0;
   transform: translateY(-6px) scale(.97);
   pointer-events: none;
@@ -43,7 +35,6 @@
   pointer-events: auto;
 }
 
-/* ── User profile header ── */
 .gysl-mini-menu__header {
   display: flex;
   align-items: center;
@@ -97,14 +88,12 @@
   text-overflow: ellipsis;
 }
 
-/* ── Divider ── */
 .gysl-mini-menu__divider {
   height: 1px;
   background: rgba(255, 255, 255, .08);
   margin: 4px 0;
 }
 
-/* ── Menu list ── */
 .gysl-mini-menu__list {
   list-style: none;
   margin: 0;
@@ -116,7 +105,6 @@
   padding: 0;
 }
 
-/* ── Menu items ── */
 .gysl-mini-menu__item {
   display: flex;
   align-items: center;
@@ -160,7 +148,6 @@
   color: #aaa;
 }
 
-/* ── Logout item ── */
 .gysl-mini-menu__item--logout {
   margin-top: 2px;
   margin-bottom: 2px;
@@ -181,7 +168,6 @@
   color: #ff6b7a;
 }
 
-/* ── Focus visible for accessibility ── */
 .gysl-mini-menu__item:focus-visible {
   outline: 2px solid rgba(241, 184, 45, .6);
   outline-offset: -2px;

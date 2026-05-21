@@ -1,18 +1,4 @@
-<!--
-  ╔══════════════════════════════════════════════════════════╗
-  ║  GYSL — Header Secundario (Competition Sub-Navigation)  ║
-  ║  Injected by header_secun.js below #gysl-header.        ║
-  ║  Self-contained: CSS is embedded via <style>.           ║
-  ╚══════════════════════════════════════════════════════════╝
--->
-
 <style>
-    /* ==========================================================
-   GYSL — Header Secundario
-   Compact sub-nav for competition pages.
-   Uses design tokens from layout.css with fallbacks.
-   ========================================================== */
-
     .gysl-header-secun {
         font-family: var(--gysl-font, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif);
         background:
@@ -30,7 +16,6 @@
 
     }
 
-    /* Reset scoped to this layout */
     .gysl-header-secun *,
     .gysl-header-secun *::before,
     .gysl-header-secun *::after {
@@ -48,7 +33,6 @@
         list-style: none;
     }
 
-    /* ── Inner wrapper ─────────────────────────────────────── */
     .gysl-header-secun__inner {
         display: flex;
         align-items: center;
@@ -57,25 +41,20 @@
         gap: 20px;
     }
 
-
-    /* ── Nav container ─────────────────────────────────────── */
     .gysl-header-secun__nav {
         flex: 1;
         overflow-x: auto;
         overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        /* Firefox */
         -ms-overflow-style: none;
-        /* IE / Edge */
     }
 
     .gysl-header-secun__nav::-webkit-scrollbar {
         display: none;
-        /* Chrome / Safari */
+
     }
 
-    /* ── Links list ────────────────────────────────────────── */
     .gysl-header-secun__links {
         display: flex;
         align-items: center;
@@ -99,7 +78,6 @@
         transition: color var(--gysl-transition, .22s ease);
     }
 
-    /* Animated underline */
     .gysl-header-secun__link::after {
         content: '';
         position: absolute;
@@ -114,7 +92,6 @@
         transition: transform var(--gysl-transition, .22s ease);
     }
 
-    /* Hover state */
     .gysl-header-secun__link:hover {
         color: #ffffff;
     }
@@ -123,7 +100,6 @@
         transform: scaleX(1);
     }
 
-    /* Active state */
     .gysl-header-secun__link.active {
         color: var(--gysl-yellow, #F1B82D);
     }
@@ -132,12 +108,10 @@
         transform: scaleX(1);
     }
 
-    /* Separator between links */
     .gysl-header-secun__links li+li .gysl-header-secun__link {
         border-left: 1px solid rgba(255, 255, 255, .08);
     }
 
-    /* ── Responsive ────────────────────────────────────────── */
     @media (max-width: 900px) {
         .gysl-header-secun__inner {
             padding-left: var(--gysl-page-px-mobile, 20px);

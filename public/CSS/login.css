@@ -1,8 +1,3 @@
-/* 
-  Estilo para el modal "Sliding Panel" recreando la animación
-  Requisitos: variables de global CSS.
-*/
-
 .login-overlay {
     position: fixed;
     inset: 0;
@@ -31,7 +26,6 @@
     }
 }
 
-/* El contenedor principal */
 .login-wrapper {
     background: var(--gysl-white);
     border-radius: 20px;
@@ -59,7 +53,6 @@
     }
 }
 
-/* Base de los formularios (Signup y SignIn) */
 .login-form-container {
     position: absolute;
     top: 0;
@@ -78,14 +71,12 @@
     text-align: center;
 }
 
-/* Login (visible a la derecha por defecto) */
 .login-sign-in-container {
     left: 50%;
     width: 50%;
     z-index: 2;
 }
 
-/* Register (oculto a la izquierda por defecto) */
 .login-sign-up-container {
     left: 0;
     width: 50%;
@@ -93,7 +84,6 @@
     z-index: 1;
 }
 
-/* --- CLASE MAGICA PARA ANIMAR --- */
 .login-wrapper.right-panel-active .login-sign-in-container {
     transform: translateX(100%);
     opacity: 0;
@@ -122,19 +112,16 @@
     }
 }
 
-/* Panel Overlay (La capa azul que se desliza por encima) */
 .login-overlay-container {
     position: absolute;
     top: 0;
     left: 0;
-    /* COMIENZA A LA IZQUIERDA */
     width: 50%;
     height: 100%;
     overflow: hidden;
     transition: transform 0.6s ease-in-out, border-radius 0.6s ease-in-out;
     z-index: 100;
 
-    /* Forma curva asimétrica (hacia la derecha inicialmente) */
     border-top-right-radius: 120px;
     border-bottom-right-radius: 120px;
     border-top-left-radius: 0;
@@ -143,8 +130,6 @@
 
 .login-wrapper.right-panel-active .login-overlay-container {
     transform: translateX(100%);
-
-    /* Forma curva se invierte (apunta a la izquierda) */
     border-top-left-radius: 120px;
     border-bottom-left-radius: 120px;
     border-top-right-radius: 0;
@@ -153,7 +138,6 @@
 
 .login-overlay-panel-bg {
     background: linear-gradient(135deg, var(--gysl-blue), var(--gysl-superdark));
-    /* Puedes cambiar a color sólido (#0A2345) si prefieres que no haya degradado */
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 0 0;
@@ -203,7 +187,6 @@
     transform: translateX(0);
 }
 
-/* --- TEXTOS DEL OVERLAY --- */
 .login-overlay-panel h2 {
     font-size: var(--fs-h2);
     font-weight: var(--fw-bold);
@@ -218,7 +201,6 @@
     margin-bottom: 30px;
 }
 
-/* Botón transparente del overlay */
 .login-ghost-btn {
     border: 1px solid var(--gysl-white);
     background: transparent;
@@ -237,7 +219,6 @@
     transform: translateY(-2px);
 }
 
-/* --- ELEMENTOS DE LOS FORMULARIOS --- */
 .login-form-container h2 {
     font-size: var(--fs-h2);
     font-weight: var(--fw-bold);
@@ -293,7 +274,6 @@
     height: 20px;
 }
 
-/* Para poner Nombre y Apellido al lado */
 .login-input-group--half {
     display: flex;
     gap: 10px;
@@ -344,8 +324,6 @@
     background: #f4f6fa;
 }
 
-
-/* --- BOTON ESTILO HOME Y LOGIN --- */
 .gysl-btn-ui-login {
     display: inline-flex;
     align-items: center;
@@ -389,7 +367,6 @@
     transform: scale(.9);
 }
 
-/* --- CLOSE BOTON --- */
 .login-close-btn {
     position: absolute;
     top: 15px;
@@ -418,7 +395,6 @@
     color: var(--gysl-white);
 }
 
-/* --- FORGOT PASSWORD FLOW (HIDDEN) --- */
 .forgot-flow-container {
     position: absolute;
     inset: 0;
@@ -446,7 +422,6 @@
     text-align: center;
 }
 
-/* Back button para salir de forgot password */
 .back-btn {
     position: absolute;
     top: 20px;
@@ -476,7 +451,6 @@
     padding-left: 5px;
 }
 
-/* MOBILE RESPONSIVE PARA EL SLIDING PANEL */
 @media (max-width: 768px) {
     .login-wrapper {
         min-height: auto;

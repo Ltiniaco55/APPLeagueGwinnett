@@ -80,11 +80,7 @@
     }
 
     function obtenerPartidosFavoritos() {
-        /*
-            De momento usamos localStorage hasta que exista backend real.
-            Estructura esperada:
-            localStorage.setItem("equipos_favoritos", JSON.stringify([1, 5, 9]));
-        */
+
         let favoritos = [];
 
         try {

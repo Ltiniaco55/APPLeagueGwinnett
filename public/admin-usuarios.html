@@ -316,7 +316,6 @@
 
     </div>
 
-    <!-- ═══ MODAL ROLE ═══ -->
     <div class="gysl-admin-form-overlay" id="rol-form-overlay">
         <div class="gysl-admin-form-card" style="max-width: 480px;">
             <h3 id="rol-form-title">Permisos del Usuario</h3>
@@ -378,13 +377,12 @@
         </div>
     </div>
 
-    <!-- ═══ MODAL FICHA USUARIO ═══ -->
     <div class="gysl-admin-form-overlay" id="ficha-usuario-overlay">
         <div class="gysl-admin-form-card" style="width:min(620px, 95%); max-height:85vh; overflow-y:auto;">
             <h3 id="ficha-usuario-title">Ficha del Usuario</h3>
 
             <div class="gysl-detail-info" id="ficha-usuario-content">
-                <!-- Se genera dinámicamente -->
+
             </div>
 
             <div class="gysl-admin-form-actions" style="margin-top:20px;">
@@ -395,7 +393,6 @@
         </div>
     </div>
 
-    <!-- ═══ MODAL GESTIONAR EQUIPOS USUARIO ═══ -->
     <div class="gysl-admin-form-overlay" id="gestion-equipos-overlay">
         <div class="gysl-admin-form-card" style="width:min(620px, 95%); max-height:85vh; overflow-y:auto;">
             <h3>Gestionar equipos</h3>
@@ -441,7 +438,6 @@
             "use strict";
 
             const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/api";
-            // As API is configured with router natively on root or directly via index.php logic, actually let's match the existing syntax which uses index.php or routes without /api.
             const API_REAL = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
 
             let usuariosData = [];
@@ -457,7 +453,6 @@
             const loading = document.getElementById("usuarios-loading");
             const empty = document.getElementById("usuarios-empty");
 
-            /* ─── Load data ───────────────────────────────── */
             async function loadData() {
                 loading.style.display = "flex";
                 tableWrapper.style.display = "none";
@@ -572,26 +567,26 @@
                         ) ? "checked" : "";
 
                         return `
-                <label class="gysl-role-team-option">
-                    <input type="checkbox"
-                        class="rol-equipo-checkbox"
-                        value="${idEquipo}"
-                        data-id-liga="${idLiga}"
-                        ${checked}>
+                                    <label class="gysl-role-team-option">
+                                        <input type="checkbox"
+                                            class="rol-equipo-checkbox"
+                                            value="${idEquipo}"
+                                            data-id-liga="${idLiga}"
+                                            ${checked}>
 
-                    <span class="gysl-role-team-option__text">
-                        <span class="gysl-role-team-option__name">${nombre}</span>
-                    </span>
-                </label>
-            `;
+                                        <span class="gysl-role-team-option__text">
+                                            <span class="gysl-role-team-option__name">${nombre}</span>
+                                        </span>
+                                    </label>
+                                `;
                     }).join("");
                 }).join("");
 
                 container.innerHTML = html || `
-        <p style="color:var(--gysl-muted); font-size:13px;">
-            No hay equipos que coincidan con el filtro.
-        </p>
-    `;
+                            <p style="color:var(--gysl-muted); font-size:13px;">
+                                No hay equipos que coincidan con el filtro.
+                            </p>
+                        `;
             }
 
             window.onFiltroLigaRolChange = function () {
@@ -604,7 +599,6 @@
                 populateEquiposCheckboxes(equiposStaffActual);
             };
 
-            /* ─── Render ─── */
             window.renderUsuarios = function () {
                 const fRol = document.getElementById("filter-rol").value;
                 const fStr = document.getElementById("filter-search").value.toLowerCase();
@@ -726,7 +720,6 @@
                 `;
             }
 
-            /* ─── Forms ─── */
             window.openRolForm = async function (id) {
                 const u = usuariosData.find(usr => (usr.id_usuario ?? usr.id) == id);
                 if (!u) return;
@@ -1226,7 +1219,7 @@
                 if (!confirmado) return;
 
                 try {
-                    // 1. Update Rol
+
                     const resRol = await fetch(API_REAL + "/usuarios/" + id + "/rol", {
                         method: "PATCH",
                         credentials: "include",
@@ -1240,10 +1233,6 @@
                         showToast(dataRol.message || "Error al actualizar rol", "error");
                         return;
                     }
-
-                    // 2. Update Equipo (Solo aplicable cuando es staff o cuando pierde su rol, 
-                    // pero el backend limpia el id_equipo automático si rol != STAFF, así que siempre lo enviamos si es STAFF)
-
 
                     if (rol === "STAFF") {
 
@@ -1272,7 +1261,6 @@
                 }
             };
 
-            /* ─── Init ─── */
             if (document.readyState === "loading") {
                 document.addEventListener("DOMContentLoaded", loadData);
             } else {

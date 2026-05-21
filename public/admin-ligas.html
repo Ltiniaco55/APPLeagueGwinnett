@@ -185,7 +185,6 @@
 
         <div class="gysl-admin__content">
 
-            <!-- Actions bar -->
             <div class="gysl-admin-actions">
                 <h2 class="gysl-admin-actions__title">Listado de Ligas</h2>
                 <div style="display: flex; gap: 10px; align-items: center;">
@@ -199,7 +198,6 @@
                 </div>
             </div>
 
-            <!-- Table -->
             <div id="ligas-loading" class="gysl-admin-loading">Cargando ligas...</div>
 
             <div id="ligas-empty" class="gysl-admin-empty" style="display:none;">
@@ -238,7 +236,6 @@
 
     </div>
 
-    <!-- ═══ CREATE / EDIT FORM MODAL ═══ -->
     <div class="gysl-admin-form-overlay" id="liga-form-overlay">
         <div class="gysl-admin-form-card">
             <h3 id="liga-form-title">Nueva Liga</h3>
@@ -304,11 +301,9 @@
 
             const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
 
-            /* ─── State ──────────────────────────────────────── */
             let ligasData = [];
-            let viewMode = 'list'; // 'list' | 'cards'
+            let viewMode = 'list';
 
-            /* ─── DOM refs ───────────────────────────────────── */
             const tbody = document.getElementById("ligas-tbody");
             const tableWrapper = document.getElementById("ligas-table-wrapper");
             const cardsWrapper = document.getElementById("ligas-cards-wrapper");
@@ -326,7 +321,6 @@
                 window.location.href = "admin-equipos.html?liga=" + idLiga;
             };
 
-            /* ─── Fetch ligas ────────────────────────────────── */
             async function loadLigas() {
                 loading.style.display = "flex";
                 tableWrapper.style.display = "none";
@@ -346,7 +340,6 @@
                 renderLigas();
             }
 
-            /* ─── Render table & cards ───────────────────────────────── */
             function renderLigas() {
                 if (ligasData.length === 0) {
                     empty.style.display = "block";
@@ -401,7 +394,6 @@
                         AMISTOSO: "Amistoso"
                     }[formato] ?? "Jornadas";
 
-                    // LISTA
                     trs += `
                     <tr onclick="goToEquipos(${idLiga})">
                         <td onclick="event.stopPropagation()">${escudoHtml}</td>
@@ -422,7 +414,6 @@
                         </td>
                     </tr>`;
 
-                    // CARDS
                     cards += `
                         <div class="gysl-card ${tieneEscudo ? 'gysl-card--con-escudo' : 'gysl-card--sin-escudo'}" onclick="goToEquipos(${idLiga})">
                             ${escudoCardHtml}
@@ -465,7 +456,6 @@
                 cardsGrid.innerHTML = cards;
             }
 
-            /* ─── Form helpers ───────────────────────────────── */
             window.openLigaForm = function (liga = null) {
                 const overlay = document.getElementById("liga-form-overlay");
                 const title = document.getElementById("liga-form-title");
@@ -487,7 +477,6 @@
                     document.getElementById("liga-descripcion").value = liga.descripcion ?? "";
                     document.getElementById("liga-estado").value = liga.estado_liga ?? "PROXIMAMENTE";
                     document.getElementById("liga-formato").value = liga.formato_liga ?? "JORNADAS";
-                    // Guardamos las keys originales en dataset por si el backend soportara update en el futuro
                     document.getElementById("liga-nombre").dataset.original = liga.nombre_liga ?? liga.nom ?? "";
                     document.getElementById("liga-temporada").dataset.original = liga.temporada ?? liga.temp ?? "";
                     document.getElementById("liga-categoria").dataset.original = liga.categoria ?? liga.categ ?? "";
@@ -517,7 +506,6 @@
                 if (liga) openLigaForm(liga);
             };
 
-            /* ─── Submit (POST or PUT) ───────────────────────── */
             window.submitLiga = async function () {
                 const editId = document.getElementById("liga-edit-id").value;
                 const fileInput = document.getElementById("liga-escudo");
@@ -559,7 +547,7 @@
                 try {
                     let res;
                     if (editId) {
-                        // PUT /ligas (el backend usa body, no URL param)
+
                         res = await fetch(API + "/ligas", {
                             method: "PUT",
                             credentials: "include",
@@ -567,7 +555,6 @@
                             body: JSON.stringify(body)
                         });
                     } else {
-                        // POST /ligas
                         res = await fetch(API + "/ligas", {
                             method: "POST",
                             credentials: "include",
@@ -609,7 +596,6 @@
                 }
             };
 
-            /* ─── Delete ─────────────────────────────────────── */
             window.deleteLiga = async function (nom, temp, categ) {
                 const confirmado = await showConfirm(
                     "Eliminar liga",
@@ -641,7 +627,6 @@
                 }
             };
 
-            /* ─── Init ───────────────────────────────────────── */
             if (document.readyState === "loading") {
                 document.addEventListener("DOMContentLoaded", loadLigas);
             } else {

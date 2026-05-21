@@ -21,9 +21,8 @@
         if (!forgotPwdLink || forgotPwdLink.dataset.wired) return;
         forgotPwdLink.dataset.wired = "true";
 
-        let forgotEmail = ""; // guardamos el email para los pasos siguientes
+        let forgotEmail = "";
 
-        // ─── helpers de feedback en los mismos steps ─────────────────────────
         function showStepMsg(step, msg, isError = true) {
             let el = step.querySelector(".forgot-step-msg");
             if (!el) {
@@ -51,7 +50,6 @@
             }
         }
 
-        // ─── 1. Mostrar flujo de forgot password ─────────────────────────────
         forgotPwdLink.addEventListener('click', (e) => {
             e.preventDefault();
             if (loginForm) loginForm.style.display = "none";
@@ -61,7 +59,6 @@
             if (step3) step3.style.display = "none";
         });
 
-        // ─── 2. Volver al Login ───────────────────────────────────────────────
         if (backToLoginBtn) {
             backToLoginBtn.addEventListener('click', () => {
                 if (forgotFlow) forgotFlow.style.display = "none";
@@ -70,7 +67,6 @@
             });
         }
 
-        // ─── 3. Enviar código al email ────────────────────────────────────────
         if (btnSendCode) {
             btnSendCode.addEventListener('click', async () => {
                 const email = (document.getElementById("forgot-email")?.value || "").trim();
@@ -108,7 +104,6 @@
             });
         }
 
-        // ─── 4. Verificar código ──────────────────────────────────────────────
         if (btnVerify) {
             btnVerify.addEventListener('click', async () => {
                 const code = (document.getElementById("forgot-code")?.value || "").trim();
@@ -145,7 +140,6 @@
             });
         }
 
-        // ─── 5. Guardar nueva contraseña ──────────────────────────────────────
         if (btnResetPwd) {
             btnResetPwd.addEventListener('click', async () => {
                 const p1 = (document.getElementById("forgot-new-pwd")?.value || "");
@@ -179,11 +173,9 @@
                     if (res.ok && data.success) {
                         showStepMsg(step3, "✅ ¡Contraseña cambiada! Iniciando sesión…", false);
 
-                        // Limpiamos campos
                         document.getElementById("forgot-new-pwd").value = "";
                         document.getElementById("forgot-confirm-pwd").value = "";
 
-                        // Volvemos al login tras 2s
                         setTimeout(() => {
                             forgotEmail = "";
                             if (forgotFlow) forgotFlow.style.display = "none";

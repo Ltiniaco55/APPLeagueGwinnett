@@ -18,7 +18,6 @@
     <script src="./JS/adminNav.js" defer></script>
 
     <style>
-        /* ── Filtros ──────────────────────────────────────── */
         .gysl-partidos-filters {
             display: flex;
             gap: 10px;
@@ -62,7 +61,6 @@
             flex-wrap: wrap;
         }
 
-        /* ── Vista cards ───────────────────────────────────── */
         .gysl-partido-cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -147,7 +145,6 @@
             flex-wrap: wrap;
         }
 
-        /* ── Badges de estado ──────────────────────────────── */
         .gysl-badge--programado {
             background: rgba(99, 179, 237, .15);
             color: #63b3ed;
@@ -178,7 +175,6 @@
             border: 1px solid rgba(241, 184, 45, .35);
         }
 
-        /* ── Modal detalle ─────────────────────────────────── */
         .gysl-detail-overlay {
             position: fixed;
             inset: 0;
@@ -301,7 +297,6 @@
             font-weight: 500;
         }
 
-        /* ── Form modal ancho mayor ────────────────────────── */
         .gysl-admin-form-card--wide {
             width: min(620px, 100%);
         }
@@ -350,7 +345,6 @@
 
         <div class="gysl-admin__content">
 
-            <!-- ── Barra de acciones ─────────────────────── -->
             <div class="gysl-admin-actions" style="margin-bottom: 12px;">
                 <h2 class="gysl-admin-actions__title">Listado de Partidos</h2>
                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -362,7 +356,6 @@
                 </div>
             </div>
 
-            <!-- ── Filtros ───────────────────────────────── -->
             <div class="gysl-partidos-filters">
                 <select id="filter-liga" onchange="applyFilters()">
                     <option value="">— Todas las ligas —</option>
@@ -378,7 +371,6 @@
                 <input type="text" id="filter-equipo-text" placeholder="Buscar equipo..." oninput="applyFilters()">
             </div>
 
-            <!-- ── Estados de carga ──────────────────────── -->
             <div id="partidos-loading" class="gysl-admin-loading">Cargando partidos...</div>
 
             <div id="partidos-empty" class="gysl-admin-empty" style="display:none;">
@@ -390,7 +382,6 @@
                 <p>No hay partidos que coincidan con los filtros</p>
             </div>
 
-            <!-- ── Vista lista ───────────────────────────── -->
             <div class="gysl-admin-table-wrapper" id="partidos-table-wrapper" style="display:none;">
                 <table class="gysl-admin-table">
                     <thead>
@@ -408,7 +399,6 @@
                 </table>
             </div>
 
-            <!-- ── Vista cards ───────────────────────────── -->
             <div id="partidos-cards-wrapper" style="display:none;">
                 <div class="gysl-partido-cards-grid" id="partidos-cards-grid"></div>
             </div>
@@ -416,9 +406,6 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         MODAL: CREAR / EDITAR PARTIDO
-    ══════════════════════════════════════════════════════ -->
     <div class="gysl-admin-form-overlay" id="partido-form-overlay">
         <div class="gysl-admin-form-card gysl-admin-form-card--wide">
             <h3 id="partido-form-title">Nuevo Partido</h3>
@@ -426,14 +413,14 @@
                 <input type="hidden" id="partido-edit-id">
 
                 <div class="gysl-form-row">
-                    <!-- Liga -->
+
                     <div class="gysl-admin-form-group">
                         <label for="pf-liga">Liga *</label>
                         <select id="pf-liga" required onchange="onLigaChange()">
                             <option value="">— Seleccionar liga —</option>
                         </select>
                     </div>
-                    <!-- Tipo de ronda -->
+
                     <div class="gysl-admin-form-group">
                         <label for="pf-tipo-ronda">Tipo de ronda *</label>
                         <select id="pf-tipo-ronda" required>
@@ -443,14 +430,13 @@
                 </div>
 
                 <div class="gysl-form-row">
-                    <!-- Equipo local -->
                     <div class="gysl-admin-form-group">
                         <label for="pf-local">Equipo local *</label>
                         <select id="pf-local" required>
                             <option value="">— Seleccionar —</option>
                         </select>
                     </div>
-                    <!-- Equipo visitante -->
+
                     <div class="gysl-admin-form-group">
                         <label for="pf-visitante">Equipo visitante *</label>
                         <select id="pf-visitante" required>
@@ -460,32 +446,29 @@
                 </div>
 
                 <div class="gysl-form-row">
-                    <!-- Fecha -->
+
                     <div class="gysl-admin-form-group">
                         <label for="pf-fecha-dia">Fecha *</label>
                         <input type="date" id="pf-fecha-dia" required>
                     </div>
-                    <!-- Hora -->
+
                     <div class="gysl-admin-form-group">
                         <label for="pf-hora">Hora *</label>
                         <input type="time" id="pf-hora" required>
                     </div>
                 </div>
 
-                <!-- Lugar -->
                 <div class="gysl-admin-form-group">
                     <label for="pf-lugar">Lugar *</label>
                     <input type="text" id="pf-lugar" placeholder="Ej: Gwinnett Stadium" required>
                 </div>
 
-                <!-- Árbitro (opcional) -->
                 <div class="gysl-admin-form-group">
                     <label for="pf-arbitro">Árbitro <small
                             style="color:var(--gysl-muted); text-transform:none; font-weight:400;">(opcional)</small></label>
                     <input type="text" id="pf-arbitro" placeholder="Nombre del árbitro">
                 </div>
 
-                <!-- Goles (solo edición) -->
                 <div id="pf-goles-group" style="display:none;">
                     <div class="gysl-form-row">
                         <div class="gysl-admin-form-group">
@@ -518,9 +501,6 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         MODAL: DETALLE DEL PARTIDO
-    ══════════════════════════════════════════════════════ -->
     <div class="gysl-detail-overlay" id="partido-detail-overlay">
         <div class="gysl-detail-card">
             <button class="gysl-detail-card__close" onclick="closeDetail()" title="Cerrar">✕</button>
@@ -571,10 +551,10 @@
 
             const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
 
-            let partidosData = [];   // todos los partidos cargados
-            let ligasData = [];   // ligas disponibles
-            let equiposData = [];   // equipos disponibles (todos)
-            let ligaEquipos = [];   // equipos para la liga seleccionada en el form
+            let partidosData = [];
+            let ligasData = [];
+            let equiposData = [];
+            let ligaEquipos = [];
             let viewMode = "list";
 
             const loading = document.getElementById("partidos-loading");
@@ -584,10 +564,6 @@
             const tbody = document.getElementById("partidos-tbody");
             const cardsGrid = document.getElementById("partidos-cards-grid");
 
-
-            /* ═══════════════════════════════════════════════
-               HELPERS
-            ═══════════════════════════════════════════════ */
             function estadoBadge(estado, partido = null) {
                 if (partido && esPartidoProgramadoVencido(partido)) {
                     return `<span class="gysl-badge gysl-badge--vencido">Pendiente resultado</span>`;
@@ -647,9 +623,6 @@
                 );
             }
 
-            /* ═══════════════════════════════════════════════
-               CARGA DATOS
-            ═══════════════════════════════════════════════ */
             async function loadData(filtros = {}) {
                 loading.style.display = "flex";
                 tableWrapper.style.display = "none";
@@ -657,7 +630,7 @@
                 emptyState.style.display = "none";
 
                 try {
-                    // Cargar ligas y equipos (una sola vez al inicio si no están cargados)
+
                     if (ligasData.length === 0) {
                         const [rL, rE] = await Promise.all([
                             fetch(API + "/ligas", { credentials: "include" }),
@@ -671,7 +644,6 @@
                         populateFormLigas();
                     }
 
-                    // Construir query params
                     const params = new URLSearchParams();
                     Object.entries(filtros).forEach(([k, v]) => { if (v) params.set(k, v); });
 
@@ -692,9 +664,6 @@
                 render();
             }
 
-            /* ═══════════════════════════════════════════════
-               FILTROS
-            ═══════════════════════════════════════════════ */
             function populateFilterLigas() {
                 const sel = document.getElementById("filter-liga");
                 sel.innerHTML = '<option value="">— Todas las ligas —</option>';
@@ -724,11 +693,9 @@
                 renderWith(filtered);
             };
 
-            // Si cambian los filtros de liga/estado/fecha → recargar desde API
             document.getElementById("filter-liga").addEventListener("change", fetchWithFilters);
             document.getElementById("filter-estado").addEventListener("change", fetchWithFilters);
             document.getElementById("filter-fecha").addEventListener("change", fetchWithFilters);
-            // Equipo texto → filtra sobre los datos locales
             document.getElementById("filter-equipo-text").addEventListener("input", window.applyFilters);
 
             function getApiFilters() {
@@ -752,9 +719,6 @@
                 loadData();
             };
 
-            /* ═══════════════════════════════════════════════
-               RENDER
-            ═══════════════════════════════════════════════ */
             window.toggleViewMode = function () {
                 viewMode = viewMode === "list" ? "cards" : "list";
                 document.getElementById("view-mode-btn").innerHTML =
@@ -763,7 +727,7 @@
             };
 
             function render() {
-                // Aplicar filtro de texto local sobre los datos actuales
+
                 const texto = document.getElementById("filter-equipo-text").value.trim().toLowerCase();
                 let data = [...partidosData];
                 if (texto) {
@@ -856,9 +820,6 @@
                 }).join("");
             }
 
-            /* ═══════════════════════════════════════════════
-               FORMULARIO: LIGAS & EQUIPOS
-            ═══════════════════════════════════════════════ */
             function populateFormLigas() {
                 const sel = document.getElementById("pf-liga");
                 sel.innerHTML = '<option value="">— Seleccionar liga —</option>';
@@ -910,7 +871,6 @@
                     .join("");
             }
 
-            // Filtra equiposData por ligas_ids localmente (sin fetch adicional)
             function cargarEquiposPorLiga(idLiga) {
                 if (!idLiga) {
                     ligaEquipos = [];
@@ -930,7 +890,6 @@
 
             function rellenarSelectEquipos(selectEl, equiposFiltrados) {
                 if (!equiposFiltrados) {
-                    // Sin liga seleccionada
                     selectEl.innerHTML = '<option value="">— Seleccionar —</option>';
                     return;
                 }
@@ -959,14 +918,10 @@
                 rellenarSelectEquipos(document.getElementById("pf-visitante"), list.length ? list : null);
             }
 
-            /* ═══════════════════════════════════════════════
-               FORMULARIO: ABRIR / CERRAR
-            ═══════════════════════════════════════════════ */
             window.openPartidoForm = function (partido = null) {
                 const overlay = document.getElementById("partido-form-overlay");
                 const title = document.getElementById("partido-form-title");
 
-                // Reset
                 document.getElementById("partido-edit-id").value = "";
                 document.getElementById("pf-liga").value = "";
                 document.getElementById("pf-tipo-ronda").innerHTML = '<option value="">— Selecciona una liga primero —</option>';
@@ -1002,7 +957,6 @@
                     if (partido.goles_visitante !== null && partido.goles_visitante !== undefined)
                         document.getElementById("pf-goles-visitante").value = partido.goles_visitante;
 
-                    // Fecha y hora separadas
                     if (partido.fecha) {
                         const dt = new Date(partido.fecha);
                         if (!isNaN(dt.getTime())) {
@@ -1050,7 +1004,6 @@
                     return;
                 }
 
-                // Auto-estado: si se ingresan goles → jugado (solo al crear)
                 let estadoFinal = estado;
                 if (!editId && golesL !== "" && golesV !== "") {
                     estadoFinal = "jugado";
@@ -1104,9 +1057,6 @@
                 }
             };
 
-            /* ═══════════════════════════════════════════════
-               CANCELAR PARTIDO
-            ═══════════════════════════════════════════════ */
             window.cancelarPartido = async function (id) {
                 const p = partidosData.find(x => x.id_partido == id);
                 const nombre = p ? `${p.club_local} vs ${p.club_visitante}` : `Partido #${id}`;
@@ -1137,9 +1087,6 @@
                 }
             };
 
-            /* ═══════════════════════════════════════════════
-               ELIMINAR PARTIDO
-            ═══════════════════════════════════════════════ */
             window.eliminarPartido = async function (id) {
                 const p = partidosData.find(x => x.id_partido == id);
                 const nombre = p ? `${p.club_local} vs ${p.club_visitante}` : `Partido #${id}`;
@@ -1170,9 +1117,6 @@
                 }
             };
 
-            /* ═══════════════════════════════════════════════
-               DETALLE
-            ═══════════════════════════════════════════════ */
             window.openDetail = function (id) {
                 const p = partidosData.find(x => x.id_partido == id);
                 if (!p) return;
@@ -1189,7 +1133,6 @@
                 document.getElementById("detail-lugar").textContent = p.lugar ?? "—";
                 document.getElementById("detail-arbitro").textContent = p.arbitro ?? "Sin árbitro";
 
-                // Badge de estado
                 const badge = document.getElementById("detail-estado-badge");
                 badge.className = "gysl-badge";
                 const estadoMap = {
@@ -1208,21 +1151,16 @@
                 document.getElementById("partido-detail-overlay").classList.remove("is-open");
             };
 
-            // Cerrar detalle al clicar fondo
             document.getElementById("partido-detail-overlay").addEventListener("click", function (e) {
                 if (e.target === this) closeDetail();
             });
-            // Cerrar form al clicar fondo
+
             document.getElementById("partido-form-overlay").addEventListener("click", function (e) {
                 if (e.target === this) closePartidoForm();
             });
 
-            /* ═══════════════════════════════════════════════
-               RECARGAR
-            ═══════════════════════════════════════════════ */
             async function recargar() {
-                // Forzar recarga desde API con filtros activos
-                ligasData = []; // reset para forzar recarga de ligas+equipos también
+                ligasData = [];
                 await loadData(getApiFilters());
             }
 
@@ -1234,9 +1172,6 @@
                 };
             }
 
-            /* ═══════════════════════════════════════════════
-               INIT
-            ═══════════════════════════════════════════════ */
             async function init() {
                 await loadData();
             }

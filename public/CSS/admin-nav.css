@@ -1,9 +1,3 @@
-/* ==========================================================
-   GYSL — ADMIN FLOATING BOTTOM NAV
-   ========================================================== */
-
-/* ─── Nav pill ────────────────────────────────────────────── */
-
 .gysl-admin-nav {
     position: fixed;
     bottom: 24px;
@@ -42,13 +36,13 @@
         opacity: 0;
         transform: translateX(-50%) translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
     }
 }
 
-/* Top accent bar */
 .gysl-admin-nav::after {
     content: "";
     position: absolute;
@@ -58,14 +52,12 @@
     height: 2px;
     border-radius: 2px;
     background: linear-gradient(90deg,
-        transparent 0%,
-        var(--gysl-yellow) 50%,
-        transparent 100%);
+            transparent 0%,
+            var(--gysl-yellow) 50%,
+            transparent 100%);
     opacity: .7;
     pointer-events: none;
 }
-
-/* ─── Nav items ───────────────────────────────────────────── */
 
 .gysl-admin-nav__item {
     display: flex;
@@ -115,7 +107,6 @@
     transform: translateY(-2px);
 }
 
-/* Active */
 .gysl-admin-nav__item.is-active {
     color: var(--gysl-yellow);
     background: rgba(241, 184, 45, .12);
@@ -126,7 +117,6 @@
     filter: drop-shadow(0 0 6px rgba(241, 184, 45, .4));
 }
 
-/* Disabled */
 .gysl-admin-nav__item.is-disabled {
     opacity: .4;
     cursor: not-allowed;
@@ -137,8 +127,6 @@
     color: var(--gysl-muted);
     transform: none;
 }
-
-/* ─── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 520px) {
     .gysl-admin-nav {
@@ -165,16 +153,12 @@
     .gysl-admin-nav__item span {
         display: none;
     }
+
     .gysl-admin-nav__item {
         width: 44px;
     }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   "MÁS" — DROPDOWN / POPOVER
-   ═══════════════════════════════════════════════════════════ */
-
-/* Wrapper: necesario para el posicionamiento relativo del popover */
 .gysl-nav-more {
     position: relative;
     display: flex;
@@ -182,45 +166,31 @@
     justify-content: center;
 }
 
-/* ── Popover ─────────────────────────────────────────────── */
-
 .gysl-nav-more__menu {
-    /* Posición: centrado sobre el botón, flotando hacia arriba */
     position: absolute;
     bottom: calc(100% + 14px);
     left: 50%;
     transform: translateX(-50%) translateY(6px) scale(.97);
-
     min-width: 172px;
-
-    /* Glass GYSL */
     background:
         radial-gradient(ellipse at 30% 20%, rgba(20, 52, 94, .6), transparent 65%),
         rgba(6, 16, 38, .96);
     border: 1px solid rgba(255, 255, 255, .13);
     border-radius: 16px;
-
     box-shadow:
         0 20px 50px rgba(0, 0, 0, .65),
         0 6px 18px rgba(0, 0, 0, .4),
         inset 0 1px 0 rgba(255, 255, 255, .07),
-        /* glow dorado muy sutil */
         0 0 0 1px rgba(241, 184, 45, .06);
-
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-
     padding: 8px;
-
     display: flex;
     flex-direction: column;
     gap: 3px;
-
-    /* Animación con opacity + visibility (NO display:none para poder animar) */
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-
     transition:
         opacity .22s ease,
         transform .22s ease,
@@ -229,7 +199,6 @@
     z-index: 400;
 }
 
-/* Estado abierto */
 .gysl-nav-more__menu.is-open {
     opacity: 1;
     visibility: visible;
@@ -237,7 +206,6 @@
     transform: translateX(-50%) translateY(0) scale(1);
 }
 
-/* Accent line superior del popover */
 .gysl-nav-more__menu::before {
     content: "";
     position: absolute;
@@ -247,13 +215,12 @@
     height: 1.5px;
     border-radius: 2px;
     background: linear-gradient(90deg,
-        transparent,
-        rgba(241, 184, 45, .55),
-        transparent);
+            transparent,
+            rgba(241, 184, 45, .55),
+            transparent);
     pointer-events: none;
 }
 
-/* ── Flecha decorativa ───────────────────────────────────── */
 
 .gysl-nav-more__arrow {
     position: absolute;
@@ -278,8 +245,6 @@
     transform: translateX(-50%) rotate(45deg);
     transform-origin: center;
 }
-
-/* ── Items del dropdown ──────────────────────────────────── */
 
 .gysl-nav-more__item {
     display: flex;
@@ -315,14 +280,12 @@
     transition: filter .15s ease;
 }
 
-/* Hover */
 .gysl-nav-more__item:hover {
     background: rgba(255, 255, 255, .07);
     color: var(--gysl-white);
     border-color: rgba(255, 255, 255, .07);
 }
 
-/* Active (página actual) */
 .gysl-nav-more__item.is-active {
     background: rgba(241, 184, 45, .11);
     color: var(--gysl-yellow);
@@ -333,9 +296,7 @@
     filter: drop-shadow(0 0 5px rgba(241, 184, 45, .35));
 }
 
-/* ── Separador entre items (opcional) ───────────────────── */
-
-.gysl-nav-more__item + .gysl-nav-more__item {
+.gysl-nav-more__item+.gysl-nav-more__item {
     border-top: 1px solid rgba(255, 255, 255, .04);
     border-radius: 0 0 10px 10px;
     margin-top: 0;
@@ -345,7 +306,6 @@
     border-radius: 10px 10px 0 0;
 }
 
-/* Override: cuando sea el único elemento */
 .gysl-nav-more__item:only-child {
     border-radius: 10px;
 }

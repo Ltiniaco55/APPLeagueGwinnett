@@ -1,16 +1,6 @@
-/* =========================================
-   GYSL — TYPOGRAPHY SYSTEM
-========================================= */
-
 :root {
 
-    /* ───── FONT FAMILY ───── */
-
     --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-
-
-
-    /* ───── FONT WEIGHTS ───── */
 
     --fw-light: 300;
     --fw-regular: 400;
@@ -19,13 +9,9 @@
     --fw-bold: 700;
     --fw-black: 900;
 
-    /* ───── HERO SCALE ───── */
-
     --fs-hero-title: 64px;
     --fs-hero-subtitle: 20px;
     --fs-hero-text: 15px;
-
-    /* ───── GLOBAL SCALE ───── */
 
     --fs-h1: 48px;
     --fs-h2: 36px;
@@ -38,46 +24,29 @@
     --fs-body: 16px;
     --fs-body-sm: 14px;
 
-    /* ───── LINE HEIGHT ───── */
-
     --lh-tight: 1.1;
     --lh-normal: 1.5;
     --lh-relaxed: 1.7;
-
-    /* ───── LETTER SPACING ───── */
 
     --tracking-tight: -1px;
     --tracking-normal: 0;
     --tracking-wide: .5px;
 }
 
-
-
-
-/* =========================================
-   HERO 1 HOME
-========================================= */
-
 .gysl-hero {
     position: relative;
     width: 100%;
     min-height: 720px;
-
     display: flex;
     align-items: center;
-
     padding: 0px 80px;
-
-    /* cambia ruta según tu proyecto */
     background-image:
         linear-gradient(to right, rgba(8, 22, 45, .95), rgba(8, 22, 45, .6)),
         url("../fotos/b4de0217-33ad-437f-9ff6-d8026da17bac.png");
-
     background-size: cover;
     background-position: center;
 }
 
-/* overlay textura */
 .gysl-hero-overlay {
     position: absolute;
     inset: 0;
@@ -85,7 +54,6 @@
     pointer-events: none;
 }
 
-/* contenido */
 .gysl-hero-content {
     position: relative;
     max-width: 620px;
@@ -96,7 +64,6 @@
     margin-right: 100px;
 }
 
-/* titulo */
 .gysl-hero-title {
     font-family: var(--font-primary);
     font-size: var(--fs-hero-title);
@@ -106,7 +73,6 @@
     margin-bottom: 20px;
 }
 
-/* subtitulo */
 .gysl-hero-subtitle {
     font-family: var(--font-primary);
     font-size: var(--fs-hero-subtitle);
@@ -115,7 +81,6 @@
     margin-right: 50px;
 }
 
-/* descripcion */
 .gysl-hero-desc {
     font-family: var(--font-primary);
     font-size: var(--fs-hero-text);
@@ -125,8 +90,6 @@
     margin-right: 100px;
 }
 
-
-/* responsive */
 @media (max-width:900px) {
     .gysl-hero {
         padding: 100px 30px;
@@ -137,34 +100,22 @@
     }
 }
 
-/* =========================================
-   GYSL UI BUTTON — GOLD VERSION
-   amarillo fondo + azul texto
-========================================= */
-
 .gysl-btn-ui-home {
     display: inline-flex;
     align-items: left;
     justify-content: center;
     margin-left: 0;
-
     background: var(--gysl-yellow);
-    /* fondo amarillo */
     border-radius: 10px;
-
     border: 2px solid #030f14;
     cursor: pointer;
     width: 50%;
-
     font-size: 16px;
     padding: 14px 28px;
     font-family: var(--gysl-font);
     font-weight: 800;
-
     user-select: none;
     transition: all .25s ease;
-
-    /* sombras externas + internas más elegantes */
     box-shadow:
         inset 0 -4px 10px rgba(0, 0, 0, .25),
         inset 0 2px 4px rgba(255, 255, 255, .25),
@@ -172,10 +123,8 @@
         0 2px 4px rgba(0, 0, 0, .4);
 }
 
-/* hover → efecto profundidad */
 .gysl-btn-ui-home:hover {
     transform: translateY(-2px);
-
     box-shadow:
         inset 0 -6px 14px rgba(0, 0, 0, .35),
         inset 0 3px 6px rgba(255, 255, 255, .3),
@@ -183,27 +132,22 @@
         0 4px 8px rgba(0, 0, 0, .4);
 }
 
-/* click */
 .gysl-btn-ui-home:active {
     transform: translateY(1px);
-
     box-shadow:
         inset 0 6px 14px rgba(0, 0, 0, .5),
         inset 0 -3px 6px rgba(255, 255, 255, .2),
         0 2px 6px rgba(0, 0, 0, .3);
 }
 
-/* texto */
 .gysl-btn-ui-home__text {
     display: inline-block;
     color: var(--gysl-superdark);
-    /* azul oscuro GYSL */
     font-weight: 800;
     letter-spacing: .6px;
     transition: .2s;
 }
 
-/* micro animación texto */
 .gysl-btn-ui-home:hover .gysl-btn-ui-home__text {
     transform: scale(.95);
 }
@@ -226,22 +170,6 @@
     text-decoration: none;
 }
 
-
-
-
-
-/* hero 2  */
-
-
-
-/* =========================================
-   SECTION 2 — FIXTURES (LaLiga-like)
-========================================= */
-
-/* =========================================
-   SECTION 2 — FIXTURES (LaLiga-like) — SIN SCROLL
-========================================= */
-
 .gysl-fixtures {
     position: relative;
     background:
@@ -251,7 +179,6 @@
     padding: 0;
 }
 
-/* Separador smooth */
 .gysl-divider-smooth {
     height: 14px;
     width: 100%;
@@ -263,7 +190,6 @@
     box-shadow: 0 6px 25px rgba(241, 184, 45, .20);
 }
 
-/* Wrapper */
 .gysl-fixtures__inner {
     padding: 60px 0 40px;
     width: 90%;
@@ -290,7 +216,6 @@
     line-height: 1;
 }
 
-/* Tabs */
 .gysl-tabs {
     display: flex;
     gap: 14px;
@@ -324,7 +249,6 @@
     color: var(--gysl-superdark);
 }
 
-/* ✅ Carrusel por páginas (SIN SCROLL) */
 .gysl-carousel {
     margin-top: 6px;
 }
@@ -347,7 +271,6 @@
     gap: 18px;
 }
 
-/* Match card (igual que lo tenías, pero sin min-width fijo) */
 .gysl-match {
     min-width: 0;
     max-width: none;
@@ -421,7 +344,6 @@
     letter-spacing: 2px;
 }
 
-/* Pills */
 .gysl-match__meta {
     display: flex;
     flex-wrap: wrap;
@@ -448,7 +370,6 @@
     color: rgba(8, 22, 45, .7);
 }
 
-/* Actions list */
 .gysl-match__actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -483,7 +404,6 @@
     justify-content: center;
 }
 
-/* ✅ Dots */
 .gysl-dots {
     display: flex;
     justify-content: center;
@@ -511,7 +431,6 @@
     border-color: var(--gysl-yellow);
 }
 
-/* Bottom right link */
 .gysl-fixtures__bottom {
     width: 90%;
     max-width: 1200px;
@@ -593,7 +512,6 @@
     box-shadow: 0 0 0 3px rgba(241, 184, 45, .14);
 }
 
-/* Responsive */
 @media (max-width: 900px) {
     .gysl-fixtures__top {
         flex-direction: column;

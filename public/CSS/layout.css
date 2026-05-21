@@ -1,8 +1,3 @@
-/* ==========================================================
-   GYSL — layout.css (FULL, FIXED FOOTER ICONS)
-   Header & Footer layout components
-   ========================================================== */
-
 :root {
     --gysl-superdark: #08162D;
     --gysl-dark: #0A2345;
@@ -27,21 +22,17 @@
     --gysl-nav-h: 68px;
     --gysl-strip-py: 6px;
 
-    /* Full width padding (safe spacing) */
     --gysl-page-px: 40px;
     --gysl-page-px-mobile: 20px;
 
-    /* Header logo */
     --logo-header-w: 52px;
 
-    /* Footer logo + reserved area */
     --logo-footer-w: 110px;
     --logo-footer-top: 0px;
     --logo-footer-left: 0px;
     --logo-footer-col-h: 200px;
 }
 
-/* Global reset (porque siempre hay alguien metiendo margin al body) */
 html,
 body {
     margin: 0;
@@ -50,7 +41,6 @@ body {
     width: 100%;
 }
 
-/* Reset helpers scoped to layout */
 .gysl-layout *,
 .gysl-layout *::before,
 .gysl-layout *::after {
@@ -73,16 +63,11 @@ body {
     max-width: 100%;
 }
 
-/* Base container (for normal page content). Header overrides where needed. */
 .gysl-container {
     width: 90%;
     max-width: 1200px;
     margin: 0 auto;
 }
-
-/* ==========================================================
-   HEADER
-   ========================================================== */
 
 .gysl-header {
     font-family: var(--gysl-font);
@@ -94,7 +79,6 @@ body {
     border-bottom: 1px solid var(--gysl-line);
 }
 
-/* ROW 1 — Strip (full width) */
 .gysl-header__strip {
     background: var(--gysl-dark);
     border-bottom: 1px solid var(--gysl-line);
@@ -102,7 +86,6 @@ body {
     overflow: hidden;
 }
 
-/* Kill container constraints inside strip */
 .gysl-header__strip .gysl-container {
     width: 100%;
     max-width: none;
@@ -161,7 +144,6 @@ body {
     transform: scale(1.12);
 }
 
-/* ROW 2 — Nav full width: left | center | right */
 .gysl-header__nav {
     position: relative;
     width: 100%;
@@ -250,7 +232,6 @@ body {
     gap: 10px;
 }
 
-/* Icon button */
 .gysl-btn-icon {
     display: inline-flex;
     align-items: center;
@@ -283,7 +264,6 @@ body {
     transform: scale(1.2);
 }
 
-/* Tooltip */
 .gysl-btn-icon[data-tooltip]::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -307,7 +287,6 @@ body {
     opacity: 1;
 }
 
-/* User button */
 .gysl-btn-user {
     display: inline-flex;
     align-items: center;
@@ -361,7 +340,6 @@ body {
     color: var(--gysl-yellow);
 }
 
-/* Burger */
 .gysl-nav__burger {
     display: none;
     background: none;
@@ -379,7 +357,6 @@ body {
     color: var(--gysl-yellow);
 }
 
-/* Responsive */
 @media (max-width: 900px) {
     .gysl-header__strip .gysl-container {
         padding-left: var(--gysl-page-px-mobile);
@@ -390,7 +367,6 @@ body {
         padding-left: var(--gysl-page-px-mobile);
         padding-right: var(--gysl-page-px-mobile);
         grid-template-columns: auto auto;
-        /* logo | burger */
         justify-content: space-between;
     }
 
@@ -446,10 +422,6 @@ body {
     }
 }
 
-/* ==========================================================
-   FOOTER — FIX: logo en flujo normal (como la 1ª imagen)
-   ========================================================== */
-
 .gysl-footer {
     font-family: var(--gysl-font);
     background: var(--gysl-superdark);
@@ -472,29 +444,23 @@ body {
     opacity: .45;
 }
 
-/* grid principal */
 .gysl-footer__grid {
     display: grid;
     grid-template-columns: 260px 1fr 1fr;
-    /* un pelín más de espacio a la marca */
     gap: 50px 40px;
     padding-bottom: 50px;
     position: relative;
 }
 
-/* ── BRAND COLUMN (la 1ª imagen) ───────────────────────── */
 .gysl-footer__brand {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    /* como la primera */
     gap: 16px;
     min-height: unset;
-    /* quitamos la reserva absurda */
     position: relative;
 }
 
-/* LOGO: en flujo normal, NO absolute */
 .gysl-footer__brand-logo {
     position: static !important;
     width: 600px;
@@ -502,17 +468,14 @@ body {
     display: block;
 }
 
-/* Texto debajo del logo */
 .gysl-footer__brand-tagline {
     margin: 0 !important;
-    /* mata el margin-top calc que empujaba raro */
     font-size: .88rem;
     color: var(--gysl-muted);
     line-height: 1.6;
     max-width: 220px;
 }
 
-/* Socials como en la primera */
 .gysl-footer__socials {
     display: flex;
     gap: 12px;
@@ -543,7 +506,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* ── Column headings ───────────────────────────────────── */
 .gysl-footer__col-title {
     font-size: .8rem;
     font-weight: 800;
@@ -566,7 +528,6 @@ body {
     border-radius: 2px;
 }
 
-/* ── Links ─────────────────────────────────────────────── */
 .gysl-footer__links {
     display: flex;
     flex-direction: column;
@@ -611,7 +572,6 @@ body {
     color: var(--gysl-yellow2);
 }
 
-/* ── Contact info (iconos pequeños, no Zeus) ───────────── */
 .gysl-footer__contact-info {
     display: flex;
     flex-direction: column;
@@ -660,7 +620,6 @@ body {
     font-weight: 700;
 }
 
-/* ── Bottom bar ────────────────────────────────────────── */
 .gysl-footer__bottom {
     border-top: 1px solid var(--gysl-line);
     padding: 20px 0;
@@ -691,7 +650,6 @@ body {
     color: var(--gysl-muted);
 }
 
-/* ── Responsive ────────────────────────────────────────── */
 @media (max-width: 900px) {
     .gysl-footer__grid {
         grid-template-columns: 1fr 1fr;

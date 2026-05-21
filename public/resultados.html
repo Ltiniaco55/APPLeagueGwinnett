@@ -42,10 +42,6 @@
       --tracking-wide: .5px;
     }
 
-    /* ==========================================================
-           HERO
-        ========================================================== */
-
     .res-hero {
       padding: 32px 0 28px;
       background:
@@ -97,10 +93,6 @@
           rgba(241, 184, 45, 0));
     }
 
-    /* ==========================================================
-           SECTION
-        ========================================================== */
-
     .res-section {
       padding: 34px 0 50px;
       background: var(--gysl-superdark, #060e1e);
@@ -111,10 +103,6 @@
       max-width: 1200px;
       margin: 0 auto;
     }
-
-    /* ==========================================================
-           STATUS
-        ========================================================== */
 
     .res-status {
       padding: 22px 24px;
@@ -132,9 +120,6 @@
       color: var(--gysl-red, #D72626);
     }
 
-    /* ==========================================================
-           FILTROS
-        ========================================================== */
 
     .res-filtros {
       display: flex;
@@ -187,10 +172,6 @@
       color: var(--gysl-white, #FFFFFF);
     }
 
-    /* ==========================================================
-           GROUP TITLE
-        ========================================================== */
-
     .res-group-title {
       margin: 28px 0 14px;
       padding-bottom: 6px;
@@ -206,10 +187,6 @@
     .res-group-title:first-child {
       margin-top: 0;
     }
-
-    /* ==========================================================
-           CARDS
-        ========================================================== */
 
     .res-grid {
       display: grid;
@@ -343,10 +320,6 @@
       opacity: .7;
     }
 
-    /* ==========================================================
-           RESPONSIVE
-        ========================================================== */
-
     @media (max-width: 640px) {
       .res-hero {
         padding: 24px 0 20px;
@@ -371,7 +344,6 @@
 
   <main id="page-content">
 
-    <!-- HERO -->
     <section class="res-hero">
       <div class="res-hero__inner">
         <span class="res-hero__eyebrow">Competición GYSL</span>
@@ -382,20 +354,17 @@
 
     <div class="res-divider"></div>
 
-    <!-- MAIN SECTION -->
     <section class="res-section">
       <div class="res-section__wrap">
 
         <div id="res-loading" class="res-status">Cargando resultados…</div>
         <div id="res-empty" class="res-status" style="display:none;"></div>
 
-        <!-- Filtros JORNADAS -->
         <div id="res-filtro-jornadas" class="res-filtros" style="display:none;">
           <label for="sel-jornada">Jornada</label>
           <select id="sel-jornada" class="res-select"></select>
         </div>
 
-        <!-- Filtros ELIMINATORIA -->
         <div id="res-filtro-eliminatoria" class="res-filtros" style="display:none;">
           <label for="sel-ronda">Ronda</label>
           <select id="sel-ronda" class="res-select">
@@ -403,7 +372,6 @@
           </select>
         </div>
 
-        <!-- Filtros AMISTOSO -->
         <div id="res-filtro-amistoso" class="res-filtros" style="display:none;">
           <label for="inp-fecha">Fecha</label>
           <input type="date" id="inp-fecha" class="res-input">
@@ -412,7 +380,7 @@
           <input type="text" id="inp-equipo" class="res-input" placeholder="Nombre equipo…" style="min-width:180px;">
         </div>
 
-        <!-- Contenido partidos -->
+
         <div id="res-content" style="display:none;"></div>
 
       </div>
@@ -451,10 +419,6 @@
         'Final'
       ];
 
-      /* ==========================================================
-         PARAMS
-      ========================================================== */
-
       function getParams() {
         const params = new URLSearchParams(window.location.search);
 
@@ -463,10 +427,6 @@
           formato: (params.get('formato') || '').toUpperCase().trim()
         };
       }
-
-      /* ==========================================================
-         HELPERS UI
-      ========================================================== */
 
       function badgeEstado(estado) {
         const estadoNormalizado = (estado || '').toLowerCase();
@@ -533,10 +493,6 @@
         elEmpty.style.display = 'none';
         elContent.style.display = '';
       }
-
-      /* ==========================================================
-         CARD
-      ========================================================== */
 
       function cardHTML(partido) {
         const tieneGolesLocal = partido.goles_local !== null && partido.goles_local !== '';
@@ -610,10 +566,6 @@
                     </div>
                 `;
       }
-
-      /* ==========================================================
-         JORNADAS
-      ========================================================== */
 
       function ordenarJornada(a, b) {
         const numeroA = parseInt((a || '').replace(/\D/g, ''), 10) || 0;
@@ -694,10 +646,6 @@
         elContent.innerHTML = renderGrid(partidos);
         mostrarContenido();
       }
-
-      /* ==========================================================
-         ELIMINATORIA
-      ========================================================== */
 
       function initEliminatoria(partidos) {
         const rondasPresentes = {};
@@ -793,10 +741,6 @@
         mostrarContenido();
       }
 
-      /* ==========================================================
-         AMISTOSO
-      ========================================================== */
-
       function initAmistoso(partidos) {
         elFiltroAmistoso.style.display = '';
 
@@ -875,10 +819,6 @@
         elContent.innerHTML = html;
         mostrarContenido();
       }
-
-      /* ==========================================================
-         INIT
-      ========================================================== */
 
       async function cargarResultados() {
         mostrarLoading();
