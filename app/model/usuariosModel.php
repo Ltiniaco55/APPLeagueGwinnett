@@ -2,25 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  UsuariosModel
- * ============================================================================
- *  Acceso a datos de la tabla `usuario`.
- *
- *  NOTAS:
- *   - Por defecto, este model NO devuelve nunca el campo `pwd`.
- *   - Solo se usa internamente para verifyCredentials().
- *   - Incluye helpers para:
- *       - verificación de email (hash + expiración)
- *       - reset password (token hash + expiración)
- *       - OAuth (provider + oauth_id)
- *
- *  Requiere:
- *   - Database::getInstance() -> PDO
- * ============================================================================
- */
-
 require_once __DIR__ . '/../core/database.php';
 
 class UsuariosModel
@@ -31,10 +12,6 @@ class UsuariosModel
     {
         $this->db = Database::getInstance();
     }
-
-    // =====================================================================
-    //  HELPERS INTERNOS
-    // =====================================================================
 
     private function limpiarUsuario(?array $usuario): ?array
     {
@@ -51,10 +28,6 @@ class UsuariosModel
         return $usuarios;
     }
 
-    // =====================================================================
-    //  CONSULTAS
-    // =====================================================================
-
     public function getAll(): array
     {
         $stmt = $this->db->prepare("SELECT * FROM usuario");
@@ -70,9 +43,6 @@ class UsuariosModel
         return $this->limpiarUsuario($u ?: null);
     }
 
-    /**
-     * Obtener usuario por email (sin pwd)
-     */
     public function getByEmail(string $email): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM usuario WHERE email = ? LIMIT 1");
@@ -81,9 +51,6 @@ class UsuariosModel
         return $this->limpiarUsuario($u ?: null);
     }
 
-    /**
-     * Obtener usuario por email (con pwd) para login interno
-     */
     private function getByEmailConPwd(string $email): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM usuario WHERE email = ? LIMIT 1");
@@ -97,10 +64,6 @@ class UsuariosModel
         $stmt->execute([$email]);
         return (bool)$stmt->fetchColumn();
     }
-
-    // =====================================================================
-    //  ESCRITURAS
-    // =====================================================================
 
     public function insert(
         string $nombre,
@@ -163,9 +126,6 @@ class UsuariosModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Actualizar contraseña por email (para el flujo de reset password)
-     */
     public function updatePasswordByEmail(string $email, string $newPwd): int
     {
         $hashedPwd = password_hash($newPwd, PASSWORD_DEFAULT);
@@ -203,16 +163,11 @@ class UsuariosModel
         return $stmt->rowCount();
     }
 
-    // =====================================================================
-    //  LOGIN
-    // =====================================================================
-
     public function verifyCredentials(string $email, string $pwd): ?array
     {
         $usuario = $this->getByEmailConPwd($email);
 
         if (!$usuario || empty($usuario['pwd'])) {
-            // Si es OAuth y no tiene pwd, aquí devuelve null (correcto)
             return null;
         }
 
@@ -223,10 +178,6 @@ class UsuariosModel
 
         return null;
     }
-
-    // =====================================================================
-    //  BÚSQUEDAS / FILTROS
-    // =====================================================================
 
     public function search(string $query): array
     {
@@ -263,25 +214,11 @@ class UsuariosModel
         return $this->limpiarLista($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    // =====================================================================
-    //  EMAIL VERIFICATION (NOMBRES EXACTOS DE TU TABLA)
-    // =====================================================================
-
-    /**
-     * Obtener usuario por email con campos de auth (sin pwd)
-     */
     public function getByEmailAuth(string $email): ?array
     {
         return $this->getByEmail($email);
     }
 
-    /**
-     * Guardar código de verificación (hash + expiración) y marcar no verificado.
-     * Campos en tabla:
-     *  - email_verification_code_hash
-     *  - email_verification_expire
-     *  - email_verificado
-     */
     public function guardarCodigoVerificacionEmail(int $idUsuario, string $codeHash, string $expireAt): int
     {
         $stmt = $this->db->prepare(
@@ -295,9 +232,6 @@ class UsuariosModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Marcar email como verificado y limpiar código.
-     */
     public function marcarEmailVerificado(int $idUsuario): int
     {
         $stmt = $this->db->prepare(
@@ -311,11 +245,6 @@ class UsuariosModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Obtener el hash del código de verificación y su fecha de expiración.
-     * Devuelve ['email_verification_code_hash' => ..., 'email_verification_expire' => ...]
-     * o null si el usuario no existe.
-     */
     public function getCodigoVerificacion(int $idUsuario): ?array
     {
         $stmt = $this->db->prepare(
@@ -329,10 +258,6 @@ class UsuariosModel
         return $row ?: null;
     }
 
-    /**
-     * Elimina el usuario si su email NO está verificado (email_verificado = 0 o NULL).
-     * Devuelve el número de filas borradas (0 = no existía o ya estaba verificado).
-     */
     public function eliminarNoVerificado(string $email): int
     {
         $stmt = $this->db->prepare(
@@ -344,10 +269,6 @@ class UsuariosModel
         $stmt->execute([$email]);
         return $stmt->rowCount();
     }
-
-    // =====================================================================
-    //  RESET PASSWORD (YA TIENES CAMPOS EN TABLA)
-    // =====================================================================
 
     public function guardarResetPasswordToken(int $idUsuario, string $tokenHash, string $expireAt): int
     {
@@ -372,7 +293,6 @@ class UsuariosModel
         $stmt->execute([$idUsuario]);
         return $stmt->rowCount();
     }
-
 
     public function getResetPasswordData(int $idUsuario): ?array
     {
@@ -399,10 +319,6 @@ class UsuariosModel
     {
         return $this->limpiarResetPasswordToken($idUsuario);
     }
-
-    // =====================================================================
-    //  OAUTH
-    // =====================================================================
 
     public function getByOAuth(string $provider, string $oauthId): ?array
     {

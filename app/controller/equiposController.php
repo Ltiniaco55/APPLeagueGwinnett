@@ -2,26 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  EquiposController
- * ============================================================================
- *  Enlazado a tu EquiposModel REAL:
- *   - getAll()
- *   - getById(int $id)
- *   - getByClub(string $club)
- *   - existsByKey(string $club, string $categoria, string $temporada)
- *   - insert(string $club, string $categoria, string $temporada, ?string $descripcion)
- *   - update(int $id, string $club, string $categoria, string $temporada, ?string $descripcion)
- *   - delete(int $id)
- *   - search(string $club='', string $categoria='', string $temporada='')
- *   - getByCategoria(string $categoria)
- *   - getByTemporada(string $temporada)
- *
- *  Nota importante:
- *   - Tu BD tiene UNIQUE(club, categoria). Por eso validamos duplicados por club+categoria.
- * ============================================================================
- */
 
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/equiposModel.php';
@@ -66,14 +46,9 @@ class EquiposController
         }
     }
 
-    /**
-     * Validar duplicado por UNIQUE (club, categoria).
-     * Devuelve true si YA existe un equipo con ese club+categoria.
-     * Si pasas $idIgnorar, ignora ese id (útil para updates).
-     */
     private function existePorClubCategoria(EquiposModel $modelo, string $club, string $categoria, int $idIgnorar = 0): bool
     {
-        // getByClub es exacto, perfecto para esto
+
         $equiposClub = $modelo->getByClub($club);
 
         foreach ($equiposClub as $e) {
@@ -92,13 +67,6 @@ class EquiposController
         return false;
     }
 
-    // =========================================================================
-    // SELECCIONAR (GET /api/equipos)
-    // Filtros opcionales:
-    //  - ?club=...
-    //  - ?categoria=...  (o ?categ=...)
-    //  - ?temporada=...  (o ?temp=...)
-    // =========================================================================
     public function seleccionar(array $entrada = []): void
     {
         try {
@@ -113,7 +81,7 @@ class EquiposController
                 $datos = $modelo->getAll();
             }
 
-            // Adjuntar ligas_ids a cada equipo
+
             foreach ($datos as &$equipo) {
                 if (isset($equipo['id_equipo'])) {
                     $equipo['ligas_ids'] = $modelo->getLigasByEquipo((int)$equipo['id_equipo']);
@@ -127,9 +95,6 @@ class EquiposController
         }
     }
 
-    // =========================================================================
-    // STAFF (GET /api/staff/equipos)
-    // =========================================================================
     public function seleccionarStaff(array $entrada = []): void
     {
         try {
@@ -245,9 +210,7 @@ class EquiposController
         }
     }
 
-    // =========================================================================
-    // LOCALIZAR (GET /api/equipos/{id})
-    // =========================================================================
+
     public function localizar(int $id): void
     {
         try {
@@ -270,13 +233,6 @@ class EquiposController
         }
     }
 
-    // =========================================================================
-    // INSERTAR (POST /api/equipos)
-    // Solo ADMIN (por ahora)
-    // Body:
-    //  - club, categoria, temporada
-    //  - descripcion (opcional)
-    // =========================================================================
     public function insertar(array $entrada): void
     {
         try {
@@ -296,7 +252,7 @@ class EquiposController
 
             $modelo = new EquiposModel();
 
-            // Tu BD impide duplicados por (club,categoria)
+
             if ($this->existePorClubCategoria($modelo, $club, $categoria)) {
                 $this->responder(409, [
                     'success' => false,
@@ -306,7 +262,7 @@ class EquiposController
 
             $idNuevo = $modelo->insert($club, $categoria, $descripcion);
 
-            // Sincronizar ligas en equipo_liga
+
             if (is_array($ligas)) {
                 $modelo->syncLigas($idNuevo, $ligas);
             }
@@ -324,15 +280,11 @@ class EquiposController
                 'data' => $equipo
             ]);
         } catch (Throwable $e) {
-            // Si por lo que sea se cuela duplicado, la BD puede lanzar excepción: lo devolvemos claro.
+
             $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    // =========================================================================
-    // MODIFICAR (PUT /api/equipos/{id})
-    // Solo ADMIN (por ahora)
-    // =========================================================================
     public function modificar(int $id, array $entrada): void
     {
         try {
@@ -361,8 +313,7 @@ class EquiposController
                 $this->responder(404, ['success' => false, 'message' => 'Equipo no encontrado']);
             }
 
-            // Si cambias club/categoria, respeta UNIQUE (club,categoria)
-            // Ignoramos el propio id para no autocolisionar.
+
             if ($this->existePorClubCategoria($modelo, $club, $categoria, $id)) {
                 $this->responder(409, [
                     'success' => false,
@@ -374,7 +325,6 @@ class EquiposController
 
             $ligasAnteriores = $modelo->getLigasByEquipo($id);
 
-            // Sincronizar ligas en equipo_liga
             if (is_array($ligas)) {
                 $modelo->syncLigas($id, $ligas);
 
@@ -399,10 +349,6 @@ class EquiposController
         }
     }
 
-    // =========================================================================
-    // ELIMINAR (DELETE /api/equipos/{id})
-    // Solo ADMIN (por ahora)
-    // =========================================================================
     public function eliminar(int $id): void
     {
         try {
@@ -431,10 +377,6 @@ class EquiposController
 
             $ligasDelEquipo = $equiposModel->getLigasByEquipo($id);
 
-            /*
-         * Antes de borrar el equipo, guardamos qué entrenadores estaban relacionados.
-         * Luego la FK con ON DELETE CASCADE debería borrar sus relaciones en entrenador_equipo.
-         */
             $relacionesEntrenadores = $entrenadorEquipoModel->getByEquipo($id);
 
             $idsEntrenadoresAfectados = [];
@@ -447,30 +389,13 @@ class EquiposController
 
             $idsEntrenadoresAfectados = array_values(array_unique($idsEntrenadoresAfectados));
 
-            /*
-         * Borramos el equipo.
-         * IMPORTANTE:
-         * Las tablas entrenador_equipo, equipo_liga y equipo_jugador deberían tener
-         * ON DELETE CASCADE hacia equipos.
-         */
             $filas = $equiposModel->delete($id);
 
             foreach ($ligasDelEquipo as $idLiga) {
                 $this->regenerarClasificacion((int)$idLiga);
             }
 
-            /*
-         * Ahora revisamos si algún entrenador afectado se quedó sin equipos.
-         *
-         * Regla:
-         * - Si era STAFF y se queda sin equipos:
-         *      se elimina de entrenadores
-         *      pasa a USUARIO
-         *
-         * - Si era ADMIN y se queda sin equipos:
-         *      se elimina de entrenadores
-         *      mantiene rol ADMIN
-         */
+
             $usuariosConvertidos = [];
             $adminsSinEquipos = [];
 
@@ -572,9 +497,6 @@ class EquiposController
         }
     }
 
-    // =========================================================================
-    // SUBIR ESCUDO (POST /api/equipos/{id}/escudo)
-    // =========================================================================
     public function subirEscudo(int $id): void
     {
         try {

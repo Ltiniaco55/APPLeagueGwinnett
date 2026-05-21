@@ -2,25 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  ClasificacionesModel
- * ============================================================================
- *  Gestión de clasificacion dinámicas por liga.
- *
- *  Reglas:
- *   - Victoria = 3 pts
- *   - Empate   = 1 pt
- *   - Derrota  = 0 pts
- *
- *  Orden:
- *   1. PTS DESC
- *   2. DG DESC
- *   3. GF DESC
- *   4. PG DESC
- * ============================================================================
- */
-
 class ClasificacionesModel
 {
     private PDO $db;
@@ -29,10 +10,6 @@ class ClasificacionesModel
     {
         $this->db = Database::getInstance();
     }
-
-    // =========================================================================
-    // GET CLASIFICACION POR LIGA
-    // =========================================================================
 
     public function getByLiga(int $idLiga): array
     {
@@ -75,44 +52,22 @@ class ClasificacionesModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-
     public function asegurarClasificacionLiga(int $idLiga): void
     {
         $this->regenerarLiga($idLiga);
     }
 
-    // =========================================================================
-    // REGENERAR CLASIFICACION COMPLETA DE UNA LIGA
-    // =========================================================================
-
-    /**
-     * Recalcula TODA la clasificación a partir de los partidos jugados.
-     *
-     * Ideal para ejecutar:
-     *  - cuando un partido pasa a "jugado"
-     *  - cuando se modifica un resultado
-     *  - cuando se elimina un partido jugado
-     */
     public function regenerarLiga(int $idLiga): void
     {
         $this->db->beginTransaction();
 
         try {
-
-            // ─────────────────────────────────────────────────────────────
-            // Limpiar clasificación anterior
-            // ─────────────────────────────────────────────────────────────
-
             $stmtDelete = $this->db->prepare("
                 DELETE FROM clasificacion
                 WHERE id_liga = ?
             ");
 
             $stmtDelete->execute([$idLiga]);
-
-            // ─────────────────────────────────────────────────────────────
-            // Obtener equipos de la liga
-            // ─────────────────────────────────────────────────────────────
 
             $stmtEquipos = $this->db->prepare("
                 SELECT
@@ -130,14 +85,9 @@ class ClasificacionesModel
                 return;
             }
 
-            // ─────────────────────────────────────────────────────────────
-            // Inicializar tabla temporal PHP
-            // ─────────────────────────────────────────────────────────────
-
             $tabla = [];
 
             foreach ($equipos as $idEquipo) {
-
                 $tabla[(int)$idEquipo] = [
                     'PJ'  => 0,
                     'PG'  => 0,
@@ -149,10 +99,6 @@ class ClasificacionesModel
                     'PTS' => 0,
                 ];
             }
-
-            // ─────────────────────────────────────────────────────────────
-            // Obtener partidos jugados
-            // ─────────────────────────────────────────────────────────────
 
             $stmtPartidos = $this->db->prepare("
                 SELECT
@@ -169,12 +115,7 @@ class ClasificacionesModel
 
             $partidos = $stmtPartidos->fetchAll(PDO::FETCH_ASSOC);
 
-            // ─────────────────────────────────────────────────────────────
-            // Procesar partidos
-            // ─────────────────────────────────────────────────────────────
-
             foreach ($partidos as $p) {
-
                 $local      = (int)$p['id_equipo_local'];
                 $visitante  = (int)$p['id_equipo_visitante'];
 
@@ -185,12 +126,8 @@ class ClasificacionesModel
                 $golesLocal     = (int)$p['goles_local'];
                 $golesVisitante = (int)$p['goles_visitante'];
 
-                // ───── PJ ─────
-
                 $tabla[$local]['PJ']++;
                 $tabla[$visitante]['PJ']++;
-
-                // ───── GF / GC ─────
 
                 $tabla[$local]['GF'] += $golesLocal;
                 $tabla[$local]['GC'] += $golesVisitante;
@@ -198,28 +135,17 @@ class ClasificacionesModel
                 $tabla[$visitante]['GF'] += $golesVisitante;
                 $tabla[$visitante]['GC'] += $golesLocal;
 
-                // ───── RESULTADO ─────
-
                 if ($golesLocal > $golesVisitante) {
-
-                    // Local gana
-
                     $tabla[$local]['PG']++;
                     $tabla[$local]['PTS'] += 3;
 
                     $tabla[$visitante]['PP']++;
                 } elseif ($golesLocal < $golesVisitante) {
-
-                    // Visitante gana
-
                     $tabla[$visitante]['PG']++;
                     $tabla[$visitante]['PTS'] += 3;
 
                     $tabla[$local]['PP']++;
                 } else {
-
-                    // Empate
-
                     $tabla[$local]['PE']++;
                     $tabla[$visitante]['PE']++;
 
@@ -228,20 +154,11 @@ class ClasificacionesModel
                 }
             }
 
-            // ─────────────────────────────────────────────────────────────
-            // Calcular DG
-            // ─────────────────────────────────────────────────────────────
-
             foreach ($tabla as $idEquipo => &$stats) {
-
                 $stats['DG'] = $stats['GF'] - $stats['GC'];
             }
 
             unset($stats);
-
-            // ─────────────────────────────────────────────────────────────
-            // Insertar clasificación final
-            // ─────────────────────────────────────────────────────────────
 
             $stmtInsert = $this->db->prepare("
                 INSERT INTO clasificacion (
@@ -260,7 +177,6 @@ class ClasificacionesModel
             ");
 
             foreach ($tabla as $idEquipo => $stats) {
-
                 $stmtInsert->execute([
                     $idLiga,
                     $idEquipo,
@@ -279,16 +195,11 @@ class ClasificacionesModel
 
             $this->db->commit();
         } catch (Throwable $e) {
-
             $this->db->rollBack();
 
             throw $e;
         }
     }
-
-    // =========================================================================
-    // EXISTE CLASIFICACION DE LIGA
-    // =========================================================================
 
     public function existeLiga(int $idLiga): bool
     {
@@ -303,10 +214,6 @@ class ClasificacionesModel
 
         return (bool)$stmt->fetchColumn();
     }
-
-    // =========================================================================
-    // LIMPIAR CLASIFICACION
-    // =========================================================================
 
     public function deleteByLiga(int $idLiga): int
     {

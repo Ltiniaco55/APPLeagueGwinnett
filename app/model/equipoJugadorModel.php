@@ -14,9 +14,6 @@ class EquipoJugadorModel
         return $this->db;
     }
 
-    // =====================================================
-    // INSERTAR RELACIÓN pendiente (STAFF → ALTA solicitada)
-    // =====================================================
     public function insertarPendiente(
         int $id_jugador,
         int $id_equipo,
@@ -32,9 +29,6 @@ class EquipoJugadorModel
         return (int) $this->db->lastInsertId();
     }
 
-    // =====================================================
-    // INSERTAR RELACIÓN directa (ADMIN → ALTA directa)
-    // =====================================================
     public function insertarRelacion(
         int $id_jugador,
         int $id_equipo,
@@ -49,9 +43,6 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    // APROBAR ALTA (cambia PENDIENTE/ALTA → ALTA)
-    // =====================================================
     public function aprobarAlta(int $id_relacion, int $id_admin): int
     {
         $stmt = $this->db->prepare(
@@ -68,9 +59,6 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    // RECHAZAR ALTA (elimina el pendiente de alta)
-    // =====================================================
     public function rechazarAlta(int $id_relacion): int
     {
         $stmt = $this->db->prepare(
@@ -83,9 +71,6 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    // SOLICITAR BAJA (equipo_jugador pasa a PENDIENTE/BAJA)
-    // =====================================================
     public function solicitarBaja(int $id_relacion, int $id_usuario_solicitante): int
     {
         $stmt = $this->db->prepare(
@@ -102,9 +87,6 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    // APROBAR BAJA (eliminar la relación)
-    // =====================================================
     public function aprobarBaja(int $id_relacion): int
     {
         $stmt = $this->db->prepare(
@@ -117,9 +99,6 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    // RECHAZAR BAJA (restaurar ALTA)
-    // =====================================================
     public function rechazarBaja(int $id_relacion, int $id_admin): int
     {
         $stmt = $this->db->prepare(
@@ -136,9 +115,6 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    // OBTENER RELACIÓN POR ID (primary key)
-    // =====================================================
     public function getById(int $id): ?array
     {
         $stmt = $this->db->prepare(
@@ -157,9 +133,6 @@ class EquipoJugadorModel
         return $result ?: null;
     }
 
-    // =====================================================
-    // OBTENER RELACIÓN POR jugador+equipo+liga
-    // =====================================================
     public function getRelacion(int $id_jugador, int $id_equipo, int $id_liga): ?array
     {
         $stmt = $this->db->prepare(
@@ -171,9 +144,6 @@ class EquipoJugadorModel
         return $result ?: null;
     }
 
-    // =====================================================
-    // VERIFICAR SI EXISTE RELACIÓN (cualquier estado)
-    // =====================================================
     public function existeRelacion(int $id_jugador, int $id_equipo, int $id_liga): bool
     {
         $stmt = $this->db->prepare(
@@ -184,9 +154,6 @@ class EquipoJugadorModel
         return (bool) $stmt->fetchColumn();
     }
 
-    // =====================================================
-    // VERIFICAR SI YA ESTÁ PENDIENTE (cualquier acción)
-    // =====================================================
     public function estaPendiente(int $id_jugador, int $id_equipo, int $id_liga): bool
     {
         $stmt = $this->db->prepare(
@@ -198,9 +165,6 @@ class EquipoJugadorModel
         return (bool) $stmt->fetchColumn();
     }
 
-    // =====================================================
-    // PLANTILLA COMPLETA CON JOIN (filtrada por staff o todos)
-    // =====================================================
     public function getPlantillaConJugadores(
         int $id_equipo,
         int $id_liga,
@@ -232,9 +196,6 @@ class EquipoJugadorModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =====================================================
-    // PLANTILLA STAFF: todos los equipos asignados al staff
-    // =====================================================
     public function getPlantillaStaff(array $equipoIds, string $nombreFiltro = '', string $categoriaFiltro = ''): array
     {
         if (empty($equipoIds)) return [];
@@ -271,9 +232,6 @@ class EquipoJugadorModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =====================================================
-    // PENDIENTES STAFF: solo de sus equipos
-    // =====================================================
     public function getPendientesStaff(array $equipoIds): array
     {
         if (empty($equipoIds)) return [];
@@ -298,9 +256,6 @@ class EquipoJugadorModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =====================================================
-    // PENDIENTES ADMIN: todos del sistema
-    // =====================================================
     public function getPendientesAdmin(
         string $accionFiltro = '',
         int $equipoFiltro = 0,
@@ -346,12 +301,8 @@ class EquipoJugadorModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =====================================================
-    // ACTUALIZAR DORSAL — SOLO SI ESTÁ VACÍO / NULL
-    // =====================================================
     public function actualizarDorsal(int $id_jugador, int $id_equipo, int $id_liga, int $dorsal): int
     {
-        // Validate dorsal uniqueness in same equipo+liga
         $chk = $this->db->prepare(
             "SELECT 1 FROM equipo_jugador
              WHERE id_equipo = ? AND id_liga = ? AND dorsal = ? AND id_jugador != ?"
@@ -371,12 +322,8 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    // ADMIN CORRIGE DORSAL (sin restricción de NULL)
-    // =====================================================
     public function corregirDorsalAdmin(int $id_relacion, int $dorsal, int $id_equipo, int $id_liga, int $id_jugador): int
     {
-        // Validate uniqueness
         $chk = $this->db->prepare(
             "SELECT 1 FROM equipo_jugador
              WHERE id_equipo = ? AND id_liga = ? AND dorsal = ? AND id != ?"
@@ -393,9 +340,6 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    /**
-     * ¿Ya tiene dorsal este jugador en este equipo/liga?
-     */
     public function tieneDorsal(int $id_jugador, int $id_equipo, int $id_liga): bool
     {
         $stmt = $this->db->prepare(
@@ -407,9 +351,6 @@ class EquipoJugadorModel
         return ($dorsal !== false && $dorsal !== null);
     }
 
-    // =====================================================
-    // ELIMINAR RELACIÓN (admin: baja directa)
-    // =====================================================
     public function eliminarRelacion(int $id_jugador, int $id_equipo, int $id_liga): int
     {
         $stmt = $this->db->prepare(
@@ -420,9 +361,6 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    // DETALLE ENRIQUECIDO DE JUGADOR EN PLANTILLA
-    // =====================================================
     public function getDetalleJugadorPlantilla(int $id_jugador, int $id_equipo, int $id_liga): ?array
     {
         $stmt = $this->db->prepare(
@@ -443,9 +381,6 @@ class EquipoJugadorModel
         return $result ?: null;
     }
 
-    // =====================================================
-    // APROBAR EN LOTE — todo o nada
-    // =====================================================
     public function aprobarLote(array $ids, int $id_admin): int
     {
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
@@ -464,7 +399,6 @@ class EquipoJugadorModel
         return $stmt->rowCount();
     }
 
-    // Legacy compat — still used for admin direct inserts
     public function getByEquipoConJugadores(int $id_equipo, int $id_liga): array
     {
         return $this->getPlantillaConJugadores($id_equipo, $id_liga);

@@ -2,23 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  JugadoresAdminController
- * ============================================================================
- *  Rutas ADMIN para gestión de jugadores.
- *
- *  GET   /admin/jugadores/pendientes       → pendientes()
- *  POST  /admin/jugadores/alta-directa     → altaDirecta()
- *  POST  /admin/jugadores/{id}/aprobar     → aprobar()
- *  POST  /admin/jugadores/{id}/rechazar    → rechazar()
- *  POST  /admin/jugadores/aprobar-lote     → aprobarLote()
- *  PATCH /admin/jugadores/{id}/editar      → editarJugador()
- *  PATCH /admin/jugadores/{id}/dorsal      → corregirDorsal()
- *  POST  /admin/jugadores/{id}/foto        → subirFoto()
- * ============================================================================
- */
-
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/jugadoresModel.php';
 require_once __DIR__ . '/../model/equipoJugadorModel.php';
@@ -38,11 +21,6 @@ class JugadoresAdminController
         return trim((string)($val ?? ''));
     }
 
-    /**
-     * Sube un archivo al directorio del jugador.
-     * $clave = nombre base sin extensión: 'foto' | 'documento_identidad'
-     * Devuelve la ruta relativa pública o null si no llegó archivo.
-     */
     private function subirArchivo(string $clave, int $id_jugador): ?string
     {
         if (!isset($_FILES[$clave]) || $_FILES[$clave]['error'] !== UPLOAD_ERR_OK) {
@@ -64,7 +42,6 @@ class JugadoresAdminController
             mkdir($uploadDir, 0755, true);
         }
 
-        // Eliminar versión anterior del mismo tipo
         foreach (glob($uploadDir . '/' . $clave . '.*') ?: [] as $old) {
             @unlink($old);
         }
@@ -80,10 +57,6 @@ class JugadoresAdminController
         return $dbPath;
     }
 
-    // =====================================================
-    // GET /admin/jugadores/pendientes
-    //   ?accion=ALTA|BAJA&id_equipo=X&categoria=Y
-    // =====================================================
     public function pendientes(array $entrada = []): void
     {
         try {
@@ -102,22 +75,11 @@ class JugadoresAdminController
         }
     }
 
-    // =====================================================
-    // POST /admin/jugadores/alta-directa
-    //
-    // Alta directa completa (solo ADMIN).
-    // multipart/form-data:
-    //   nombre, apellido, fecha_nacimiento, id_equipo, id_liga
-    //   documento_identidad (archivo obligatorio)
-    //   foto                (archivo opcional)
-    //   nombres_padres, email_padres, telefono_padres (si menor 18)
-    // =====================================================
     public function altaDirecta(array $entrada): void
     {
         try {
             Autenticacion::requerirRol([Autenticacion::ROL_ADMIN]);
 
-            // 1. Campos base obligatorios
             $nombre    = $this->limpiar($entrada['nombre']           ?? '');
             $apellido  = $this->limpiar($entrada['apellido']         ?? '');
             $fecha     = $this->limpiar($entrada['fecha_nacimiento'] ?? '');
@@ -131,7 +93,6 @@ class JugadoresAdminController
                 ]);
             }
 
-            // 2. Documento de identidad obligatorio
             if (!isset($_FILES['documento_identidad'])
                 || $_FILES['documento_identidad']['error'] !== UPLOAD_ERR_OK) {
                 $this->responder(400, [
@@ -140,7 +101,6 @@ class JugadoresAdminController
                 ]);
             }
 
-            // 3. Validar datos de padres si menor de 18
             $hoy        = new \DateTime();
             $nacimiento = new \DateTime($fecha);
             $edad       = (int)$hoy->diff($nacimiento)->y;
@@ -166,7 +126,6 @@ class JugadoresAdminController
             $jugModel = new JugadoresModel();
             $ejModel  = new EquipoJugadorModel();
 
-            // 4 & 5. Buscar o crear jugador global
             $jugadorExistente = $jugModel->getByKey($nombre, $apellido, $fecha);
 
             if ($jugadorExistente) {
@@ -175,7 +134,6 @@ class JugadoresAdminController
                 $id_jugador = $jugModel->insert($nombre, $apellido, $fecha);
             }
 
-            // 7. Verificar que NO exista relación en equipo/liga
             if ($ejModel->existeRelacion($id_jugador, $id_equipo, $id_liga)) {
                 $this->responder(409, [
                     'success' => false,
@@ -183,11 +141,9 @@ class JugadoresAdminController
                 ]);
             }
 
-            // 9. Subir archivos al directorio del jugador
             $foto_path = $this->subirArchivo('foto',                $id_jugador);
             $doc_path  = $this->subirArchivo('documento_identidad', $id_jugador);
 
-            // Actualizar jugador con rutas y datos de padres
             $jugModel->actualizarDocumentos(
                 $id_jugador,
                 $foto_path,
@@ -197,10 +153,8 @@ class JugadoresAdminController
                 $esmenor ? $telefono_padres : null
             );
 
-            // 8. Insertar relación directa estado=ALTA, accion_solicitada=NULL
             $ejModel->insertarRelacion($id_jugador, $id_equipo, $id_liga, null);
 
-            // 10. Avisos de coincidencias en otros equipos
             $avisos = $jugModel->buscarCoincidenciasEnOtrosEquipos(
                 $nombre, $apellido, $fecha, $id_equipo, $id_liga
             );
@@ -226,9 +180,6 @@ class JugadoresAdminController
         }
     }
 
-    // =====================================================
-    // POST /admin/jugadores/{id}/aprobar
-    // =====================================================
     public function aprobar(int $id_relacion): void
     {
         try {
@@ -270,9 +221,6 @@ class JugadoresAdminController
         }
     }
 
-    // =====================================================
-    // POST /admin/jugadores/{id}/rechazar
-    // =====================================================
     public function rechazar(int $id_relacion): void
     {
         try {
@@ -314,10 +262,6 @@ class JugadoresAdminController
         }
     }
 
-    // =====================================================
-    // POST /admin/jugadores/aprobar-lote
-    // Body: { ids: [1,2,3] }
-    // =====================================================
     public function aprobarLote(array $entrada): void
     {
         try {
@@ -349,9 +293,6 @@ class JugadoresAdminController
         }
     }
 
-    // =====================================================
-    // PATCH /admin/jugadores/{id}/editar
-    // =====================================================
     public function editarJugador(int $id_jugador, array $entrada): void
     {
         try {
@@ -381,10 +322,6 @@ class JugadoresAdminController
         }
     }
 
-    // =====================================================
-    // PATCH /admin/jugadores/{id}/dorsal
-    // Body: { dorsal: 7 }
-    // =====================================================
     public function corregirDorsal(int $id_relacion, array $entrada): void
     {
         try {
@@ -415,10 +352,6 @@ class JugadoresAdminController
         }
     }
 
-    // =====================================================
-    // POST /admin/jugadores/{id}/foto
-    // Admin puede reemplazar foto aunque ya exista
-    // =====================================================
     public function subirFoto(int $id_jugador): void
     {
         try {

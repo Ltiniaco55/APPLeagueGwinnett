@@ -9,17 +9,10 @@ class JugadoresModel
         $this->db = Database::getInstance();
     }
 
-    // =====================================================
-    //  ACCESO A LA CONEXIÓN (para transacciones externas)
-    // =====================================================
     public function getDb(): PDO
     {
         return $this->db;
     }
-
-    // =====================================================
-    //  CONSULTAS BÁSICAS
-    // =====================================================
 
     public function getAll(): array
     {
@@ -85,10 +78,6 @@ class JugadoresModel
         return (int) $stmt->fetchColumn();
     }
 
-    // =====================================================
-    //  VERIFICACIÓN GLOBAL (nombre + apellido + fecha)
-    // =====================================================
-
     public function existsByKey(string $nombre, string $apellido, string $fecha_nacimiento): bool
     {
         $stmt = $this->db->prepare(
@@ -98,10 +87,6 @@ class JugadoresModel
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Obtener jugador por clave natural (nombre + apellido + fecha).
-     * Útil para reutilizar una persona global existente.
-     */
     public function getByKey(string $nombre, string $apellido, string $fecha_nacimiento): ?array
     {
         $stmt = $this->db->prepare(
@@ -112,7 +97,6 @@ class JugadoresModel
         return $result ?: null;
     }
 
-    // — Búsqueda filtrada por equipos del staff —
     public function getAllStaff(array $equipoIds): array
     {
         if (empty($equipoIds)) return [];
@@ -141,13 +125,6 @@ class JugadoresModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =====================================================
-    //  DUPLICADOS POR EQUIPO (N:M via equipo_jugador)
-    // =====================================================
-
-    /**
-     * ¿Existe un jugador con ese nombre+apellido+fecha en el MISMO equipo+liga?
-     */
     public function existeEnMismoEquipo(
         string $nombre,
         string $apellido,
@@ -170,9 +147,6 @@ class JugadoresModel
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Buscar coincidencias en OTROS equipos (aviso, no bloquea).
-     */
     public function buscarCoincidenciasEnOtrosEquipos(
         string $nombre,
         string $apellido,
@@ -194,13 +168,6 @@ class JugadoresModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =====================================================
-    //  INSERCIONES
-    // =====================================================
-
-    /**
-     * Crear jugador mínimo (solo datos de identidad, sin archivos ni padres).
-     */
     public function insert(
         string $nombre,
         string $apellido,
@@ -216,12 +183,6 @@ class JugadoresModel
         return (int) $this->db->lastInsertId();
     }
 
-    /**
-     * Crear jugador con todos los campos ampliados:
-     * foto, documento, datos de padres/tutor.
-     *
-     * Usado por alta directa ADMIN y alta STAFF con archivos.
-     */
     public function insertConDatos(
         string  $nombre,
         string  $apellido,
@@ -253,11 +214,6 @@ class JugadoresModel
         return (int) $this->db->lastInsertId();
     }
 
-    /**
-     * Actualizar rutas de archivos y datos de padres sobre un jugador existente.
-     * Solo sobreescribe los campos no nulos recibidos.
-     * Usado cuando el jugador ya existía globalmente y se le añade documentación.
-     */
     public function actualizarDocumentos(
         int     $id_jugador,
         ?string $foto_path                = null,
@@ -299,10 +255,6 @@ class JugadoresModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    //  ACTUALIZACIÓN Y BORRADO
-    // =====================================================
-
     public function update(
         int $id,
         string $nombre,
@@ -327,14 +279,6 @@ class JugadoresModel
         return $stmt->rowCount();
     }
 
-    // =====================================================
-    //  GESTIÓN DE FOTO (una sola vez, inmutable)
-    // =====================================================
-
-    /**
-     * Guardar foto_path SOLO si actualmente está NULL.
-     * Devuelve número de filas afectadas (0 = ya tenía foto).
-     */
     public function guardarFotoSiNoExiste(int $id_jugador, string $fotoPath): int
     {
         $stmt = $this->db->prepare(
@@ -345,9 +289,6 @@ class JugadoresModel
         return $stmt->rowCount();
     }
 
-    /**
-     * ¿Ya tiene foto este jugador?
-     */
     public function tieneFoto(int $id_jugador): bool
     {
         $stmt = $this->db->prepare(
@@ -358,9 +299,6 @@ class JugadoresModel
         return ($fp !== false && $fp !== null && $fp !== '');
     }
 
-    /**
-     * ¿Ya tiene documento de identidad este jugador?
-     */
     public function tieneDocumento(int $id_jugador): bool
     {
         $stmt = $this->db->prepare(

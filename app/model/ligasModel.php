@@ -6,7 +6,7 @@ class LigasModel
 
     public function __construct()
     {
-        $this->db = Database::getInstance(); // tu conexión PDO
+        $this->db = Database::getInstance();
     }
 
     public function getAllFiltered(string $nom, string $temp, string $categ): array
@@ -75,12 +75,6 @@ class LigasModel
         return $stmt->rowCount();
     }
 
-
-
-    /**
-     * Actualizar una liga usando su clave natural (nom, temp, categ)
-     * Devuelve el número de filas afectadas.
-     */
     public function updateByKey(
         string $nomActual,
         string $tempActual,
@@ -94,15 +88,15 @@ class LigasModel
     ): int {
         $stmt = $this->db->prepare(
             "UPDATE ligas
-         SET nombre_liga = ?, 
-             temporada = ?, 
-             categoria = ?, 
-             descripcion = ?,
-             estado_liga = ?,
-             formato_liga = ?
-         WHERE nombre_liga = ? 
-           AND temporada = ? 
-           AND categoria = ?"
+          SET nombre_liga = ?, 
+              temporada = ?, 
+              categoria = ?, 
+              descripcion = ?,
+              estado_liga = ?,
+              formato_liga = ?
+          WHERE nombre_liga = ? 
+            AND temporada = ? 
+            AND categoria = ?"
         );
 
         $stmt->execute([
@@ -119,7 +113,6 @@ class LigasModel
 
         return $stmt->rowCount();
     }
-
 
     public function getByKey(string $nom, string $temp, string $categ): ?array
     {

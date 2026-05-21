@@ -1,36 +1,14 @@
 <?php
 
-/**
- * ============================================================================
- *  CLASE DE AUTENTICACIÓN Y AUTORIZACIÓN CENTRALIZADA
- * ============================================================================
- *
- *  Proporciona un sistema completo de control de acceso para la API REST.
- *  Diseñada para ser usada desde cualquier controller con llamadas estáticas:
- *
- *      Autenticacion::requerirAutenticacion();
- *      Autenticacion::requerirRol(['ADMIN']);
- *      Autenticacion::requerirPermiso('MODIFICAR_RESULTADO');
- *      Autenticacion::requerirStaffDeEquipo($id_equipo);
- *
- *  Utiliza sesiones PHP para mantener al usuario autenticado.
- *
- *  REQUISITO: la tabla `usuario` debe tener una columna `rol` VARCHAR(20)
- *  con uno de estos valores: 'ADMIN', 'ARBITRO', 'STAFF', 'USUARIO'
- * ============================================================================
- */
-
 require_once __DIR__ . '/database.php';
 
 class Autenticacion
 {
-    // ─── ROLES DISPONIBLES ───────────────────────────────────────────────
     const ROL_ADMIN   = 'ADMIN';
     const ROL_ARBITRO = 'ARBITRO';
     const ROL_STAFF   = 'STAFF';
     const ROL_USUARIO = 'USUARIO';
 
-    // ─── PERMISOS DISPONIBLES ────────────────────────────────────────────
     const PERM_GESTIONAR_TODO         = 'GESTIONAR_TODO';
     const PERM_MODIFICAR_RESULTADO    = 'MODIFICAR_RESULTADO';
     const PERM_GESTIONAR_PLANTILLA    = 'GESTIONAR_PLANTILLA';
@@ -38,11 +16,6 @@ class Autenticacion
     const PERM_GESTIONAR_CLASIFICACION = 'GESTIONAR_CLASIFICACION';
     const PERM_VER_DATOS              = 'VER_DATOS';
 
-    /**
-     * Mapa de permisos por rol.
-     * Cada rol tiene una lista de acciones que puede realizar.
-     * ADMIN tiene GESTIONAR_TODO que actúa como comodín (acceso total).
-     */
     private static array $permisosRol = [
         self::ROL_ADMIN => [
             self::PERM_GESTIONAR_TODO,
@@ -61,33 +34,16 @@ class Autenticacion
         ],
     ];
 
-    // =====================================================================
-    //  MÉTODOS PRINCIPALES
-    // =====================================================================
-
-    /**
-     * Obtener los datos del usuario autenticado.
-     *
-     * Busca en la sesión PHP activa. Si la sesión contiene un 'id_usuario',
-     * consulta la base de datos para devolver los datos completos.
-     *
-     * @return array|null  Array asociativo con los datos del usuario, o null si no está autenticado.
-     */
     public static function usuario(): ?array
     {
         self::iniciarSesion();
 
-        // No hay usuario en sesión
         if (!isset($_SESSION['id_usuario'])) {
             return null;
         }
 
-        // Devolver los datos cacheados si ya se consultaron en esta petición
-        // Evitamos usar cache persistente de sesión para que los cambios de perfil
-        // se reflejen siempre al consultar /auth/me.
         unset($_SESSION['_usuario_cache']);
 
-        // Consultar datos actualizados del usuario en la base de datos
         try {
             $db = Database::getInstance();
             $stmt = $db->prepare("SELECT * FROM usuario WHERE id_usuario = ? LIMIT 1");
@@ -95,15 +51,12 @@ class Autenticacion
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$usuario) {
-                // El usuario fue eliminado de la BD: limpiar sesión
                 self::cerrarSesion();
                 return null;
             }
 
-            // No exponer la contraseña
             unset($usuario['pwd']);
 
-            // Adjuntar foto de entrenador si existe
             $stmtFoto = $db->prepare(
                 "SELECT foto 
                     FROM entrenadores 
@@ -122,25 +75,11 @@ class Autenticacion
         }
     }
 
-    /**
-     * Comprobar si hay un usuario autenticado.
-     *
-     * @return bool  true si hay sesión activa con usuario válido.
-     */
     public static function estaAutenticado(): bool
     {
         return self::usuario() !== null;
     }
 
-    /**
-     * Exigir que el usuario esté autenticado.
-     * Si no lo está, devuelve HTTP 401 y finaliza la ejecución.
-     *
-     * Uso en controllers:
-     *     Autenticacion::requerirAutenticacion();
-     *
-     * @return void
-     */
     public static function requerirAutenticacion(): void
     {
         if (!self::estaAutenticado()) {
@@ -148,16 +87,6 @@ class Autenticacion
         }
     }
 
-    /**
-     * Exigir que el usuario tenga uno de los roles indicados.
-     * Primero verifica la autenticación y luego el rol.
-     *
-     * Uso en controllers:
-     *     Autenticacion::requerirRol(['ADMIN', 'ARBITRO']);
-     *
-     * @param array $rolesPermitidos  Lista de roles válidos (ej: ['ADMIN', 'STAFF'])
-     * @return void
-     */
     public static function requerirRol(array $rolesPermitidos): void
     {
         self::requerirAutenticacion();
@@ -170,17 +99,6 @@ class Autenticacion
         }
     }
 
-    /**
-     * Exigir que el usuario tenga un permiso específico.
-     * Los permisos se resuelven internamente según el rol del usuario.
-     * ADMIN tiene GESTIONAR_TODO, que actúa como comodín.
-     *
-     * Uso en controllers:
-     *     Autenticacion::requerirPermiso('MODIFICAR_RESULTADO');
-     *
-     * @param string $permiso  Nombre del permiso requerido.
-     * @return void
-     */
     public static function requerirPermiso(string $permiso): void
     {
         self::requerirAutenticacion();
@@ -188,33 +106,17 @@ class Autenticacion
         $usuario = self::usuario();
         $rolUsuario = $usuario['rol'] ?? '';
 
-        // Obtener los permisos asignados al rol
         $permisos = self::$permisosRol[$rolUsuario] ?? [];
 
-        // GESTIONAR_TODO es un comodín: concede cualquier permiso
         if (in_array(self::PERM_GESTIONAR_TODO, $permisos, true)) {
-            return; // ADMIN → Acceso total
+            return;
         }
 
-        // Verificar si el permiso solicitado está en la lista del rol
         if (!in_array($permiso, $permisos, true)) {
             self::responderError(403, 'No autorizado. Permiso requerido: ' . $permiso);
         }
     }
 
-    /**
-     * Exigir que el usuario pertenezca como STAFF activo al equipo indicado.
-     * Consulta la tabla `entrenador_equipo` buscando una relación activa
-     * entre el entrenador vinculado al usuario y el equipo.
-     *
-     * ADMIN tiene acceso directo sin verificar pertenencia.
-     *
-     * Uso en controllers:
-     *     Autenticacion::requerirStaffDeEquipo($id_equipo);
-     *
-     * @param int $id_equipo  ID del equipo al que se requiere acceso.
-     * @return void
-     */
     public static function requerirStaffDeEquipo(int $id_equipo): void
     {
         self::requerirAutenticacion();
@@ -222,7 +124,6 @@ class Autenticacion
         $usuario = self::usuario();
         $rolUsuario = $usuario['rol'] ?? '';
 
-        // ADMIN tiene acceso universal
         if ($rolUsuario === self::ROL_ADMIN) {
             return;
         }
@@ -232,8 +133,6 @@ class Autenticacion
         try {
             $db = Database::getInstance();
 
-            // Buscar si el usuario está vinculado como entrenador activo del equipo
-            // Se une la tabla entrenadores (que tiene id_usuario) con entrenador_equipo
             $stmt = $db->prepare(
                 "SELECT 1 FROM entrenador_equipo ee
                  INNER JOIN entrenadores e ON ee.id_entrenador = e.id_entrenador
@@ -253,47 +152,23 @@ class Autenticacion
         }
     }
 
-    // =====================================================================
-    //  MÉTODOS DE GESTIÓN DE SESIÓN
-    // =====================================================================
-
-    /**
-     * Iniciar sesión para un usuario (login).
-     * Guarda el id_usuario en $_SESSION para futuras peticiones.
-     *
-     * @param int   $id_usuario  ID del usuario autenticado.
-     * @param array $datosUsuario  Datos del usuario para cachear (opcional).
-     * @return void
-     */
     public static function login(int $id_usuario, array $datosUsuario = []): void
     {
         self::iniciarSesion();
 
-        // Regenerar ID de sesión para prevenir session fixation
         session_regenerate_id(true);
 
         $_SESSION['id_usuario'] = $id_usuario;
 
-        // Cachear datos si se proporcionan
-        // No cacheamos datos completos del usuario en sesión.
-        // Solo guardamos id_usuario para consultar siempre datos actualizados.
         unset($_SESSION['_usuario_cache']);
     }
 
-    /**
-     * Cerrar sesión del usuario (logout).
-     * Destruye toda la información de sesión.
-     *
-     * @return void
-     */
     public static function cerrarSesion(): void
     {
         self::iniciarSesion();
 
-        // Limpiar todas las variables de sesión
         $_SESSION = [];
 
-        // Eliminar la cookie de sesión
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
             setcookie(
@@ -307,20 +182,9 @@ class Autenticacion
             );
         }
 
-        // Destruir la sesión
         session_destroy();
     }
 
-    // =====================================================================
-    //  HELPERS INTERNOS
-    // =====================================================================
-
-    /**
-     * Iniciar la sesión PHP si no está activa.
-     * Método seguro que evita warnings por doble inicio.
-     *
-     * @return void
-     */
     private static function iniciarSesion(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -328,13 +192,6 @@ class Autenticacion
         }
     }
 
-    /**
-     * Responder con un error JSON y finalizar la ejecución.
-     *
-     * @param int    $httpCode  Código HTTP (ej: 401, 403, 500).
-     * @param string $mensaje   Mensaje descriptivo del error.
-     * @return never            Finaliza la ejecución del script.
-     */
     private static function responderError(int $httpCode, string $mensaje): void
     {
         http_response_code($httpCode);
@@ -346,12 +203,6 @@ class Autenticacion
         exit;
     }
 
-    /**
-     * Obtener los permisos del usuario autenticado.
-     * Útil para que el frontend conozca las acciones disponibles.
-     *
-     * @return array  Lista de permisos del usuario actual (vacía si no está autenticado).
-     */
     public static function obtenerPermisos(): array
     {
         $usuario = self::usuario();
@@ -363,18 +214,10 @@ class Autenticacion
         return self::$permisosRol[$rolUsuario] ?? [];
     }
 
-    /**
-     * Verificar si el usuario tiene un permiso sin cortar la ejecución.
-     * Útil para lógica condicional en controllers.
-     *
-     * @param string $permiso  Permiso a verificar.
-     * @return bool            true si el usuario tiene el permiso.
-     */
     public static function tienePermiso(string $permiso): bool
     {
         $permisos = self::obtenerPermisos();
 
-        // GESTIONAR_TODO = comodín
         if (in_array(self::PERM_GESTIONAR_TODO, $permisos, true)) {
             return true;
         }
@@ -382,12 +225,6 @@ class Autenticacion
         return in_array($permiso, $permisos, true);
     }
 
-    /**
-     * Verificar si el usuario tiene uno de los roles indicados sin cortar ejecución.
-     *
-     * @param array $roles  Roles a verificar.
-     * @return bool         true si el usuario tiene alguno de los roles.
-     */
     public static function tieneRol(array $roles): bool
     {
         $usuario = self::usuario();

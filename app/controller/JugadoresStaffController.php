@@ -2,24 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  JugadoresStaffController
- * ============================================================================
- *  Rutas STAFF para gestión de jugadores.
- *  Estado de solicitudes y aprobaciones vive en equipo_jugador.
- *
- *  GET   /staff/jugadores/pendientes              → pendientes()
- *  GET   /staff/jugadores/plantilla               → plantilla()
- *  POST  /staff/jugadores/alta                    → alta()
- *  PATCH /staff/jugadores/{id}/solicitar-baja     → solicitarBaja()
- *  POST  /staff/jugadores/{id}/foto               → subirFoto()
- *  PATCH /staff/jugadores/dorsal                  → asignarDorsal()
- *
- *  ELIMINADO: POST /staff/jugadores/lote  (alta masiva)
- * ============================================================================
- */
-
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/jugadoresModel.php';
 require_once __DIR__ . '/../model/equipoJugadorModel.php';
@@ -41,9 +23,6 @@ class JugadoresStaffController
         return trim((string)($val ?? ''));
     }
 
-    /**
-     * Obtiene los IDs de equipo asignados al staff actual.
-     */
     private function getMisEquipoIds(): array
     {
         $usuario = Autenticacion::usuario();
@@ -59,11 +38,6 @@ class JugadoresStaffController
         return array_map(fn($me) => (int)$me['id_equipo'], $misEquipos);
     }
 
-    /**
-     * Sube un archivo al directorio del jugador.
-     * $clave = 'foto' | 'documento_identidad'
-     * Devuelve ruta relativa pública o null si no llegó archivo.
-     */
     private function subirArchivo(string $clave, int $id_jugador): ?string
     {
         if (!isset($_FILES[$clave]) || $_FILES[$clave]['error'] !== UPLOAD_ERR_OK) {
@@ -96,9 +70,6 @@ class JugadoresStaffController
         return $dbPath;
     }
 
-    // =====================================================
-    // GET /staff/jugadores/pendientes
-    // =====================================================
     public function pendientes(): void
     {
         try {
@@ -114,10 +85,6 @@ class JugadoresStaffController
         }
     }
 
-    // =====================================================
-    // GET /staff/jugadores/plantilla
-    //   ?id_equipo=X&id_liga=Y&nombre=Z&categoria=C
-    // =====================================================
     public function plantilla(array $entrada = []): void
     {
         try {
@@ -146,17 +113,6 @@ class JugadoresStaffController
         }
     }
 
-    // =====================================================
-    // POST /staff/jugadores/alta
-    //
-    // Alta individual con documentación.
-    // Genera solicitud PENDIENTE/ALTA en equipo_jugador.
-    // multipart/form-data:
-    //   nombre, apellido, fecha_nacimiento, id_equipo, id_liga
-    //   documento_identidad (archivo obligatorio)
-    //   foto                (archivo opcional)
-    //   nombres_padres, email_padres, telefono_padres (si menor 18)
-    // =====================================================
     public function alta(array $entrada): void
     {
         try {
@@ -165,7 +121,6 @@ class JugadoresStaffController
             $usuario    = Autenticacion::usuario();
             $id_usuario = (int)$usuario['id_usuario'];
 
-            // 1. Campos base
             $nombre    = $this->limpiar($entrada['nombre']           ?? '');
             $apellido  = $this->limpiar($entrada['apellido']         ?? '');
             $fecha     = $this->limpiar($entrada['fecha_nacimiento'] ?? '');
@@ -176,7 +131,6 @@ class JugadoresStaffController
                 $this->responder(400, ['success' => false, 'message' => 'Faltan campos obligatorios']);
             }
 
-            // 2. Documento de identidad obligatorio
             if (!isset($_FILES['documento_identidad'])
                 || $_FILES['documento_identidad']['error'] !== UPLOAD_ERR_OK) {
                 $this->responder(400, [
@@ -185,10 +139,8 @@ class JugadoresStaffController
                 ]);
             }
 
-            // 3. Verificar pertenencia al equipo
             Autenticacion::requerirStaffDeEquipo($id_equipo);
 
-            // 4. Validar datos de padres si menor de 18
             $hoy        = new \DateTime();
             $nacimiento = new \DateTime($fecha);
             $edad       = (int)$hoy->diff($nacimiento)->y;
@@ -214,13 +166,11 @@ class JugadoresStaffController
             $jugModel = new JugadoresModel();
             $ejModel  = new EquipoJugadorModel();
 
-            // 5 & 6. Buscar o crear jugador global
             $jugadorExistente = $jugModel->getByKey($nombre, $apellido, $fecha);
 
             if ($jugadorExistente) {
                 $id_jugador = (int)$jugadorExistente['id_jugador'];
 
-                // Verificar que no existe relación activa o pendiente
                 if ($ejModel->existeRelacion($id_jugador, $id_equipo, $id_liga)) {
                     $this->responder(409, [
                         'success' => false,
@@ -228,12 +178,9 @@ class JugadoresStaffController
                     ]);
                 }
             } else {
-                // Crear persona global (snapshot de solicitud)
                 $id_jugador = $jugModel->insert($nombre, $apellido, $fecha);
             }
 
-            // Subir archivos y guardar snapshot de documentación
-            // IMPORTANTE: cuando queda PENDIENTE no se modifica automáticamente
             $foto_path = $this->subirArchivo('foto',                $id_jugador);
             $doc_path  = $this->subirArchivo('documento_identidad', $id_jugador);
 
@@ -246,10 +193,8 @@ class JugadoresStaffController
                 $esmenor ? $telefono_padres : null
             );
 
-            // Crear relación PENDIENTE/ALTA
             $ejModel->insertarPendiente($id_jugador, $id_equipo, $id_liga, $id_usuario);
 
-            // Avisos coincidencias en otros equipos
             $avisos = $jugModel->buscarCoincidenciasEnOtrosEquipos(
                 $nombre, $apellido, $fecha, $id_equipo, $id_liga
             );
@@ -273,9 +218,6 @@ class JugadoresStaffController
         }
     }
 
-    // =====================================================
-    // PATCH /staff/jugadores/{id}/solicitar-baja
-    // =====================================================
     public function solicitarBaja(int $id_relacion): void
     {
         try {
@@ -315,10 +257,6 @@ class JugadoresStaffController
         }
     }
 
-    // =====================================================
-    // POST /staff/jugadores/{id}/foto
-    // Solo si no existe foto previa
-    // =====================================================
     public function subirFoto(int $id_jugador): void
     {
         try {
@@ -383,11 +321,6 @@ class JugadoresStaffController
         }
     }
 
-    // =====================================================
-    // PATCH /staff/jugadores/dorsal
-    // Body: {id_jugador, id_equipo, id_liga, dorsal}
-    // Solo si no existe dorsal previo
-    // =====================================================
     public function asignarDorsal(array $entrada): void
     {
         try {

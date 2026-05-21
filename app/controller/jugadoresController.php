@@ -2,23 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  JugadoresController
- * ============================================================================
- *  Operaciones genéricas sobre la entidad jugador global.
- *
- *  GET    /jugadores          → seleccionar()   Listado / búsqueda
- *  GET    /jugadores/{id}     → localizar()     Detalle individual
- *  POST   /jugadores/{id}/foto → subirFoto()    Subida de foto (solo una vez)
- *  DELETE /jugadores/{id}     → eliminar()      Solo ADMIN
- *
- *  NOTA: Toda la lógica de alta, baja y aprobación/rechazo vive en:
- *   - JugadoresAdminController  (flujo ADMIN)
- *   - JugadoresStaffController  (flujo STAFF)
- * ============================================================================
- */
-
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/jugadoresModel.php';
 require_once __DIR__ . '/../model/equipoJugadorModel.php';
@@ -38,9 +21,6 @@ class JugadoresController
         return trim((string)($valor ?? ''));
     }
 
-    // =====================================================
-    // SELECCIONAR (GET /jugadores)
-    // =====================================================
     public function seleccionar(array $entrada = []): void
     {
         try {
@@ -86,9 +66,6 @@ class JugadoresController
         }
     }
 
-    // =====================================================
-    // LOCALIZAR (GET /jugadores/{id})
-    // =====================================================
     public function localizar(int $id): void
     {
         try {
@@ -105,10 +82,6 @@ class JugadoresController
         }
     }
 
-    // =====================================================
-    // SUBIR FOTO INDIVIDUAL (POST /jugadores/{id}/foto)
-    // Solo si no tiene foto aún (operación inmutable para STAFF)
-    // =====================================================
     public function subirFoto(int $id): void
     {
         try {
@@ -121,7 +94,6 @@ class JugadoresController
                 $this->responder(404, ['success' => false, 'message' => 'Jugador no encontrado']);
             }
 
-            // STAFF: foto inmutable
             if (!Autenticacion::tieneRol([Autenticacion::ROL_ADMIN]) && $modelo->tieneFoto($id)) {
                 $this->responder(409, [
                     'success' => false,
@@ -174,9 +146,6 @@ class JugadoresController
         }
     }
 
-    // =====================================================
-    // ELIMINAR (DELETE /jugadores/{id})  — Solo ADMIN
-    // =====================================================
     public function eliminar(int $id): void
     {
         try {

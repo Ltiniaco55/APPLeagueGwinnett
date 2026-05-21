@@ -9,9 +9,6 @@ class EntrenadorEquipoModel
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Obtener todas las asignaciones entrenador-equipo
-     */
     public function getAll(): array
     {
         $stmt = $this->db->prepare("SELECT * FROM entrenador_equipo");
@@ -19,23 +16,17 @@ class EntrenadorEquipoModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener asignación por claves (id_entrenador, id_equipo, id_liga)
-     */
     public function getById(int $idEntrenador, int $idEquipo, int $idLiga): ?array
     {
         $stmt = $this->db->prepare(
             "SELECT * FROM entrenador_equipo
-             WHERE id_entrenador = ? AND id_equipo = ? AND id_liga = ?"
+              WHERE id_entrenador = ? AND id_equipo = ? AND id_liga = ?"
         );
         $stmt->execute([$idEntrenador, $idEquipo, $idLiga]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ?: null;
     }
 
-    /**
-     * Obtener asignaciones por entrenador
-     */
     public function getByEntrenador(int $idEntrenador): array
     {
         $stmt = $this->db->prepare(
@@ -49,8 +40,8 @@ class EntrenadorEquipoModel
     {
         $stmt = $this->db->prepare(
             "SELECT COUNT(*)
-             FROM entrenador_equipo
-             WHERE id_entrenador = ?"
+              FROM entrenador_equipo
+              WHERE id_entrenador = ?"
         );
 
         $stmt->execute([$idEntrenador]);
@@ -58,9 +49,6 @@ class EntrenadorEquipoModel
         return (int) $stmt->fetchColumn();
     }
 
-    /**
-     * Obtener asignaciones por equipo
-     */
     public function getByEquipo(int $idEquipo): array
     {
         $stmt = $this->db->prepare(
@@ -104,9 +92,6 @@ class EntrenadorEquipoModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener asignaciones por liga
-     */
     public function getByLiga(int $idLiga): array
     {
         $stmt = $this->db->prepare(
@@ -116,22 +101,16 @@ class EntrenadorEquipoModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Verificar si la asignación ya existe
-     */
     public function existsByKey(int $idEntrenador, int $idEquipo, int $idLiga): bool
     {
         $stmt = $this->db->prepare(
             "SELECT 1 FROM entrenador_equipo
-             WHERE id_entrenador = ? AND id_equipo = ? AND id_liga = ?"
+              WHERE id_entrenador = ? AND id_equipo = ? AND id_liga = ?"
         );
         $stmt->execute([$idEntrenador, $idEquipo, $idLiga]);
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Insertar nueva asignación entrenador-equipo
-     */
     public function insert(int $idEntrenador, int $idEquipo, int $idLiga, string $estado): int
     {
         $stmt = $this->db->prepare(
@@ -142,9 +121,6 @@ class EntrenadorEquipoModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Actualizar estado de la asignación
-     */
     public function update(int $idEntrenador, int $idEquipo, int $idLiga, string $estado): int
     {
         $stmt = $this->db->prepare(
@@ -155,19 +131,15 @@ class EntrenadorEquipoModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Eliminar asignación entrenador-equipo
-     */
     public function delete(int $idEntrenador, int $idEquipo, int $idLiga): int
     {
         $stmt = $this->db->prepare(
             "DELETE FROM entrenador_equipo
-             WHERE id_entrenador = ? AND id_equipo = ? AND id_liga = ?"
+              WHERE id_entrenador = ? AND id_equipo = ? AND id_liga = ?"
         );
         $stmt->execute([$idEntrenador, $idEquipo, $idLiga]);
         return $stmt->rowCount();
     }
-
 
     public function deleteByEntrenador(int $idEntrenador): int
     {
@@ -227,7 +199,6 @@ class EntrenadorEquipoModel
             throw $e;
         }
     }
-
 
     public function getEntrenadoresByEquipoLiga(int $idEquipo, int $idLiga): array
     {

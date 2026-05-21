@@ -2,21 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  LigasController
- * ============================================================================
- *  Compatible con tu LigasModel actual:
- *   - getAllFiltered($nom, $temp, $categ)   (usa LIKE)
- *   - existsByKey($nom, $temp, $categ)      (exacto)
- *   - insert($nom, $temp, $categ [, $descripcion])
- *   - deleteByKey($nom, $temp, $categ)
- *
- *  NOTA:
- *   - No hay update en el Model, por eso modificar() queda "pendiente".
- * ============================================================================
- */
-
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/ligasModel.php';
 require_once __DIR__ . '/../model/clasificacionesModel.php';
@@ -46,9 +31,6 @@ class LigasController
         $clasificacionesModel->asegurarClasificacionLiga($idLiga);
     }
 
-    // =========================================================================
-    // SELECCIONAR (GET /api/ligas?nom=&temp=&categ=)
-    // =========================================================================
     public function seleccionar(array $entrada = []): void
     {
         try {
@@ -65,14 +47,6 @@ class LigasController
         }
     }
 
-    // =========================================================================
-    // LOCALIZAR (GET /api/ligas/localizar?nom=...&temp=...&categ=...)
-    //
-    // Como tu Model NO tiene getByKey exacto, hacemos:
-    //  - existsByKey() para confirmar existencia exacta
-    //  - luego usamos getAllFiltered() con valores exactos (PERO OJO: usa LIKE)
-    //    En la práctica debería devolver 1 si no hay datos raros.
-    // =========================================================================
     public function localizar(array $entrada): void
     {
         try {
@@ -89,7 +63,6 @@ class LigasController
 
             $modelo = new LigasModel();
 
-            // Existencia exacta
             $liga = $modelo->getByKey($nom, $temp, $categ);
 
             if (!$liga) {
@@ -99,7 +72,6 @@ class LigasController
                 ]);
             }
 
-            // Traer datos (probablemente 1 registro)
             $datos = $modelo->getAllFiltered($nom, $temp, $categ);
 
             $this->responder(200, [
@@ -111,13 +83,6 @@ class LigasController
         }
     }
 
-    // =========================================================================
-    // INSERTAR (POST /api/ligas)
-    // Body esperado:
-    //  - nom, temp, categ
-    //  - descripcion (opcional)
-    // Solo ADMIN
-    // =========================================================================
     public function insertar(array $entrada): void
     {
         try {
@@ -149,7 +114,6 @@ class LigasController
 
             $modelo = new LigasModel();
 
-            // Regla: no duplicados por (nom,temp,categ)
             if ($modelo->getByKey($nom, $temp, $categ)) {
                 $this->responder(409, [
                     'success' => false,
@@ -157,7 +121,6 @@ class LigasController
                 ]);
             }
 
-            // Tu insert acepta descripcion como 4º argumento opcional
             $idNuevo = $modelo->insert($nom, $temp, $categ, $descripcion, $estadoLiga, $formatoLiga);
 
             $this->asegurarClasificacionSiEnCurso($idNuevo, $estadoLiga);
@@ -180,12 +143,6 @@ class LigasController
         }
     }
 
-    // =========================================================================
-    // ELIMINAR (DELETE /api/ligas)
-    // Body o query esperado:
-    //  - nom, temp, categ
-    // Solo ADMIN
-    // =========================================================================
     public function eliminar(array $entrada): void
     {
         try {
@@ -249,11 +206,6 @@ class LigasController
         }
     }
 
-    // =========================================================================
-    // MODIFICAR (PUT /api/ligas)
-    // AÚN NO SE PUEDE, porque tu LigasModel no tiene update.
-    // Aquí mantenemos tu estilo: devolvemos error claro.
-    // =========================================================================
     public function modificar(array $entrada): void
     {
         try {
@@ -325,9 +277,6 @@ class LigasController
         }
     }
 
-    // =========================================================================
-    // SUBIR ESCUDO (POST /api/ligas/{id}/escudo)
-    // =========================================================================
     public function subirEscudo(int $id): void
     {
         try {

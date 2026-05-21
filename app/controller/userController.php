@@ -2,16 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  UsuariosController (compatible con tu UsuariosModel)
- * ============================================================================
- *  IMPORTANTE:
- *   - Sin funciones de Auth (login/logout) -> van en AuthController
- *   - No devuelve nunca el campo 'pwd'.
- * ============================================================================
- */
-
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/usuariosModel.php';
 require_once __DIR__ . '/../model/entrenadoresModel.php';
@@ -19,7 +9,6 @@ require_once __DIR__ . '/../model/entrenadorEquipoModel.php';
 
 class UsuariosController
 {
-    // ---------- Respuesta JSON estándar ----------
     private function responder(int $codigoHttp, array $contenido): void
     {
         http_response_code($codigoHttp);
@@ -48,13 +37,6 @@ class UsuariosController
         return $usuarios;
     }
 
-    // =========================================================================
-    // SELECCIONAR (GET /api/usuarios)
-    // Soporta filtros opcionales:
-    //  - ?q=texto
-    //  - ?nombre=...&apellido=...&email=...
-    //  
-    // =========================================================================
     public function seleccionar(array $entrada = []): void
     {
         try {
@@ -81,9 +63,6 @@ class UsuariosController
         }
     }
 
-    // =========================================================================
-    // LOCALIZAR (GET /api/usuarios/{id})
-    // =========================================================================
     public function localizar(int $id): void
     {
         try {
@@ -106,10 +85,6 @@ class UsuariosController
         }
     }
 
-    // =========================================================================
-    // INSERTAR (POST /api/usuarios)
-    // (Esto es “crear usuario” genérico. El registro público va en AuthController)
-    // =========================================================================
     public function insertar(array $entrada): void
     {
         try {
@@ -145,10 +120,6 @@ class UsuariosController
         }
     }
 
-    // =========================================================================
-    // MODIFICAR (PUT /api/usuarios/{id})
-    // - SOLO ADMIN
-    // =========================================================================
     public function modificar(int $id, array $entrada): void
     {
         try {
@@ -216,9 +187,6 @@ class UsuariosController
         }
     }
 
-    // =========================================================================
-    // ELIMINAR (DELETE /api/usuarios/{id})
-    // =========================================================================
     public function eliminar(int $id): void
     {
         try {
@@ -246,9 +214,6 @@ class UsuariosController
         }
     }
 
-    // =========================================================================
-    // ACTUALIZAR ROL (PATCH /api/usuarios/{id}/rol)
-    // =========================================================================
     public function actualizarRol(int $id, array $entrada): void
     {
         try {
@@ -290,13 +255,6 @@ class UsuariosController
 
             $rolActual = strtoupper((string)($existente['rol'] ?? Autenticacion::ROL_USUARIO));
 
-            /*
-         * ============================================================
-         * PROTECCIÓN 1:
-         * No permitir quitar el último ADMIN del sistema.
-         * Porque dejar la app sin admin es una forma elegante de pegarse un tiro en el CRUD.
-         * ============================================================
-         */
             if ($rolActual === Autenticacion::ROL_ADMIN && $rol !== Autenticacion::ROL_ADMIN) {
                 if ($modelo->countAdmins() <= 1) {
                     $this->responder(409, [
@@ -306,15 +264,6 @@ class UsuariosController
                 }
             }
 
-            /*
-         * ============================================================
-         * PROTECCIÓN 2:
-         * Si el cambio entra o sale de ADMIN, pedir contraseña del admin actual.
-         * Casos:
-         *  - USUARIO / STAFF / ARBITRO -> ADMIN
-         *  - ADMIN -> USUARIO / STAFF / ARBITRO
-         * ============================================================
-         */
             $cambioCriticoAdmin =
                 $rolActual === Autenticacion::ROL_ADMIN ||
                 $rol === Autenticacion::ROL_ADMIN;
@@ -351,15 +300,6 @@ class UsuariosController
                 }
             }
 
-            /*
-         * ============================================================
-         * Si el nuevo rol ya no puede actuar como entrenador/staff,
-         * limpiamos relaciones con equipos.
-         *
-         * STAFF y ADMIN sí pueden tener equipos asociados.
-         * USUARIO y ARBITRO no.
-         * ============================================================
-         */
             if (!in_array($rol, [Autenticacion::ROL_STAFF, Autenticacion::ROL_ADMIN], true)) {
                 $entrenadoresModel = new EntrenadoresModel();
                 $entrenadorEquipoModel = new EntrenadorEquipoModel();
@@ -392,10 +332,6 @@ class UsuariosController
             ]);
         }
     }
-
-    // =========================================================================
-    // ACTUALIZAR EQUIPO DE STAFF (PATCH /api/usuarios/{id}/equipo-staff)
-    // =========================================================================
 
     public function actualizarEquiposStaff(int $id, array $entrada): void
     {
@@ -457,7 +393,6 @@ class UsuariosController
             } else {
                 $idEntrenador = (int)$entrenador['id_entrenador'];
             }
-
 
             error_log('DEBUG idEntrenador: ' . $idEntrenador);
             error_log('DEBUG relaciones antes de sincronizar: ' . json_encode($relaciones));
@@ -543,7 +478,6 @@ class UsuariosController
             ]);
         }
     }
-
 
     public function subirFotoEntrenador(int $id): void
     {

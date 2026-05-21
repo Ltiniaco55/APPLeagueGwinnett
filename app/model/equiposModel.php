@@ -9,9 +9,6 @@ class EquiposModel
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Obtener todos los equipos
-     */
     public function getAll(): array
     {
         $stmt = $this->db->prepare("SELECT * FROM equipos");
@@ -19,9 +16,6 @@ class EquiposModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener equipo por ID
-     */
     public function getById(int $id): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM equipos WHERE id_equipo = ?");
@@ -30,9 +24,6 @@ class EquiposModel
         return $result ?: null;
     }
 
-    /**
-     * Obtener equipos por club
-     */
     public function getByClub(string $club): array
     {
         $stmt = $this->db->prepare("SELECT * FROM equipos WHERE club = ?");
@@ -40,9 +31,6 @@ class EquiposModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Verificar si el equipo ya existe (por club, categoria)
-     */
     public function existsByKey(string $club, string $categoria): bool
     {
         $stmt = $this->db->prepare(
@@ -52,9 +40,6 @@ class EquiposModel
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Crear nuevo equipo
-     */
     public function insert(
         string $club,
         string $categoria,
@@ -74,9 +59,6 @@ class EquiposModel
         return (int) $this->db->lastInsertId();
     }
 
-    /**
-     * Actualizar equipo
-     */
     public function update(
         int $id,
         string $club,
@@ -98,9 +80,6 @@ class EquiposModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Eliminar equipo
-     */
     public function delete(int $id): int
     {
         $stmt = $this->db->prepare("DELETE FROM equipos WHERE id_equipo = ?");
@@ -108,9 +87,6 @@ class EquiposModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Buscar equipos por club o categoria
-     */
     public function search(string $club = '', string $categoria = ''): array
     {
         $sql = "SELECT * FROM equipos WHERE 1=1";
@@ -130,9 +106,6 @@ class EquiposModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener equipos por categoria
-     */
     public function getByCategoria(string $categoria): array
     {
         $stmt = $this->db->prepare("SELECT * FROM equipos WHERE categoria = ?");
@@ -140,32 +113,23 @@ class EquiposModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener ligas de un equipo
-     */
     public function getLigasByEquipo(int $id_equipo): array
     {
         $stmt = $this->db->prepare("SELECT id_liga FROM equipo_liga WHERE id_equipo = ?");
         $stmt->execute([$id_equipo]);
-        return $stmt->fetchAll(PDO::FETCH_COLUMN); // Array plano de IDs
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
-    /**
-     * Sincronizar ligas de un equipo (Borrar viejas y añadir nuevas)
-     */
     public function syncLigas(int $id_equipo, array $ligas_ids): void
     {
         $this->db->beginTransaction();
         try {
-            // Eliminar actuales
             $stmtDel = $this->db->prepare("DELETE FROM equipo_liga WHERE id_equipo = ?");
             $stmtDel->execute([$id_equipo]);
             
-            // Insertar nuevas
             if (!empty($ligas_ids)) {
                 $stmtIns = $this->db->prepare("INSERT INTO equipo_liga (id_equipo, id_liga) VALUES (?, ?)");
                 foreach ($ligas_ids as $id_liga) {
-                    // id_liga debe ser casteado a int para evitar fallas
                     $stmtIns->execute([$id_equipo, (int)$id_liga]);
                 }
             }

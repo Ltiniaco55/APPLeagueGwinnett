@@ -85,10 +85,6 @@ class PartidosModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =========================================================================
-    //  SELECT: getById con JOINs enriquecidos
-    // =========================================================================
-
     public function getById(int $id_partido): ?array
     {
         $sql = "
@@ -124,14 +120,6 @@ class PartidosModel
         return $result ?: null;
     }
 
-    // =========================================================================
-    //  INSERT
-    // =========================================================================
-
-    /**
-     * Inserta un nuevo partido.
-     * Devuelve el id_partido generado.
-     */
     public function insertar(array $datos): int
     {
         $stmt = $this->db->prepare("
@@ -158,14 +146,6 @@ class PartidosModel
         return (int) $this->db->lastInsertId();
     }
 
-    // =========================================================================
-    //  UPDATE
-    // =========================================================================
-
-    /**
-     * Actualiza un partido existente.
-     * Devuelve el número de filas afectadas.
-     */
     public function modificar(int $id_partido, array $datos): int
     {
         $stmt = $this->db->prepare("
@@ -200,10 +180,6 @@ class PartidosModel
         return $stmt->rowCount();
     }
 
-    // =========================================================================
-    //  CANCELAR (solo cambia estado)
-    // =========================================================================
-
     public function cancelar(int $id_partido): int
     {
         $stmt = $this->db->prepare(
@@ -212,10 +188,6 @@ class PartidosModel
         $stmt->execute([$id_partido]);
         return $stmt->rowCount();
     }
-
-    // =========================================================================
-    //  DELETE (físico)
-    // =========================================================================
 
     public function delete(int $id_partido): int
     {
@@ -233,7 +205,7 @@ class PartidosModel
         WHERE id_liga = ?
           AND (
                 id_equipo_local = ?
-             OR id_equipo_visitante = ?
+              OR id_equipo_visitante = ?
           )
     ");
 
@@ -293,10 +265,6 @@ class PartidosModel
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Comprueba que ninguno de los dos equipos tenga ya un partido en la misma
-     * fecha/hora exacta dentro de la misma liga.
-     */
     public function existeConflictoHorario(
         int     $idLiga,
         string  $fecha,
@@ -332,9 +300,6 @@ class PartidosModel
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Verifica que ambos equipos pertenezcan a la liga mediante equipo_liga.
-     */
     public function equiposPertenecenALiga(
         int $idLiga,
         int $idLocal,
@@ -349,9 +314,6 @@ class PartidosModel
         return ((int) $stmt->fetchColumn()) === 2;
     }
 
-    /**
-     * Verifica que la liga exista.
-     */
     public function existeLiga(int $idLiga): bool
     {
         $stmt = $this->db->prepare(
@@ -361,9 +323,6 @@ class PartidosModel
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Verifica que el equipo exista.
-     */
     public function existeEquipo(int $idEquipo): bool
     {
         $stmt = $this->db->prepare(
@@ -372,7 +331,6 @@ class PartidosModel
         $stmt->execute([$idEquipo]);
         return (bool) $stmt->fetchColumn();
     }
-
 
     public function getFormatoLiga(int $idLiga): ?string
     {

@@ -8,7 +8,6 @@ require_once __DIR__ . '/../model/clasificacionesModel.php';
 
 class PartidosController
 {
-
     private function responder(int $codigoHttp, array $contenido): void
     {
         http_response_code($codigoHttp);
@@ -91,11 +90,9 @@ class PartidosController
 
     private function prepararFecha(array $entrada): string
     {
-
         if (!empty($entrada['fecha'])) {
             return $this->limpiarTexto($entrada['fecha']);
         }
-
 
         $dia  = $this->limpiarTexto($entrada['fecha_dia'] ?? '');
         $hora = $this->limpiarTexto($entrada['hora']      ?? '');
@@ -201,7 +198,6 @@ class PartidosController
                 ? (int) $entrada['goles_visitante'] : null;
             $estado       = $this->limpiarTexto($entrada['estado'] ?? 'programado');
 
-
             if (!$this->validarEstado($estado)) {
                 $this->responder(400, [
                     'success' => false,
@@ -237,7 +233,6 @@ class PartidosController
                     'message' => 'Faltan campos obligatorios: id_liga, fecha, lugar, id_equipo_local, id_equipo_visitante',
                 ]);
             }
-
 
             if ($idLocal === $idVisitante) {
                 $this->responder(400, [

@@ -2,26 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * ============================================================================
- *  EquipoJugadorController
- * ============================================================================
- *  Gestión de la relación equipo ↔ jugador (plantilla).
- *
- *  GET    /plantillas               → seleccionar()      Ver plantilla de un equipo
- *  GET    /plantillas/detalle       → detalle()          Detalle individual
- *  POST   /plantillas               → insertar()         Añadir jugador EXISTENTE a plantilla
- *  PATCH  /plantillas/dorsal        → actualizarDorsal() Asignar dorsal (una sola vez)
- *  DELETE /plantillas               → eliminar()         Baja directa (admin) / solicitar baja (staff)
- *
- *  NOTA IMPORTANTE:
- *  insertar() NO crea jugadores. Solo vincula un jugador global ya existente
- *  a un equipo/liga. Para crear jugadores nuevos usar:
- *    - POST /admin/jugadores/alta-directa  (ADMIN, alta directa con documentación)
- *    - POST /staff/jugadores/alta          (STAFF, genera solicitud pendiente)
- * ============================================================================
- */
-
 require_once __DIR__ . '/../core/Autenticacion.php';
 require_once __DIR__ . '/../model/equipoJugadorModel.php';
 
@@ -35,10 +15,6 @@ class EquipoJugadorController
         exit;
     }
 
-    // =====================================================
-    // VER PLANTILLA DE EQUIPO (GET /plantillas?id_equipo=X&id_liga=Y)
-    // Refactorizado: lee de query/body, usa JOIN con jugador
-    // =====================================================
     public function seleccionar(array $entrada = []): void
     {
         try {
@@ -61,9 +37,6 @@ class EquipoJugadorController
         }
     }
 
-    // =====================================================
-    // DETALLE INDIVIDUAL (GET /plantillas/detalle?id_jugador=X&id_equipo=Y&id_liga=Z)
-    // =====================================================
     public function detalle(array $entrada): void
     {
         try {
@@ -91,9 +64,6 @@ class EquipoJugadorController
         }
     }
 
-    // =====================================================
-    // INSERTAR JUGADOR A EQUIPO (ADMIN)
-    // =====================================================
     public function insertar(array $entrada): void
     {
         try {
@@ -125,9 +95,6 @@ class EquipoJugadorController
         }
     }
 
-    // =====================================================
-    // ACTUALIZAR DORSAL — SOLO UNA VEZ
-    // =====================================================
     public function actualizarDorsal(array $entrada): void
     {
         try {
@@ -140,14 +107,12 @@ class EquipoJugadorController
                 $this->responder(400, ['success' => false, 'message' => 'Faltan campos obligatorios']);
             }
 
-            // Staff solo su equipo o admin
             if (!Autenticacion::tieneRol([Autenticacion::ROL_ADMIN])) {
                 Autenticacion::requerirStaffDeEquipo($id_equipo);
             }
 
             $modelo = new EquipoJugadorModel();
 
-            // Comprobar si ya tiene dorsal
             if ($modelo->tieneDorsal($id_jugador, $id_equipo, $id_liga)) {
                 $this->responder(409, [
                     'success' => false,
@@ -175,9 +140,6 @@ class EquipoJugadorController
         }
     }
 
-    // =====================================================
-    // ELIMINAR JUGADOR DE PLANTILLA
-    // =====================================================
     public function eliminar(array $entrada): void
     {
         try {
@@ -197,28 +159,33 @@ class EquipoJugadorController
 
             $modelo = new EquipoJugadorModel();
 
-            // Verificar que la relación existe
-            if (!$modelo->existeRelacion($id_jugador, $id_equipo, $id_liga)) {
-                $this->responder(404, ['success' => false, 'message' => 'Relación no encontrada']);
+            $relacion = $modelo->getRelacion($id_jugador, $id_equipo, $id_liga);
+
+            if (!$relacion) {
+                $this->responder(404, [
+                    'success' => false,
+                    'message' => 'Relación no encontrada'
+                ]);
             }
 
             if (!$esAdmin) {
-                require_once __DIR__ . '/../model/jugadoresModel.php';
-                $jugModel = new JugadoresModel();
-                $jugModel->solicitarBaja($id_jugador);
+                $usuario = Autenticacion::usuario();
+                $id_usuario_solicitante = (int)($usuario['id_usuario'] ?? 0);
+
+                $modelo->solicitarBaja((int)$relacion['id'], $id_usuario_solicitante);
 
                 $this->responder(200, [
                     'success' => true,
                     'message' => 'Baja solicitada correctamente. Pendiente de aprobación.'
                 ]);
-            } else {
-                $modelo->eliminarRelacion($id_jugador, $id_equipo, $id_liga);
-
-                $this->responder(200, [
-                    'success' => true,
-                    'message' => 'Jugador eliminado de plantilla'
-                ]);
             }
+
+            $modelo->eliminarRelacion($id_jugador, $id_equipo, $id_liga);
+
+            $this->responder(200, [
+                'success' => true,
+                'message' => 'Jugador eliminado de plantilla'
+            ]);
         } catch (Throwable $e) {
             $this->responder(500, ['success' => false, 'message' => $e->getMessage()]);
         }

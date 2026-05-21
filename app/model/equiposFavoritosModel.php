@@ -13,9 +13,6 @@ class EquiposFavoritosModel
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Obtener favoritos del usuario
-     */
     public function seleccionarPorUsuario(int $idUsuario): array
     {
         $sql = "
@@ -38,9 +35,6 @@ class EquiposFavoritosModel
         return $stmt->fetchAll();
     }
 
-    /**
-     * Verifica si ya existe favorito
-     */
     public function existe(int $idUsuario, int $idEquipo): bool
     {
         $sql = "
@@ -60,9 +54,6 @@ class EquiposFavoritosModel
         return (bool)$stmt->fetch();
     }
 
-    /**
-     * Añadir favorito
-     */
     public function insertar(int $idUsuario, int $idEquipo): bool
     {
         $sql = "
@@ -83,9 +74,6 @@ class EquiposFavoritosModel
         ]);
     }
 
-    /**
-     * Eliminar favorito
-     */
     public function eliminar(int $idUsuario, int $idEquipo): bool
     {
         $sql = "
@@ -102,9 +90,6 @@ class EquiposFavoritosModel
         ]);
     }
 
-    /**
-     * Obtener ligas asociadas a un equipo
-     */
     public function seleccionarLigasPorEquipo(int $idEquipo): array
     {
         $sql = "
@@ -128,9 +113,6 @@ class EquiposFavoritosModel
         return $stmt->fetchAll();
     }
 
-    /**
-     * Obtener favoritos + ligas agrupadas
-     */
     public function seleccionarFavoritosConLigas(int $idUsuario): array
     {
         $favoritos = $this->seleccionarPorUsuario($idUsuario);
@@ -144,9 +126,6 @@ class EquiposFavoritosModel
         return $favoritos;
     }
 
-    /**
-     * Próximos partidos de todos los favoritos
-     */
     public function seleccionarProximosPartidosFavoritos(
         int $idUsuario,
         int $limite = 16

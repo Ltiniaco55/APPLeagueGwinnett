@@ -151,10 +151,10 @@ class EntrenadoresModel
 
         $stmt = $this->db->prepare(
             "SELECT ee.*, e.club, e.categoria, l.nombre_liga
-         FROM entrenador_equipo ee
-         INNER JOIN equipos e ON ee.id_equipo = e.id_equipo
-         INNER JOIN ligas l ON ee.id_liga = l.id_liga
-         WHERE ee.id_entrenador = ?"
+          FROM entrenador_equipo ee
+          INNER JOIN equipos e ON ee.id_equipo = e.id_equipo
+          INNER JOIN ligas l ON ee.id_liga = l.id_liga
+          WHERE ee.id_entrenador = ?"
         );
 
         $stmt->execute([$id_entrenador]);
