@@ -53,6 +53,11 @@
             --tracking-wide: .5px;
         }
 
+        html,
+        body {
+            font-family: var(--font-primary);
+        }
+
         .gysl-ligas-hero {
             min-height: auto;
             padding: 35px 0 35px;
@@ -221,9 +226,34 @@
             flex-direction: column;
         }
 
+        .gysl-liga-card,
+        .gysl-liga-card * {
+            font-family: var(--font-primary);
+        }
+
         .gysl-liga-card:hover {
             transform: translateY(-4px);
             border-color: rgba(241, 184, 45, .38);
+        }
+
+        .gysl-liga-card--bloqueada {
+            cursor: not-allowed;
+            opacity: .88;
+        }
+
+        .gysl-liga-card--bloqueada:hover {
+            transform: none;
+            border-color: rgba(255, 255, 255, .10);
+        }
+
+        .gysl-liga-card--bloqueada .gysl-liga-card__btn {
+            cursor: not-allowed;
+            opacity: .7;
+            pointer-events: none;
+        }
+
+        .gysl-liga-card--bloqueada .gysl-liga-card__btn:hover {
+            background: transparent;
         }
 
         .gysl-liga-card__image {
@@ -439,30 +469,47 @@
                             : `resultados.html?liga=${idLiga}&formato=${formatoLiga}`;
                     }
 
+                    const bloqueada = estadoLiga !== "EN_CURSO";
+
                     return `
-                        <article class="gysl-liga-card" onclick="${urlDestino !== '#' ? `window.location.href='${urlDestino}'` : ''}">
-                            <div class="gysl-liga-card__image">
-                                ${escudoHtml}
-                                <span class="gysl-liga-card__badge ${esProxima
+                            <article 
+                                class="gysl-liga-card ${bloqueada ? 'gysl-liga-card--bloqueada' : ''}"
+                                ${!bloqueada ? `onclick="window.location.href='${urlDestino}'"` : ''}
+                            >
+                                <div class="gysl-liga-card__image">
+                                    ${escudoHtml}
+                                    <span class="gysl-liga-card__badge ${esProxima
                             ? 'gysl-liga-card__badge--proxima'
-                            : 'gysl-liga-card__badge--activa'}">${esProxima ? "PRÓXIMAMENTE" : "EN CURSO"}</span>
-                            </div>
-
-                            <div class="gysl-liga-card__content">
-                                <h3 class="gysl-liga-card__title">${nombre}</h3>
-
-                                <div class="gysl-liga-card__meta">
-                                    <span>📅 ${temporada}</span>
-                                    <span>📍 Atlanta, GA</span>
+                            : 'gysl-liga-card__badge--activa'
+                        }">
+                                        ${esProxima ? "PRÓXIMAMENTE" : "EN CURSO"}
+                                    </span>
                                 </div>
 
-                                <p class="gysl-liga-card__desc">${descripcion}</p>
+                                <div class="gysl-liga-card__content">
+                                    <h3 class="gysl-liga-card__title">${nombre}</h3>
 
-                                <a href="${urlDestino}" class="gysl-liga-card__btn" onclick="event.stopPropagation()">
-                                    ${esProxima ? "VER MÁS INFO →" : "VER DETALLES →"}
-                                </a>
-                            </div>
-                        </article>
+                                    <div class="gysl-liga-card__meta">
+                                        <span>📅 ${temporada}</span>
+                                        <span>📍 Atlanta, GA</span>
+                                    </div>
+
+                                    <p class="gysl-liga-card__desc">${descripcion}</p>
+
+                                    ${bloqueada
+                            ? `
+                                            <div class="gysl-liga-card__btn">
+                                                DISPONIBLE PRÓXIMAMENTE
+                                            </div>
+                                            `
+                            : `
+                                            <a href="${urlDestino}" class="gysl-liga-card__btn" onclick="event.stopPropagation()">
+                                                VER DETALLES →
+                                            </a>
+                                            `
+                        }
+                                </div>
+                            </article>
                         `;
                 }
 
