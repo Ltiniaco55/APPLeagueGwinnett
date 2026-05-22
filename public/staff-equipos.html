@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL Admin — Equipos</title>
+    <meta name="description" content="Gestión de equipos GYSL">
+
+    <link rel="stylesheet" href="./CSS/global.css">
+    <link rel="stylesheet" href="./CSS/admin.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
+
+    <link rel="stylesheet" href="./CSS/toast.css">
+    <script src="./JS/toast.js" defer></script>
+
+    <script src="./JS/adminNav.js" defer></script>
+    <style>
+        .gysl-custom-select {
+            position: relative;
+            width: 100%;
+            font-family: var(--gysl-font, sans-serif);
+            font-size: 14px;
+        }
+
+        .gysl-custom-select__box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--gysl-white, #fff);
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: border-color .2s ease, background .2s ease;
+        }
+
+        .gysl-custom-select__box:hover,
+        .gysl-custom-select.is-active .gysl-custom-select__box {
+            border-color: var(--gysl-yellow, #f1b82d);
+            background: rgba(241, 184, 45, 0.06);
+        }
+
+        .gysl-custom-select__icon {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+            stroke: currentColor;
+            opacity: 0.7;
+        }
+
+        .gysl-custom-select.is-active .gysl-custom-select__icon {
+            transform: rotate(180deg);
+        }
+
+        .gysl-equipo-ligas {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: var(--gysl-superdark, #0a1128);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            padding: 8px;
+            border-radius: 8px;
+            color: var(--gysl-white, #fff);
+        }
+
+        .gysl-custom-select.is-active .gysl-equipo-ligas {
+            display: block;
+            animation: fadeInDown 0.15s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gysl-equipo-ligas__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 2px;
+            padding: 8px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.15s ease;
+            font-family: var(--font-secondary, "Bebas Neue", sans-serif);
+            font-size: 1.1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .gysl-equipo-ligas__item:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .gysl-equipo-ligas__item input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--gysl-yellow, #f1b82d);
+            margin: 0;
+        }
+
+        .gysl-cards-wrapper {
+            margin-top: 20px;
+        }
+
+        .gysl-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .gysl-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .gysl-card:hover {
+            border-color: var(--gysl-yellow, #f1b82d);
+            background: rgba(241, 184, 45, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .gysl-card__escudo {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0 auto;
+        }
+
+        .gysl-card__header {
+            text-align: center;
+        }
+
+        .gysl-card__title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--gysl-white, #fff);
+            margin: 0;
+            margin-bottom: 4px;
+        }
+
+        .gysl-card__info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--gysl-muted, #a1a1aa);
+        }
+
+        .gysl-card__desc {
+            font-size: 13px;
+            color: var(--gysl-muted, #a1a1aa);
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .gysl-card__actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .gysl-filters-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .gysl-filters-bar select,
+        .gysl-filters-bar input {
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--gysl-white, #fff);
+            font-family: var(--gysl-font, sans-serif);
+        }
+
+        .gysl-filters-bar select {
+            min-width: 180px;
+        }
+
+        .gysl-filters-bar input {
+            min-width: 200px;
+        }
+
+        .gysl-filters-bar select option {
+            background: var(--gysl-superdark);
+            color: var(--gysl-white);
+        }
+
+        .gysl-filters-bar select:focus,
+        .gysl-filters-bar input:focus {
+            outline: none;
+            border-color: var(--gysl-yellow);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="gysl-admin">
+
+        <header class="gysl-admin__header" style="display: flex; align-items: center; gap: 20px;">
+            <a href="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/home.html"
+                class="gysl-nav__brand" aria-label="Go to homepage">
+                <img src="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/escudos/gwinnett.svg"
+                    alt="Gwinnett Youth Soccer League logo" style="height: 50px;"
+                    onerror="this.src=''; this.alt='GYSL';">
+            </a>
+            <div style="flex-grow: 1;">
+                <h1 class="gysl-admin__title">Mis Equipos</h1>
+                <p class="gysl-admin__subtitle">Consulta de los equipos asignados</p>
+            </div>
+            <nav class="gysl-admin__breadcrumb">
+                <a href="home.html">Home</a> / Equipos
+            </nav>
+        </header>
+
+        <div class="gysl-admin__content">
+
+            <div class="gysl-admin-actions" style="margin-bottom: 12px;">
+                <h2 class="gysl-admin-actions__title">Listado de Equipos</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="toggleViewMode()"
+                        id="view-mode-btn">
+                        🗂️ Cards
+                    </button>
+                </div>
+            </div>
+
+            <div class="gysl-filters-bar">
+                <select id="filter-liga" onchange="renderEquipos()">
+                    <option value="">— Todas las ligas —</option>
+                </select>
+                <input type="text" id="filter-search" placeholder="Buscar por nombre..." oninput="renderEquipos()">
+            </div>
+
+            <div id="equipos-loading" class="gysl-admin-loading">Cargando equipos...</div>
+
+            <div id="equipos-empty" class="gysl-admin-empty" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <p>No hay equipos registrados aún</p>
+            </div>
+
+            <div class="gysl-admin-table-wrapper" id="equipos-table-wrapper" style="display:none;">
+                <table class="gysl-admin-table" style="cursor: pointer;">
+                    <thead>
+                        <tr>
+                            <th>Escudo</th>
+                            <th>ID</th>
+                            <th>Club</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equipos-tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="gysl-cards-wrapper" id="equipos-cards-wrapper" style="display:none;">
+                <div class="gysl-cards-grid" id="equipos-cards-grid"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            let equiposData = [];
+            let ligasData = [];
+
+            let viewMode = 'list';
+
+            const tbody = document.getElementById("equipos-tbody");
+            const tableWrapper = document.getElementById("equipos-table-wrapper");
+            const cardsWrapper = document.getElementById("equipos-cards-wrapper");
+            const cardsGrid = document.getElementById("equipos-cards-grid");
+            const loading = document.getElementById("equipos-loading");
+            const empty = document.getElementById("equipos-empty");
+
+            window.toggleViewMode = function () {
+                viewMode = viewMode === 'list' ? 'cards' : 'list';
+                document.getElementById('view-mode-btn').innerHTML = viewMode === 'list' ? '🗂️ Cards' : '📄 Lista';
+                renderEquipos();
+            };
+
+            window.goToJugadores = function (idEquipo) {
+                const filterLiga = document.getElementById("filter-liga").value;
+
+                const params = new URLSearchParams();
+                params.append("equipo", idEquipo);
+
+                if (filterLiga) {
+                    params.append("liga", filterLiga);
+                }
+
+                window.location.href = "staff-jugadores.html?" + params.toString();
+            };
+
+            async function loadData() {
+                loading.style.display = "flex";
+                tableWrapper.style.display = "none";
+                cardsWrapper.style.display = "none";
+                empty.style.display = "none";
+
+                try {
+                    const [resEq] = await Promise.all([
+                        fetch(API + "/staff/equipos", { credentials: "include" })
+                    ]);
+
+                    const dataEq = await resEq.json();
+                    equiposData = Array.isArray(dataEq) ? dataEq : (dataEq.data || []);
+
+                    ligasData = dataEq.ligas_staff || [];
+
+                } catch (err) {
+                    console.error("Error cargando datos:", err);
+                    equiposData = [];
+                    ligasData = [];
+                }
+
+                populateFilterLigas();
+                applyUrlFilters();
+                loading.style.display = "none";
+                renderEquipos();
+            }
+
+            function populateFilterLigas() {
+                const select = document.getElementById("filter-liga");
+                let currentVal = select.value;
+                select.innerHTML = '<option value="">— Todas las ligas —</option>';
+                ligasData.forEach(l => {
+                    const id = l.id_liga ?? l.id;
+                    const nm = l.nombre_liga ?? l.nom ?? l.nombre ?? "Sin nombre";
+                    select.innerHTML += `<option value="${id}">${nm} (${l.categoria ?? ''})</option>`;
+                });
+                if (currentVal) select.value = currentVal;
+            }
+
+            function applyUrlFilters() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const ligaId = urlParams.get('liga');
+                if (ligaId) {
+                    document.getElementById('filter-liga').value = ligaId;
+                }
+            }
+
+            window.toggleLigasDropdown = function () {
+                const dropdown = document.getElementById("gysl-ligas-dropdown");
+                dropdown.classList.toggle("is-active");
+            };
+
+            document.addEventListener('click', function (e) {
+                const dropdown = document.getElementById("gysl-ligas-dropdown");
+                if (dropdown && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove("is-active");
+                }
+            });
+
+            function renderLigasCheckboxes(equipoLigasIds = []) {
+                const container = document.getElementById("equipo-ligas-container");
+                if (!ligasData || ligasData.length === 0) {
+                    container.innerHTML = '<div style="font-size: 0.9rem; color: #888; padding: 10px;">No hay ligas disponibles.</div>';
+                    return;
+                }
+
+                container.innerHTML = ligasData.map(liga => {
+                    const id = liga.id_liga ?? liga.id;
+                    const nombre = liga.nombre_liga ?? liga.nom ?? liga.nombre ?? "Sin nombre";
+                    const categ = liga.categoria ?? liga.categ ?? "";
+                    const isChecked = equipoLigasIds.includes(parseInt(id, 10)) ? "checked" : "";
+
+                    return `
+                        <label class="gysl-equipo-ligas__item">
+                            <input type="checkbox" class="gysl-liga-chk" value="${id}" ${isChecked}>
+                            <span>${nombre} (${categ})</span>
+                        </label>
+                    `;
+                }).join("");
+            }
+
+            window.renderEquipos = function () {
+                const filterLiga = document.getElementById("filter-liga").value;
+                const filterSearch = document.getElementById("filter-search").value.toLowerCase();
+
+                let filtered = equiposData.filter(e => {
+                    if (filterLiga && !(e.ligas_ids || []).map(String).includes(filterLiga)) return false;
+                    if (filterSearch && !(e.club ?? e.nombre ?? "").toLowerCase().includes(filterSearch)) return false;
+                    return true;
+                });
+
+                if (filtered.length === 0) {
+                    empty.style.display = "block";
+                    tableWrapper.style.display = "none";
+                    cardsWrapper.style.display = "none";
+                    return;
+                }
+
+                empty.style.display = "none";
+                if (viewMode === 'list') {
+                    tableWrapper.style.display = "block";
+                    cardsWrapper.style.display = "none";
+                } else {
+                    tableWrapper.style.display = "none";
+                    cardsWrapper.style.display = "block";
+                }
+
+                let trs = "";
+                let cards = "";
+
+                filtered.forEach((e) => {
+                    const idEq = e.id_equipo ?? e.id ?? "—";
+                    const club = e.club ?? e.nombre ?? "—";
+                    const cat = e.categoria ?? "—";
+                    const desc = e.descripcion ?? "—";
+                    const imgUrl = e.escudo ? (API + e.escudo) : "./assets/img/placeholder.png";
+
+                    let ligasNombres = "—";
+                    if (e.ligas_ids && e.ligas_ids.length > 0 && ligasData.length > 0) {
+                        ligasNombres = e.ligas_ids.map(lid => {
+                            const lg = ligasData.find(lgd => (lgd.id_liga ?? lgd.id) == lid);
+                            return lg ? (lg.nombre_liga ?? lg.nom ?? lg.nombre) : lid;
+                        }).join(", ");
+                    }
+
+                    trs += `
+                    <tr onclick="goToJugadores(${idEq})">
+                        <td onclick="event.stopPropagation()"><img src="${imgUrl}" alt="${club}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: contain; background: rgba(255,255,255,0.05);"></td>
+                        <td>${idEq}</td>
+                        <td>${club}</td>
+                        <td>${cat}</td>
+                        <td>${desc}</td>
+                    </tr>`;
+
+                    cards += `
+                    <div class="gysl-card" onclick="goToJugadores(${idEq})">
+                        <img src="${imgUrl}" alt="${club}" class="gysl-card__escudo">
+                        <div class="gysl-card__header">
+                            <h4 class="gysl-card__title">${club}</h4>
+                        </div>
+                        <div class="gysl-card__info">
+                            <span>Ligas: <span style="color:#fff">${ligasNombres}</span></span>
+                            <span>Cat: ${cat}</span>
+                        </div>
+                        <p class="gysl-card__desc">${desc}</p>
+                    </div>`;
+                });
+
+                tbody.innerHTML = trs;
+                cardsGrid.innerHTML = cards;
+            }
+
+
+            async function init() {
+                await loadData();
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

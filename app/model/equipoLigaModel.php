@@ -9,9 +9,6 @@ class EquipoLigaModel
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Obtener todas las relaciones equipo-liga
-     */
     public function getAll(): array
     {
         $stmt = $this->db->prepare("SELECT * FROM equipo_liga");
@@ -19,9 +16,6 @@ class EquipoLigaModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener relación por claves (id_equipo, id_liga)
-     */
     public function getById(int $idEquipo, int $idLiga): ?array
     {
         $stmt = $this->db->prepare(
@@ -32,9 +26,6 @@ class EquipoLigaModel
         return $result ?: null;
     }
 
-    /**
-     * Obtener ligas de un equipo
-     */
     public function getByEquipo(int $idEquipo): array
     {
         $stmt = $this->db->prepare(
@@ -44,9 +35,6 @@ class EquipoLigaModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener equipos de una liga
-     */
     public function getByLiga(int $idLiga): array
     {
         $stmt = $this->db->prepare(
@@ -56,9 +44,6 @@ class EquipoLigaModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Verificar si la relación ya existe
-     */
     public function existsByKey(int $idEquipo, int $idLiga): bool
     {
         $stmt = $this->db->prepare(
@@ -68,9 +53,6 @@ class EquipoLigaModel
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Insertar nueva relación equipo-liga
-     */
     public function insert(int $idEquipo, int $idLiga): int
     {
         $stmt = $this->db->prepare(
@@ -80,9 +62,6 @@ class EquipoLigaModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Eliminar relación equipo-liga
-     */
     public function delete(int $idEquipo, int $idLiga): int
     {
         $stmt = $this->db->prepare(

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL — Equipos</title>
+    <meta name="description" content="Equipos participantes de la liga seleccionada.">
+
+    <link rel="stylesheet" href="./CSS/layout.css">
+    <link rel="stylesheet" href="./CSS/mini-menu.css">
+    <link rel="stylesheet" href="./CSS/toast.css">
+
+    <script src="./JS/login.js" defer></script>
+    <script src="./JS/sesionactiva.js" defer></script>
+    <script src="./JS/layout.js" defer></script>
+    <script src="./JS/header_secun.js" defer></script>
+    <script src="./JS/toast.js" defer></script>
+
+    <style>
+        :root {
+            --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --fw-medium: 500;
+            --fw-bold: 700;
+            --fw-black: 900;
+            --fs-h1: 48px;
+            --fs-h2: 36px;
+            --lh-tight: 1.1;
+            --lh-relaxed: 1.7;
+            --tracking-tight: -1px;
+        }
+
+        .eq-hero {
+            padding: 32px 0 28px;
+            background:
+                linear-gradient(90deg, rgba(6, 14, 30, .96), rgba(6, 14, 30, .76)),
+                radial-gradient(ellipse at 80% 20%, rgba(241, 184, 45, .18), transparent 50%),
+                var(--gysl-superdark, #060e1e);
+        }
+
+        .eq-hero__inner,
+        .eq-section__wrap {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .eq-hero__eyebrow {
+            color: var(--gysl-yellow, #f1b82d);
+            font-size: .78rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-family: var(--font-primary);
+        }
+
+        .eq-hero__title {
+            margin: 10px 0 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: var(--fs-h1);
+            font-weight: var(--fw-black);
+            line-height: var(--lh-tight);
+            letter-spacing: var(--tracking-tight);
+        }
+
+        .eq-hero__subtitle {
+            margin: 14px 0 0;
+            max-width: 620px;
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: var(--fw-medium);
+            line-height: var(--lh-relaxed);
+        }
+
+        .eq-divider {
+            height: 3px;
+            background: linear-gradient(90deg,
+                    rgba(241, 184, 45, 0),
+                    rgba(241, 184, 45, .85),
+                    rgba(241, 184, 45, 0));
+        }
+
+        .eq-section {
+            padding: 42px 0 56px;
+            background: var(--gysl-superdark, #060e1e);
+        }
+
+        .eq-status {
+            padding: 22px 24px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .10);
+            color: var(--gysl-muted, #afc1e6);
+            font-weight: 800;
+            font-family: var(--font-primary);
+        }
+
+        .eq-status--error {
+            color: var(--gysl-red, #d72626);
+            border-color: rgba(215, 38, 38, .35);
+        }
+
+        .eq-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .eq-toolbar__title {
+            margin: 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1.4rem;
+            font-weight: 900;
+        }
+
+        .eq-search {
+            min-width: 240px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(11, 42, 74, .78);
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: .92rem;
+            outline: none;
+        }
+
+        .eq-search::placeholder {
+            color: rgba(175, 193, 230, .55);
+        }
+
+        .eq-search:focus {
+            border-color: var(--gysl-yellow, #f1b82d);
+            background: rgba(241, 184, 45, .06);
+        }
+
+        .eq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 20px;
+        }
+
+        .eq-card {
+            min-height: 250px;
+            padding: 24px 22px;
+            border-radius: 18px;
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(241, 184, 45, .10), transparent 34%),
+                linear-gradient(180deg, rgba(13, 35, 68, .98), rgba(8, 22, 45, .98));
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-top: 2px solid rgba(241, 184, 45, .42);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .28);
+            cursor: pointer;
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+        }
+
+        .eq-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(241, 184, 45, .55);
+            box-shadow: 0 22px 52px rgba(0, 0, 0, .38);
+        }
+
+        .eq-card__escudo {
+            width: 82px;
+            height: 82px;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
+        }
+
+        .eq-card__no-escudo {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gysl-yellow, #f1b82d);
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .eq-card__title {
+            margin: 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1.35rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .eq-card__meta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, .15);
+            border: 1px solid rgba(59, 130, 246, .35);
+            color: #60a5fa;
+            font-family: var(--font-primary);
+            font-size: .78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        .eq-card__desc {
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: .9rem;
+            line-height: 1.55;
+            margin: 0;
+            flex: 1;
+        }
+
+        .eq-card__btn {
+            margin-top: auto;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            border: 1px solid rgba(241, 184, 45, .45);
+            color: var(--gysl-yellow, #f1b82d);
+            text-decoration: none;
+            font-family: var(--font-primary);
+            font-weight: 900;
+            font-size: .82rem;
+            text-transform: uppercase;
+            transition: background .2s ease;
+        }
+
+        .eq-card__btn:hover {
+            background: rgba(241, 184, 45, .08);
+        }
+
+        @media (max-width: 640px) {
+            .eq-hero__title {
+                font-size: var(--fs-h2);
+            }
+
+            .eq-toolbar {
+                align-items: stretch;
+            }
+
+            .eq-search {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .eq-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main id="page-content">
+
+        <section class="eq-hero">
+            <div class="eq-hero__inner">
+                <span class="eq-hero__eyebrow">Competición GYSL</span>
+                <h1 class="eq-hero__title">Equipos</h1>
+                <p class="eq-hero__subtitle" id="eq-subtitle">
+                    Equipos participantes de la liga seleccionada.
+                </p>
+            </div>
+        </section>
+
+        <div class="eq-divider"></div>
+
+        <section class="eq-section">
+            <div class="eq-section__wrap">
+
+                <div id="equipos-loading" class="eq-status">
+                    Cargando equipos...
+                </div>
+
+                <div id="equipos-empty" class="eq-status" style="display:none;">
+                    No hay equipos asociados a esta liga.
+                </div>
+
+                <div id="equipos-content" style="display:none;">
+                    <div class="eq-toolbar">
+                        <h2 class="eq-toolbar__title" id="equipos-title">Equipos de la liga</h2>
+                        <input type="text" id="equipos-search" class="eq-search" placeholder="Buscar equipo...">
+                    </div>
+
+                    <div class="eq-grid" id="equipos-grid"></div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            const params = new URLSearchParams(window.location.search);
+            const idLiga = params.get("liga");
+            const formatoLiga = (params.get("formato") || "").toUpperCase();
+
+            const loading = document.getElementById("equipos-loading");
+            const empty = document.getElementById("equipos-empty");
+            const content = document.getElementById("equipos-content");
+            const grid = document.getElementById("equipos-grid");
+            const search = document.getElementById("equipos-search");
+            const subtitle = document.getElementById("eq-subtitle");
+            const title = document.getElementById("equipos-title");
+
+            let equiposLiga = [];
+            let ligaActual = null;
+
+            function texto(valor, fallback = "—") {
+                return String(valor ?? "").trim() || fallback;
+            }
+
+            function obtenerIdsLigas(equipo) {
+                let ligas = equipo.ligas_ids || [];
+
+                if (typeof ligas === "string") {
+                    ligas = ligas.split(",").map(id => id.trim());
+                }
+
+                if (!Array.isArray(ligas)) {
+                    return [];
+                }
+
+                return ligas.map(Number);
+            }
+
+            function obtenerInicial(nombre) {
+                return texto(nombre, "?").charAt(0).toUpperCase();
+            }
+
+            function mostrarError(mensaje) {
+                loading.style.display = "none";
+                content.style.display = "none";
+                empty.textContent = mensaje;
+                empty.classList.add("eq-status--error");
+                empty.style.display = "block";
+            }
+
+            function mostrarVacio(mensaje = "No hay equipos asociados a esta liga.") {
+                loading.style.display = "none";
+                content.style.display = "none";
+                empty.textContent = mensaje;
+                empty.classList.remove("eq-status--error");
+                empty.style.display = "block";
+            }
+
+            function mostrarContenido() {
+                loading.style.display = "none";
+                empty.style.display = "none";
+                content.style.display = "block";
+            }
+
+            function renderEquipos(equipos) {
+                if (!equipos.length) {
+                    grid.innerHTML = "";
+                    mostrarVacio("No hay equipos que coincidan con la búsqueda.");
+                    content.style.display = "block";
+                    return;
+                }
+
+                mostrarContenido();
+
+                grid.innerHTML = equipos.map(equipo => {
+                    const idEquipo = equipo.id_equipo ?? equipo.id;
+                    const club = texto(equipo.club ?? equipo.nombre, "Equipo sin nombre");
+                    const categoria = texto(equipo.categoria, "Sin categoría");
+                    const descripcion = texto(equipo.descripcion, "Equipo participante de esta competición.");
+                    const escudo = equipo.escudo ? API + equipo.escudo : "";
+
+                    const escudoHtml = escudo
+                        ? `<img src="${escudo}" alt="${club}" class="eq-card__escudo" onerror="this.outerHTML='<div class=&quot;eq-card__no-escudo&quot;>${obtenerInicial(club)}</div>'">`
+                        : `<div class="eq-card__no-escudo">${obtenerInicial(club)}</div>`;
+
+                    const urlPlantilla = `plantilla.html?equipo=${idEquipo}&liga=${idLiga}`;
+
+                    return `
+                        <article class="eq-card" onclick="window.location.href='${urlPlantilla}'">
+                            ${escudoHtml}
+
+                            <h3 class="eq-card__title">${club}</h3>
+
+                            <span class="eq-card__meta">${categoria}</span>
+
+                            <p class="eq-card__desc">${descripcion}</p>
+
+                            <a href="${urlPlantilla}" class="eq-card__btn" onclick="event.stopPropagation()">
+                                Ver plantilla →
+                            </a>
+                        </article>
+                    `;
+                }).join("");
+            }
+
+            function aplicarBusqueda() {
+                const term = search.value.trim().toLowerCase();
+
+                if (!term) {
+                    renderEquipos(equiposLiga);
+                    return;
+                }
+
+                const filtrados = equiposLiga.filter(equipo => {
+                    const club = texto(equipo.club ?? equipo.nombre, "").toLowerCase();
+                    const categoria = texto(equipo.categoria, "").toLowerCase();
+
+                    return club.includes(term) || categoria.includes(term);
+                });
+
+                renderEquipos(filtrados);
+            }
+
+            async function cargarDatos() {
+                if (!idLiga) {
+                    mostrarError("No se indicó ninguna liga.");
+                    return;
+                }
+
+                try {
+                    const [resLigas, resEquipos] = await Promise.all([
+                        fetch(API + "/ligas", { credentials: "include" }),
+                        fetch(API + "/equipos", { credentials: "include" })
+                    ]);
+
+                    const dataLigas = await resLigas.json();
+                    const dataEquipos = await resEquipos.json();
+
+                    if (!resLigas.ok || dataLigas.success === false) {
+                        throw new Error(dataLigas.message || "Error al cargar ligas");
+                    }
+
+                    if (!resEquipos.ok || dataEquipos.success === false) {
+                        throw new Error(dataEquipos.message || "Error al cargar equipos");
+                    }
+
+                    const ligas = Array.isArray(dataLigas) ? dataLigas : (dataLigas.data || []);
+                    const equipos = Array.isArray(dataEquipos) ? dataEquipos : (dataEquipos.data || []);
+
+                    ligaActual = ligas.find(liga => String(liga.id_liga ?? liga.id) === String(idLiga));
+
+                    if (ligaActual) {
+                        const nombreLiga = texto(ligaActual.nombre_liga ?? ligaActual.nom ?? ligaActual.nombre, "Liga");
+                        const temporada = texto(ligaActual.temporada ?? ligaActual.temp, "");
+                        const categoria = texto(ligaActual.categoria ?? ligaActual.categ, "");
+
+                        subtitle.textContent = [nombreLiga, temporada, categoria].filter(Boolean).join(" · ");
+                        title.textContent = "Equipos de " + nombreLiga;
+                    }
+
+                    equiposLiga = equipos.filter(equipo => {
+                        const ligasEquipo = obtenerIdsLigas(equipo);
+                        return ligasEquipo.includes(Number(idLiga));
+                    });
+
+                    if (!equiposLiga.length) {
+                        mostrarVacio("No hay equipos asociados a esta liga.");
+                        return;
+                    }
+
+                    renderEquipos(equiposLiga);
+                } catch (error) {
+                    console.error("[Equipos]", error);
+                    mostrarError("No se pudieron cargar los equipos.");
+                }
+            }
+
+            search.addEventListener("input", aplicarBusqueda);
+
+            cargarDatos();
+        })();
+    </script>
+
+</body>
+
+</html>

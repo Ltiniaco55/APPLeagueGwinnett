@@ -1,0 +1,453 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+:root {
+
+    --gysl-superdark: #08162D;
+    --gysl-dark: #0A2345;
+    --gysl-blue: #0B2A4A;
+    --gysl-light: #14345E;
+    --gysl-superlight: #193B6A;
+
+    --gysl-red: #D72626;
+    --gysl-red2: #C83432;
+    --gysl-yellow: #F1B82D;
+    --gysl-yellow2: #F5C400;
+
+    --gysl-white: #FFFFFF;
+    --gysl-text: #EAF1FF;
+    --gysl-muted: #AFC1E6;
+    --gysl-line: rgba(255, 255, 255, .10);
+
+    --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    --font-secondary: "Bebas Neue", sans-serif;
+    --font-anton: "Anton", sans-serif;
+    --font-oswald: "Oswald", sans-serif;
+
+    --gysl-font: var(--font-primary);
+
+    --fw-light: 300;
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+    --fw-black: 900;
+
+    --fs-hero-title: 64px;
+    --fs-hero-subtitle: 20px;
+    --fs-hero-text: 15px;
+
+    --fs-h1: 48px;
+    --fs-h2: 36px;
+    --fs-h3: 28px;
+    --fs-h4: 22px;
+    --fs-h5: 18px;
+    --fs-h6: 16px;
+
+    --fs-body-lg: 18px;
+    --fs-body: 16px;
+    --fs-body-sm: 14px;
+
+    --lh-tight: 1.1;
+    --lh-normal: 1.5;
+    --lh-relaxed: 1.7;
+
+    --tracking-tight: -1px;
+    --tracking-normal: 0;
+    --tracking-wide: .5px;
+}
+
+.gysl-msg-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    z-index: 4000;
+
+    background: rgba(0, 0, 0, .55);
+    backdrop-filter: blur(6px);
+}
+
+.gysl-msg-overlay.is-open {
+    display: flex;
+}
+
+.gysl-msg-card {
+    --msg-accent: var(--gysl-yellow);
+    --msg-accent-2: var(--gysl-yellow2);
+    --msg-ink: var(--gysl-superdark);
+    width: min(520px, 100%);
+    border-radius: 16px;
+    padding: 22px 22px 18px;
+    color: var(--gysl-text);
+    border: 1px solid rgba(255, 255, 255, .14);
+    background:
+        radial-gradient(ellipse at 20% 15%, rgba(25, 59, 106, .55) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 70%, rgba(11, 42, 74, .55) 0%, transparent 60%),
+        rgba(255, 255, 255, .06);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, .55),
+        inset 0 1px 0 rgba(255, 255, 255, .08);
+    position: relative;
+    overflow: hidden;
+    animation: gyslMsgIn .22s ease-out;
+}
+
+@keyframes gyslMsgIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.gysl-msg-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+            rgba(241, 184, 45, 0) 0%,
+            rgba(241, 184, 45, .95) 30%,
+            rgba(241, 184, 45, .95) 70%,
+            rgba(241, 184, 45, 0) 100%);
+    box-shadow: 0 10px 28px rgba(241, 184, 45, .18);
+    pointer-events: none;
+    opacity: .9;
+}
+
+.gysl-msg-card::before {
+    content: "";
+    position: absolute;
+    inset: -40% -60%;
+    background: linear-gradient(120deg,
+            transparent 35%,
+            rgba(241, 184, 45, .16) 48%,
+            transparent 62%);
+    transform: rotate(8deg);
+    opacity: .55;
+    pointer-events: none;
+}
+
+.gysl-msg-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .12);
+    color: var(--gysl-muted);
+
+    cursor: pointer;
+    transition: var(--gysl-transition);
+}
+
+.gysl-msg-close:hover {
+    color: var(--msg-accent);
+    border-color: rgba(241, 184, 45, .55);
+    background: rgba(241, 184, 45, .10);
+}
+
+.gysl-msg-head {
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding-right: 40px;
+}
+
+.gysl-msg-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+
+    display: grid;
+    place-items: center;
+
+    background: rgba(241, 184, 45, .14);
+    border: 1px solid rgba(241, 184, 45, .35);
+    color: var(--msg-accent);
+
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .25);
+}
+
+.gysl-msg-icon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.gysl-msg-title {
+    margin: 0 0 4px 0;
+    font-family: var(--font-primary);
+    font-weight: var(--fw-black);
+    font-size: 18px;
+    letter-spacing: .3px;
+    color: var(--gysl-white);
+    text-transform: uppercase;
+}
+
+.gysl-msg-desc {
+    margin: 0;
+    font-family: var(--font-primary);
+    font-weight: var(--fw-medium);
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--gysl-muted);
+    max-width: 60ch;
+}
+
+.gysl-msg-desc a {
+    color: var(--msg-accent);
+    font-weight: var(--fw-bold);
+    text-decoration: none;
+    transition: color var(--gysl-transition);
+}
+
+.gysl-msg-desc a:hover {
+    color: var(--msg-accent-2);
+    text-decoration: underline;
+}
+
+.gysl-msg-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.gysl-msg-btn {
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 999px;
+
+    font-family: var(--font-primary);
+    font-weight: var(--fw-black);
+    letter-spacing: .3px;
+
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease, color .2s ease;
+    user-select: none;
+}
+
+.gysl-msg-btn.is-primary {
+    background: var(--msg-accent);
+    color: var(--msg-ink);
+    border: 2px solid #030f14;
+
+    box-shadow:
+        inset 0 -4px 10px rgba(0, 0, 0, .25),
+        inset 0 2px 4px rgba(255, 255, 255, .25),
+        0 10px 26px rgba(0, 0, 0, .40),
+        0 2px 4px rgba(0, 0, 0, .35);
+}
+
+.gysl-msg-btn.is-primary:hover {
+    background: var(--msg-accent-2);
+    transform: translateY(-2px);
+    box-shadow:
+        inset 0 -6px 14px rgba(0, 0, 0, .35),
+        inset 0 3px 6px rgba(255, 255, 255, .30),
+        0 16px 34px rgba(0, 0, 0, .50),
+        0 4px 8px rgba(0, 0, 0, .35);
+}
+
+.gysl-msg-btn.is-primary:active {
+    transform: translateY(1px);
+    box-shadow:
+        inset 0 6px 14px rgba(0, 0, 0, .50),
+        inset 0 -3px 6px rgba(255, 255, 255, .20),
+        0 2px 6px rgba(0, 0, 0, .30);
+}
+
+.gysl-msg-btn.is-secondary {
+    background: rgba(255, 255, 255, .06);
+    color: var(--gysl-text);
+    border: 1px solid rgba(255, 255, 255, .14);
+}
+
+.gysl-msg-btn.is-secondary:hover {
+    border-color: rgba(241, 184, 45, .55);
+    box-shadow: 0 0 0 3px rgba(241, 184, 45, .10);
+    transform: translateY(-1px);
+}
+
+.gysl-msg-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.gysl-msg-card.is-success {
+    --msg-accent: var(--gysl-yellow);
+    --msg-accent-2: var(--gysl-yellow2);
+    --msg-ink: var(--gysl-superdark);
+}
+
+.gysl-msg-card.is-warning {
+    --msg-accent: var(--gysl-yellow2);
+    --msg-accent-2: var(--gysl-yellow);
+    --msg-ink: var(--gysl-superdark);
+}
+
+.gysl-msg-card.is-error {
+    --msg-accent: var(--gysl-red2);
+    --msg-accent-2: var(--gysl-red);
+    --msg-ink: #fff;
+}
+
+.gysl-msg-card.is-info {
+    --msg-accent: var(--gysl-superlight);
+    --msg-accent-2: var(--gysl-light);
+    --msg-ink: #fff;
+}
+
+@media (max-width: 520px) {
+    .gysl-msg-card {
+        padding: 18px 16px 14px;
+    }
+
+    .gysl-msg-head {
+        grid-template-columns: 46px 1fr;
+    }
+
+    .gysl-msg-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+    }
+
+    .gysl-msg-actions {
+        justify-content: stretch;
+    }
+
+    .gysl-msg-btn {
+        flex: 1;
+    }
+}
+
+.gysl-card {
+    width: 240px;
+    aspect-ratio: 1 / 1;
+    background:
+        radial-gradient(ellipse at 25% 20%, rgba(20, 52, 94, .55), transparent 60%),
+        radial-gradient(ellipse at 80% 70%, rgba(11, 42, 74, .55), transparent 60%),
+        var(--gysl-superdark);
+    border: 1px solid var(--gysl-line);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px;
+    text-align: center;
+    color: var(--gysl-text);
+    font-family: var(--font-primary);
+    font-weight: var(--fw-bold);
+    cursor: pointer;
+    user-select: none;
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, .45),
+        inset 0 1px 0 rgba(255, 255, 255, .06);
+    transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        border-color .22s ease,
+        background .22s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.gysl-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+
+    background: linear-gradient(90deg,
+            transparent 0%,
+            var(--gysl-yellow) 50%,
+            transparent 100%);
+}
+
+.gysl-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    border-color: rgba(241, 184, 45, .45);
+
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, .55),
+        0 0 0 1px rgba(241, 184, 45, .25);
+}
+
+.gysl-card:active {
+    transform: translateY(0) scale(.98);
+}
+
+.gysl-card__icon {
+    width: 64px;
+    height: 64px;
+
+    border-radius: 8px;
+
+    display: grid;
+    place-items: center;
+
+    background: rgba(241, 184, 45, .12);
+    border: 1px solid rgba(241, 184, 45, .35);
+
+    color: var(--gysl-yellow);
+}
+
+.gysl-card__icon img,
+.gysl-card__icon svg {
+    width: 34px;
+    height: 34px;
+}
+
+.gysl-card__title {
+    font-size: 1rem;
+    font-weight: var(--fw-black);
+    letter-spacing: .3px;
+    color: var(--gysl-white);
+}
+
+.gysl-card__desc {
+    font-size: .85rem;
+    color: var(--gysl-muted);
+    max-width: 22ch;
+    line-height: 1.5;
+}
+
+.gysl-card.is-active {
+    border-color: var(--gysl-yellow);
+    box-shadow:
+        0 0 0 2px rgba(241, 184, 45, .35),
+        0 24px 60px rgba(0, 0, 0, .55);
+}
+
+.gysl-card.is-disabled {
+    opacity: .45;
+    pointer-events: none;
+}
+
+@media (max-width:600px) {
+    .gysl-card {
+        width: 100%;
+        max-width: 260px;
+    }
+}

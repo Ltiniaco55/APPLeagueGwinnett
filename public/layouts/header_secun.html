@@ -1,0 +1,138 @@
+<style>
+    .gysl-header-secun {
+        font-family: var(--gysl-font, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif);
+        background:
+            linear-gradient(180deg,
+                rgba(25, 59, 106, 0.95) 0%,
+                rgba(20, 52, 94, 0.98) 100%);
+        border-top: 1px solid rgba(255, 255, 255, .05);
+        border-bottom: 1px solid rgba(255, 255, 255, .09);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+        padding-right: 0;
+        position: relative;
+        z-index: 999;
+        display: flex;
+        justify-content: center;
+
+    }
+
+    .gysl-header-secun *,
+    .gysl-header-secun *::before,
+    .gysl-header-secun *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    .gysl-header-secun a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .gysl-header-secun ul {
+        list-style: none;
+    }
+
+    .gysl-header-secun__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 46px;
+        gap: 20px;
+    }
+
+    .gysl-header-secun__nav {
+        flex: 1;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .gysl-header-secun__nav::-webkit-scrollbar {
+        display: none;
+
+    }
+
+    .gysl-header-secun__links {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        height: 100%;
+    }
+
+    .gysl-header-secun__link {
+        font-family: var(--gysl-font, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif);
+        font-weight: 700;
+        font-size: .8rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: rgba(234, 241, 255, 0.86);
+        padding: 0 20px;
+        height: 52px;
+        display: inline-flex;
+        align-items: center;
+        position: relative;
+        white-space: nowrap;
+        transition: color var(--gysl-transition, .22s ease);
+    }
+
+    .gysl-header-secun__link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 20px;
+        right: 20px;
+        height: 3px;
+        background: var(--gysl-yellow, #F1B82D);
+        border-radius: 2px 2px 0 0;
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform var(--gysl-transition, .22s ease);
+    }
+
+    .gysl-header-secun__link:hover {
+        color: #ffffff;
+    }
+
+    .gysl-header-secun__link:hover::after {
+        transform: scaleX(1);
+    }
+
+    .gysl-header-secun__link.active {
+        color: var(--gysl-yellow, #F1B82D);
+    }
+
+    .gysl-header-secun__link.active::after {
+        transform: scaleX(1);
+    }
+
+    .gysl-header-secun__links li+li .gysl-header-secun__link {
+        border-left: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    @media (max-width: 900px) {
+        .gysl-header-secun__inner {
+            padding-left: var(--gysl-page-px-mobile, 20px);
+            padding-right: var(--gysl-page-px-mobile, 20px);
+            gap: 16px;
+        }
+    }
+</style>
+
+<div class="gysl-header-secun gysl-layout" id="gysl-header-secun">
+    <nav class="gysl-header-secun__inner" aria-label="Competition navigation">
+
+        <div class="gysl-header-secun__nav">
+            <ul class="gysl-header-secun__links">
+                <li data-secun-hide="clasificacion"><a href="clasificacion.html" class="gysl-header-secun__link"
+                        data-secun="clasificacion">Clasificación</a></li>
+                <li><a href="resultados.html" class="gysl-header-secun__link" data-secun="resultados">Resultados</a>
+                </li>
+                <li><a href="equipos.html" class="gysl-header-secun__link" data-secun="plantilla">Plantilla</a></li>
+            </ul>
+        </div>
+
+    </nav>
+</div>

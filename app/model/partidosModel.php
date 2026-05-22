@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 class PartidosModel
 {
     private PDO $db;
@@ -9,236 +11,340 @@ class PartidosModel
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Obtener todos los partidos
-     */
-    public function getAll(): array
+    public function getDb(): PDO
     {
-        $stmt = $this->db->prepare("SELECT * FROM partidos ORDER BY fecha DESC");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->db;
     }
 
-    /**
-     * Obtener partido por ID
-     */
-    public function getById(int $id): ?array
+    public function getAll(array $filtros = []): array
     {
-        $stmt = $this->db->prepare(
-            "SELECT * FROM partidos WHERE id_partido = ?"
-        );
-        $stmt->execute([$id]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ?: null;
-    }
+        $sql = "
+            SELECT
+                p.id_partido,
+                p.id_liga,
+                p.tipo_ronda,
+                p.fecha,
+                p.lugar,
+                p.arbitro,
+                p.id_equipo_local,
+                p.id_equipo_visitante,
+                p.goles_local,
+                p.goles_visitante,
+                p.estado,
+                l.nombre_liga,
+                l.temporada   AS temporada_liga,
+                l.categoria   AS categoria_liga,
+                local.club    AS club_local,
+                local.categoria AS categoria_local,
+                visitante.club  AS club_visitante,
+                visitante.categoria AS categoria_visitante
+            FROM partidos p
+            INNER JOIN ligas    l         ON l.id_liga       = p.id_liga
+            INNER JOIN equipos  local     ON local.id_equipo = p.id_equipo_local
+            INNER JOIN equipos  visitante ON visitante.id_equipo = p.id_equipo_visitante
+            WHERE 1=1
+        ";
 
-    /**
-     * Obtener partidos de una liga
-     */
-    public function getByLiga(int $idLiga): array
-    {
-        $stmt = $this->db->prepare(
-            "SELECT * FROM partidos WHERE id_liga = ? ORDER BY fecha DESC"
-        );
-        $stmt->execute([$idLiga]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Obtener partidos de un equipo (como local o visitante)
-     */
-    public function getByEquipo(int $idEquipo): array
-    {
-        $stmt = $this->db->prepare(
-            "SELECT * FROM partidos WHERE id_equipo1 = ? OR id_equipo2 = ? ORDER BY fecha DESC"
-        );
-        $stmt->execute([$idEquipo, $idEquipo]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Obtener partidos por fecha
-     */
-    public function getByFecha(string $fecha): array
-    {
-        $stmt = $this->db->prepare(
-            "SELECT * FROM partidos WHERE DATE(fecha) = ? ORDER BY fecha"
-        );
-        $stmt->execute([$fecha]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Obtener partidos por estado
-     */
-    public function getByEstado(string $estado): array
-    {
-        $stmt = $this->db->prepare(
-            "SELECT * FROM partidos WHERE estado = ? ORDER BY fecha DESC"
-        );
-        $stmt->execute([$estado]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Obtener partidos de una liga por estado
-     */
-    public function getByLigaAndEstado(int $idLiga, string $estado): array
-    {
-        $stmt = $this->db->prepare(
-            "SELECT * FROM partidos WHERE id_liga = ? AND estado = ? ORDER BY fecha DESC"
-        );
-        $stmt->execute([$idLiga, $estado]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Buscar partidos con filtros
-     */
-    public function search(
-        int $idLiga = 0,
-        int $idEquipo = 0,
-        string $estado = '',
-        string $fechaDesde = '',
-        string $fechaHasta = ''
-    ): array {
-        $sql = "SELECT * FROM partidos WHERE 1=1";
         $params = [];
 
-        if ($idLiga > 0) {
-            $sql .= " AND id_liga = ?";
-            $params[] = $idLiga;
-        }
-        if ($idEquipo > 0) {
-            $sql .= " AND (id_equipo1 = ? OR id_equipo2 = ?)";
-            $params[] = $idEquipo;
-            $params[] = $idEquipo;
-        }
-        if ($estado !== '') {
-            $sql .= " AND estado = ?";
-            $params[] = $estado;
-        }
-        if ($fechaDesde !== '') {
-            $sql .= " AND fecha >= ?";
-            $params[] = $fechaDesde;
-        }
-        if ($fechaHasta !== '') {
-            $sql .= " AND fecha <= ?";
-            $params[] = $fechaHasta;
+        if (!empty($filtros['id_liga'])) {
+            $sql    .= " AND p.id_liga = ?";
+            $params[] = (int) $filtros['id_liga'];
         }
 
-        $sql .= " ORDER BY fecha DESC";
+        if (!empty($filtros['fecha'])) {
+            $sql    .= " AND DATE(p.fecha) = ?";
+            $params[] = $filtros['fecha'];
+        }
+
+        if (!empty($filtros['id_equipo'])) {
+            $sql    .= " AND (p.id_equipo_local = ? OR p.id_equipo_visitante = ?)";
+            $params[] = (int) $filtros['id_equipo'];
+            $params[] = (int) $filtros['id_equipo'];
+        }
+
+        if (isset($filtros['tipo_ronda']) && $filtros['tipo_ronda'] !== '') {
+            $sql    .= " AND p.tipo_ronda = ?";
+            $params[] = $filtros['tipo_ronda'];
+        }
+
+        if (isset($filtros['estado']) && $filtros['estado'] !== '') {
+            $sql    .= " AND p.estado = ?";
+            $params[] = $filtros['estado'];
+        }
+
+        if (isset($filtros['lugar']) && $filtros['lugar'] !== '') {
+            $sql    .= " AND p.lugar LIKE ?";
+            $params[] = '%' . $filtros['lugar'] . '%';
+        }
+
+        $sql .= " ORDER BY p.fecha DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Insertar nuevo partido
-     */
-    public function insert(
-        int $idLiga,
-        string $fecha,
-        string $lugar,
-        ?string $arbitro,
-        int $idEquipo1,
-        int $idEquipo2,
-        ?int $golesEquipo1 = null,
-        ?int $golesEquipo2 = null,
-        string $estado = 'pendiente'
-    ): int {
-        $stmt = $this->db->prepare(
-            "INSERT INTO partidos (id_liga, fecha, lugar, arbitro, id_equipo1, id_equipo2, goles_equipo1, goles_equipo2, estado)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        );
+    public function getById(int $id_partido): ?array
+    {
+        $sql = "
+            SELECT
+                p.id_partido,
+                p.id_liga,
+                p.tipo_ronda,
+                p.fecha,
+                p.lugar,
+                p.arbitro,
+                p.id_equipo_local,
+                p.id_equipo_visitante,
+                p.goles_local,
+                p.goles_visitante,
+                p.estado,
+                l.nombre_liga,
+                l.temporada   AS temporada_liga,
+                l.categoria   AS categoria_liga,
+                local.club    AS club_local,
+                local.categoria AS categoria_local,
+                visitante.club  AS club_visitante,
+                visitante.categoria AS categoria_visitante
+            FROM partidos p
+            INNER JOIN ligas    l         ON l.id_liga       = p.id_liga
+            INNER JOIN equipos  local     ON local.id_equipo = p.id_equipo_local
+            INNER JOIN equipos  visitante ON visitante.id_equipo = p.id_equipo_visitante
+            WHERE p.id_partido = ?
+        ";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id_partido]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ?: null;
+    }
+
+    public function insertar(array $datos): int
+    {
+        $stmt = $this->db->prepare("
+            INSERT INTO partidos
+                (id_liga, tipo_ronda, fecha, lugar, arbitro,
+                 id_equipo_local, id_equipo_visitante,
+                 goles_local, goles_visitante, estado)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+
         $stmt->execute([
-            $idLiga,
-            $fecha,
-            $lugar,
-            $arbitro,
-            $idEquipo1,
-            $idEquipo2,
-            $golesEquipo1,
-            $golesEquipo2,
-            $estado
+            $datos['id_liga'],
+            $datos['tipo_ronda'],
+            $datos['fecha'],
+            $datos['lugar'],
+            $datos['arbitro']           ?? null,
+            $datos['id_equipo_local'],
+            $datos['id_equipo_visitante'],
+            $datos['goles_local']       ?? null,
+            $datos['goles_visitante']   ?? null,
+            $datos['estado']            ?? 'programado',
         ]);
+
         return (int) $this->db->lastInsertId();
     }
 
-    /**
-     * Actualizar partido
-     */
-    public function update(
-        int $id,
-        int $idLiga,
-        string $fecha,
-        string $lugar,
-        ?string $arbitro,
-        int $idEquipo1,
-        int $idEquipo2,
-        ?int $golesEquipo1 = null,
-        ?int $golesEquipo2 = null,
-        string $estado = 'pendiente'
-    ): int {
-        $stmt = $this->db->prepare(
-            "UPDATE partidos SET id_liga = ?, fecha = ?, lugar = ?, arbitro = ?,
-             id_equipo1 = ?, id_equipo2 = ?, goles_equipo1 = ?, goles_equipo2 = ?, estado = ?
-             WHERE id_partido = ?"
-        );
+    public function modificar(int $id_partido, array $datos): int
+    {
+        $stmt = $this->db->prepare("
+            UPDATE partidos SET
+                id_liga              = ?,
+                tipo_ronda           = ?,
+                fecha                = ?,
+                lugar                = ?,
+                arbitro              = ?,
+                id_equipo_local      = ?,
+                id_equipo_visitante  = ?,
+                goles_local          = ?,
+                goles_visitante      = ?,
+                estado               = ?
+            WHERE id_partido = ?
+        ");
+
         $stmt->execute([
-            $idLiga,
-            $fecha,
-            $lugar,
-            $arbitro,
-            $idEquipo1,
-            $idEquipo2,
-            $golesEquipo1,
-            $golesEquipo2,
-            $estado,
-            $id
+            $datos['id_liga'],
+            $datos['tipo_ronda'],
+            $datos['fecha'],
+            $datos['lugar'],
+            $datos['arbitro']           ?? null,
+            $datos['id_equipo_local'],
+            $datos['id_equipo_visitante'],
+            $datos['goles_local']       ?? null,
+            $datos['goles_visitante']   ?? null,
+            $datos['estado'],
+            $id_partido,
         ]);
+
         return $stmt->rowCount();
     }
 
-    /**
-     * Actualizar resultado de un partido
-     */
-    public function updateResultado(
-        int $id,
-        int $golesEquipo1,
-        int $golesEquipo2,
-        string $estado = 'finalizado'
-    ): int {
+    public function cancelar(int $id_partido): int
+    {
         $stmt = $this->db->prepare(
-            "UPDATE partidos SET goles_equipo1 = ?, goles_equipo2 = ?, estado = ?
-             WHERE id_partido = ?"
+            "UPDATE partidos SET estado = 'cancelado' WHERE id_partido = ?"
         );
-        $stmt->execute([$golesEquipo1, $golesEquipo2, $estado, $id]);
+        $stmt->execute([$id_partido]);
         return $stmt->rowCount();
     }
 
-    /**
-     * Eliminar partido
-     */
-    public function delete(int $id): int
+    public function delete(int $id_partido): int
     {
         $stmt = $this->db->prepare(
             "DELETE FROM partidos WHERE id_partido = ?"
         );
-        $stmt->execute([$id]);
+        $stmt->execute([$id_partido]);
         return $stmt->rowCount();
     }
 
-    /**
-     * Eliminar todos los partidos de una liga
-     */
+    public function deleteByEquipoLiga(int $idLiga, int $idEquipo): int
+    {
+        $stmt = $this->db->prepare("
+        DELETE FROM partidos
+        WHERE id_liga = ?
+          AND (
+                id_equipo_local = ?
+              OR id_equipo_visitante = ?
+          )
+    ");
+
+        $stmt->execute([
+            $idLiga,
+            $idEquipo,
+            $idEquipo
+        ]);
+
+        return $stmt->rowCount();
+    }
+
     public function deleteByLiga(int $idLiga): int
     {
+        $stmt = $this->db->prepare("
+        DELETE FROM partidos
+        WHERE id_liga = ?
+    ");
+
+        $stmt->execute([$idLiga]);
+
+        return $stmt->rowCount();
+    }
+
+    public function existeDuplicado(
+        int     $idLiga,
+        string  $tipo_ronda,
+        int     $idLocal,
+        int     $idVisitante,
+        ?int    $excluirId = null
+    ): bool {
+        $sql = "
+            SELECT 1 FROM partidos
+            WHERE id_liga  = ?
+              AND tipo_ronda  = ?
+              AND (
+                    (id_equipo_local = ? AND id_equipo_visitante = ?)
+                 OR (id_equipo_local = ? AND id_equipo_visitante = ?)
+              )
+        ";
+        $params = [
+            $idLiga,
+            $tipo_ronda,
+            $idLocal,
+            $idVisitante,
+            $idVisitante,
+            $idLocal,
+        ];
+
+        if ($excluirId !== null) {
+            $sql    .= " AND id_partido != ?";
+            $params[] = $excluirId;
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function existeConflictoHorario(
+        int     $idLiga,
+        string  $fecha,
+        int     $idLocal,
+        int     $idVisitante,
+        ?int    $excluirId = null
+    ): bool {
+        $sql = "
+            SELECT 1 FROM partidos
+            WHERE id_liga = ?
+              AND fecha   = ?
+              AND (
+                    id_equipo_local      = ? OR id_equipo_visitante = ?
+                 OR id_equipo_local      = ? OR id_equipo_visitante = ?
+              )
+        ";
+        $params = [
+            $idLiga,
+            $fecha,
+            $idLocal,
+            $idLocal,
+            $idVisitante,
+            $idVisitante,
+        ];
+
+        if ($excluirId !== null) {
+            $sql    .= " AND id_partido != ?";
+            $params[] = $excluirId;
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function equiposPertenecenALiga(
+        int $idLiga,
+        int $idLocal,
+        int $idVisitante
+    ): bool {
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) FROM equipo_liga
+            WHERE id_liga  = ?
+              AND id_equipo IN (?, ?)
+        ");
+        $stmt->execute([$idLiga, $idLocal, $idVisitante]);
+        return ((int) $stmt->fetchColumn()) === 2;
+    }
+
+    public function existeLiga(int $idLiga): bool
+    {
         $stmt = $this->db->prepare(
-            "DELETE FROM partidos WHERE id_liga = ?"
+            "SELECT 1 FROM ligas WHERE id_liga = ?"
         );
         $stmt->execute([$idLiga]);
-        return $stmt->rowCount();
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function existeEquipo(int $idEquipo): bool
+    {
+        $stmt = $this->db->prepare(
+            "SELECT 1 FROM equipos WHERE id_equipo = ?"
+        );
+        $stmt->execute([$idEquipo]);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function getFormatoLiga(int $idLiga): ?string
+    {
+        $stmt = $this->db->prepare("
+        SELECT formato_liga
+        FROM ligas
+        WHERE id_liga = ?
+        LIMIT 1
+    ");
+
+        $stmt->execute([$idLiga]);
+
+        $formato = $stmt->fetchColumn();
+
+        return $formato ? strtoupper((string)$formato) : null;
     }
 }

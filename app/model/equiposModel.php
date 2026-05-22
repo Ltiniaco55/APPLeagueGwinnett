@@ -9,9 +9,6 @@ class EquiposModel
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Obtener todos los equipos
-     */
     public function getAll(): array
     {
         $stmt = $this->db->prepare("SELECT * FROM equipos");
@@ -19,9 +16,6 @@ class EquiposModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener equipo por ID
-     */
     public function getById(int $id): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM equipos WHERE id_equipo = ?");
@@ -30,9 +24,6 @@ class EquiposModel
         return $result ?: null;
     }
 
-    /**
-     * Obtener equipos por club
-     */
     public function getByClub(string $club): array
     {
         $stmt = $this->db->prepare("SELECT * FROM equipos WHERE club = ?");
@@ -40,61 +31,48 @@ class EquiposModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Verificar si el equipo ya existe (por club, categoria y temporada)
-     */
-    public function existsByKey(string $club, string $categoria, string $temporada): bool
+    public function existsByKey(string $club, string $categoria): bool
     {
         $stmt = $this->db->prepare(
-            "SELECT 1 FROM equipos WHERE club = ? AND categoria = ? AND temporada = ?"
+            "SELECT 1 FROM equipos WHERE club = ? AND categoria = ?"
         );
-        $stmt->execute([$club, $categoria, $temporada]);
+        $stmt->execute([$club, $categoria]);
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Crear nuevo equipo
-     */
     public function insert(
         string $club,
         string $categoria,
-        string $temporada,
         ?string $descripcion = null
     ): int {
         $stmt = $this->db->prepare(
-            "INSERT INTO equipos (club, categoria, temporada, descripcion)
-             VALUES (?, ?, ?, ?)"
+            "INSERT INTO equipos (club, categoria, descripcion)
+             VALUES (?, ?, ?)"
         );
         
         $stmt->execute([
             $club,
             $categoria,
-            $temporada,
             $descripcion
         ]);
         
         return (int) $this->db->lastInsertId();
     }
 
-    /**
-     * Actualizar equipo
-     */
     public function update(
         int $id,
         string $club,
         string $categoria,
-        string $temporada,
         ?string $descripcion = null
     ): int {
         $stmt = $this->db->prepare(
-            "UPDATE equipos SET club = ?, categoria = ?, temporada = ?, descripcion = ?
+            "UPDATE equipos SET club = ?, categoria = ?, descripcion = ?
              WHERE id_equipo = ?"
         );
         
         $stmt->execute([
             $club,
             $categoria,
-            $temporada,
             $descripcion,
             $id
         ]);
@@ -102,9 +80,6 @@ class EquiposModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Eliminar equipo
-     */
     public function delete(int $id): int
     {
         $stmt = $this->db->prepare("DELETE FROM equipos WHERE id_equipo = ?");
@@ -112,10 +87,7 @@ class EquiposModel
         return $stmt->rowCount();
     }
 
-    /**
-     * Buscar equipos por club, categoria o temporada
-     */
-    public function search(string $club = '', string $categoria = '', string $temporada = ''): array
+    public function search(string $club = '', string $categoria = ''): array
     {
         $sql = "SELECT * FROM equipos WHERE 1=1";
         $params = [];
@@ -128,19 +100,12 @@ class EquiposModel
             $sql .= " AND categoria LIKE ?";
             $params[] = "%$categoria%";
         }
-        if ($temporada !== '') {
-            $sql .= " AND temporada LIKE ?";
-            $params[] = "%$temporada%";
-        }
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener equipos por categoria
-     */
     public function getByCategoria(string $categoria): array
     {
         $stmt = $this->db->prepare("SELECT * FROM equipos WHERE categoria = ?");
@@ -148,13 +113,48 @@ class EquiposModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtener equipos por temporada
-     */
-    public function getByTemporada(string $temporada): array
+    public function getLigasByEquipo(int $id_equipo): array
     {
-        $stmt = $this->db->prepare("SELECT * FROM equipos WHERE temporada = ?");
-        $stmt->execute([$temporada]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->db->prepare("SELECT id_liga FROM equipo_liga WHERE id_equipo = ?");
+        $stmt->execute([$id_equipo]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function syncLigas(int $id_equipo, array $ligas_ids): void
+    {
+        $this->db->beginTransaction();
+        try {
+            $stmtDel = $this->db->prepare("DELETE FROM equipo_liga WHERE id_equipo = ?");
+            $stmtDel->execute([$id_equipo]);
+            
+            if (!empty($ligas_ids)) {
+                $stmtIns = $this->db->prepare("INSERT INTO equipo_liga (id_equipo, id_liga) VALUES (?, ?)");
+                foreach ($ligas_ids as $id_liga) {
+                    $stmtIns->execute([$id_equipo, (int)$id_liga]);
+                }
+            }
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    public function guardarEscudoSiNoExiste(int $id, string $ruta): int
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE equipos 
+             SET escudo = ?, escudo_bloqueado = 1 
+             WHERE id_equipo = ? AND (escudo_bloqueado = 0 OR escudo_bloqueado IS NULL)"
+        );
+        $stmt->execute([$ruta, $id]);
+        return $stmt->rowCount();
+    }
+
+    public function tieneEscudo(int $id): bool
+    {
+        $stmt = $this->db->prepare("SELECT escudo_bloqueado FROM equipos WHERE id_equipo = ?");
+        $stmt->execute([$id]);
+        return (bool) $stmt->fetchColumn();
     }
 }

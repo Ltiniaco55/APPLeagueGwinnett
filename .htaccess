@@ -1,0 +1,12 @@
+Options +FollowSymLinks -Indexes
+RewriteEngine On
+
+# Base del proyecto (ajusta si cambias de carpeta)
+RewriteBase /2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/
+
+# Si el archivo o carpeta existen físicamente → no tocar (ej: public/test_api.html)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Todo lo demás pasa por index.php manteniendo la URI original completa
+RewriteRule ^(.*)$ index.php [NC,L,QSA]

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL Admin — Ligas</title>
+    <meta name="description" content="Gestión de ligas GYSL">
+
+    <link rel="stylesheet" href="./CSS/global.css">
+    <link rel="stylesheet" href="./CSS/admin.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
+    <link rel="stylesheet" href="./CSS/toast.css">
+    <script src="./JS/toast.js" defer></script>
+
+    <script src="./JS/adminNav.js" defer></script>
+    <style>
+        .gysl-cards-wrapper {
+            margin-top: 20px;
+        }
+
+        .gysl-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .gysl-card {
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(241, 184, 45, .10), transparent 35%),
+                linear-gradient(180deg, rgba(13, 35, 68, .98), rgba(8, 22, 45, .98));
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-top: 2px solid rgba(241, 184, 45, .45);
+            border-radius: 16px;
+            padding: 26px 22px 22px;
+            min-height: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            cursor: pointer;
+            transition: all .22s ease;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .28);
+        }
+
+        .gysl-card:hover {
+            border-color: rgba(241, 184, 45, .55);
+            transform: translateY(-3px);
+            box-shadow: 0 22px 50px rgba(0, 0, 0, .38);
+        }
+
+        .gysl-card__escudo-wrap {
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -6px 0 2px;
+        }
+
+        .gysl-card__escudo {
+            max-width: 120px;
+            max-height: 105px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            filter: drop-shadow(0 12px 20px rgba(0, 0, 0, .45));
+        }
+
+        .gysl-card:not(.gysl-card--con-escudo) {
+            justify-content: center;
+        }
+
+        .gysl-card--con-escudo {
+            min-height: 430px;
+        }
+
+        .gysl-card__header {
+            text-align: center;
+        }
+
+        .gysl-card__title {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--gysl-white, #fff);
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .gysl-card__divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--gysl-yellow, #F1B82D);
+            font-size: 18px;
+        }
+
+        .gysl-card__divider::before,
+        .gysl-card__divider::after {
+            content: "";
+            width: 70px;
+            height: 1px;
+            background: rgba(241, 184, 45, .45);
+        }
+
+        .gysl-card__info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            color: var(--gysl-muted, #AFC1E6);
+            text-align: center;
+        }
+
+        .gysl-card__info-item {
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .035);
+            border: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .gysl-card__info-label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            font-weight: 800;
+            color: var(--gysl-muted, #AFC1E6);
+            margin-bottom: 6px;
+        }
+
+        .gysl-card__info-value {
+            display: block;
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--gysl-white, #fff);
+        }
+
+        .gysl-card__badges {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .gysl-card__desc {
+            font-size: 15px;
+            color: var(--gysl-muted, #AFC1E6);
+            text-align: center;
+            line-height: 1.5;
+            font-weight: 700;
+            flex-grow: 1;
+        }
+
+        .gysl-card__actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding-top: 16px;
+            padding-bottom: 12px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .gysl-badge--info {
+            background: rgba(59, 130, 246, .15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, .35);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="gysl-admin">
+
+        <header class="gysl-admin__header">
+            <div>
+                <h1 class="gysl-admin__title">Gestión de Ligas</h1>
+                <p class="gysl-admin__subtitle">Crear, editar y eliminar ligas del sistema</p>
+            </div>
+            <nav class="gysl-admin__breadcrumb">
+                <a href="home.html">Inicio</a> / Ligas
+            </nav>
+        </header>
+
+        <div class="gysl-admin__content">
+
+            <div class="gysl-admin-actions">
+                <h2 class="gysl-admin-actions__title">Listado de Ligas</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="gysl-admin-btn gysl-admin-btn--secondary" onclick="toggleViewMode()"
+                        id="view-mode-btn">
+                        🗂️ Cards
+                    </button>
+                    <button class="gysl-admin-btn gysl-admin-btn--primary" onclick="openLigaForm()">
+                        + Nueva Liga
+                    </button>
+                </div>
+            </div>
+
+            <div id="ligas-loading" class="gysl-admin-loading">Cargando ligas...</div>
+
+            <div id="ligas-empty" class="gysl-admin-empty" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="5"></circle>
+                    <path d="M12 13v8"></path>
+                    <path d="M9 18h6"></path>
+                </svg>
+                <p>No hay ligas registradas aún</p>
+            </div>
+
+            <div class="gysl-admin-table-wrapper" id="ligas-table-wrapper" style="display:none;">
+                <table class="gysl-admin-table" style="cursor: pointer;">
+                    <thead>
+                        <tr>
+                            <th>Escudo</th>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Temporada</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Estado</th>
+                            <th>Formato</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ligas-tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="gysl-cards-wrapper" id="ligas-cards-wrapper" style="display:none;">
+                <div class="gysl-cards-grid" id="ligas-cards-grid"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="gysl-admin-form-overlay" id="liga-form-overlay">
+        <div class="gysl-admin-form-card">
+            <h3 id="liga-form-title">Nueva Liga</h3>
+            <form id="liga-form" onsubmit="return false;">
+                <input type="hidden" id="liga-edit-id">
+
+                <div class="gysl-admin-form-group">
+                    <label for="liga-nombre">Nombre de la Liga</label>
+                    <input type="text" id="liga-nombre" placeholder="Ej: Liga Juvenil U14" required>
+                </div>
+                <div class="gysl-admin-form-group">
+                    <label for="liga-temporada">Temporada</label>
+                    <input type="text" id="liga-temporada" placeholder="Ej: 2025-2026" required>
+                </div>
+                <div class="gysl-admin-form-group">
+                    <label for="liga-categoria">Categoría</label>
+                    <input type="text" id="liga-categoria" placeholder="Ej: U14, Senior, Futsal" required>
+                </div>
+                <div class="gysl-admin-form-group">
+                    <label for="liga-descripcion">Descripción</label>
+                    <textarea id="liga-descripcion" placeholder="Ej: Breve descripción de la liga" required
+                        rows="3"></textarea>
+                </div>
+
+                <div class="gysl-admin-form-group">
+                    <label for="liga-estado">Estado de la Liga</label>
+                    <select id="liga-estado" required>
+                        <option value="PROXIMAMENTE">Próximamente</option>
+                        <option value="EN_CURSO">En curso</option>
+                    </select>
+                </div>
+
+                <div class="gysl-admin-form-group">
+                    <label for="liga-formato">Formato de la Liga</label>
+                    <select id="liga-formato" required>
+                        <option value="JORNADAS">Jornadas</option>
+                        <option value="ELIMINATORIA">Eliminatoria</option>
+                        <option value="AMISTOSO">Amistoso</option>
+                    </select>
+                </div>
+
+                <div class="gysl-admin-form-group" id="liga-escudo-group">
+                    <label for="liga-escudo">Escudo (opcional al crear)</label>
+                    <input type="file" id="liga-escudo" accept=".jpg,.jpeg,.png,.webp"
+                        style="color: var(--gysl-white);">
+                    <small style="color:var(--gysl-muted); font-size: 11px; margin-top: 4px; display: block;">Nota: Una
+                        vez guardado, el escudo no se podrá cambiar.</small>
+                </div>
+
+                <div class="gysl-admin-form-actions">
+                    <button type="button" class="gysl-admin-btn gysl-admin-btn--secondary"
+                        onclick="closeLigaForm()">Cancelar</button>
+                    <button type="button" class="gysl-admin-btn gysl-admin-btn--primary"
+                        onclick="submitLiga()">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            let ligasData = [];
+            let viewMode = 'list';
+
+            const tbody = document.getElementById("ligas-tbody");
+            const tableWrapper = document.getElementById("ligas-table-wrapper");
+            const cardsWrapper = document.getElementById("ligas-cards-wrapper");
+            const cardsGrid = document.getElementById("ligas-cards-grid");
+            const loading = document.getElementById("ligas-loading");
+            const empty = document.getElementById("ligas-empty");
+
+            window.toggleViewMode = function () {
+                viewMode = viewMode === 'list' ? 'cards' : 'list';
+                document.getElementById('view-mode-btn').innerHTML = viewMode === 'list' ? '🗂️ Cards' : '📄 Lista';
+                renderLigas();
+            };
+
+            window.goToEquipos = function (idLiga) {
+                window.location.href = "admin-equipos.html?liga=" + idLiga;
+            };
+
+            async function loadLigas() {
+                loading.style.display = "flex";
+                tableWrapper.style.display = "none";
+                cardsWrapper.style.display = "none";
+                empty.style.display = "none";
+
+                try {
+                    const res = await fetch(API + "/ligas", { credentials: "include" });
+                    const data = await res.json();
+                    ligasData = Array.isArray(data) ? data : (data.data || []);
+                } catch (err) {
+                    console.error("Error cargando ligas:", err);
+                    ligasData = [];
+                }
+
+                loading.style.display = "none";
+                renderLigas();
+            }
+
+            function renderLigas() {
+                if (ligasData.length === 0) {
+                    empty.style.display = "block";
+                    tableWrapper.style.display = "none";
+                    cardsWrapper.style.display = "none";
+                    return;
+                }
+
+                empty.style.display = "none";
+
+                if (viewMode === 'list') {
+                    tableWrapper.style.display = "block";
+                    cardsWrapper.style.display = "none";
+                } else {
+                    tableWrapper.style.display = "none";
+                    cardsWrapper.style.display = "block";
+                }
+
+                let trs = "";
+                let cards = "";
+
+                ligasData.forEach((l) => {
+                    const idLiga = l.id_liga ?? l.id ?? "—";
+                    const nombre = l.nombre_liga ?? l.nom ?? l.nombre ?? "—";
+                    const imgUrl = l.escudo ? (API + l.escudo) : "";
+                    const escudoHtml = imgUrl
+                        ? `<img src="${imgUrl}" alt="${nombre}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: contain; background: rgba(255,255,255,0.05);" onerror="this.remove()">`
+                        : "";
+                    const tieneEscudo = Boolean(imgUrl);
+
+                    const escudoCardHtml = tieneEscudo
+                        ? `
+                            <div class="gysl-card__escudo-wrap">
+                                <img src="${imgUrl}" 
+                                    alt="${nombre}" 
+                                    class="gysl-card__escudo" 
+                                    onerror="this.closest('.gysl-card__escudo-wrap')?.remove()">
+                            </div>
+                        `
+                        : "";
+                    const desc = l.descripcion ?? "—";
+                    const temp = l.temporada ?? l.temp ?? "—";
+                    const cat = l.categoria ?? l.categ ?? "—";
+                    const estado = l.estado_liga ?? "PROXIMAMENTE";
+                    const estadoLabel = estado === "EN_CURSO" ? "En curso" : "Próximamente";
+                    const estadoClass = estado === "EN_CURSO" ? "gysl-badge--active" : "gysl-badge--pending";
+                    const formato = l.formato_liga ?? "JORNADAS";
+
+                    const formatoLabel = {
+                        JORNADAS: "Jornadas",
+                        ELIMINATORIA: "Eliminatoria",
+                        AMISTOSO: "Amistoso"
+                    }[formato] ?? "Jornadas";
+
+                    trs += `
+                    <tr onclick="goToEquipos(${idLiga})">
+                        <td onclick="event.stopPropagation()">${escudoHtml}</td>
+                        <td>${idLiga}</td>
+                        <td>${nombre}</td>
+                        <td>${temp}</td>
+                        <td>${cat}</td>
+                        <td>${desc}</td>
+                        <td><span class="gysl-badge ${estadoClass}">${estadoLabel}</span></td>
+                        <td><span class="gysl-badge gysl-badge--info">${formatoLabel}</span></td>
+                        <td onclick="event.stopPropagation()">
+                            <div class="gysl-admin-table__actions">
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
+                                        onclick="editLiga('${nombre}', '${temp}', '${cat}')">Editar</button>
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
+                                        onclick="deleteLiga('${nombre}', '${temp}', '${cat}')">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>`;
+
+                    cards += `
+                        <div class="gysl-card ${tieneEscudo ? 'gysl-card--con-escudo' : 'gysl-card--sin-escudo'}" onclick="goToEquipos(${idLiga})">
+                            ${escudoCardHtml}
+
+                            <div class="gysl-card__header">
+                                <h4 class="gysl-card__title">${nombre}</h4>
+                            </div>
+
+                            <div class="gysl-card__divider">🏆</div>
+
+                            <div class="gysl-card__info">
+                                <div class="gysl-card__info-item">
+                                    <span class="gysl-card__info-label">Temporada</span>
+                                    <span class="gysl-card__info-value">${temp}</span>
+                                </div>
+
+                                <div class="gysl-card__info-item">
+                                    <span class="gysl-card__info-label">Categoría</span>
+                                    <span class="gysl-card__info-value">${cat}</span>
+                                </div>
+                            </div>
+
+                            <div class="gysl-card__badges">
+                                <span class="gysl-badge ${estadoClass}">${estadoLabel}</span>
+                                <span class="gysl-badge gysl-badge--info">${formatoLabel}</span>
+                            </div>
+
+                            <p class="gysl-card__desc">${desc}</p>
+
+                            <div class="gysl-card__actions" onclick="event.stopPropagation()">
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--edit"
+                                        onclick="editLiga('${nombre}', '${temp}', '${cat}')">Editar</button>
+                                <button class="gysl-admin-table__btn gysl-admin-table__btn--delete"
+                                        onclick="deleteLiga('${nombre}', '${temp}', '${cat}')">Eliminar</button>
+                            </div>
+                        </div>`;
+                });
+
+                tbody.innerHTML = trs;
+                cardsGrid.innerHTML = cards;
+            }
+
+            window.openLigaForm = function (liga = null) {
+                const overlay = document.getElementById("liga-form-overlay");
+                const title = document.getElementById("liga-form-title");
+
+                document.getElementById("liga-edit-id").value = "";
+                document.getElementById("liga-nombre").value = "";
+                document.getElementById("liga-temporada").value = "";
+                document.getElementById("liga-categoria").value = "";
+                document.getElementById("liga-descripcion").value = "";
+                document.getElementById("liga-estado").value = "PROXIMAMENTE";
+                document.getElementById("liga-formato").value = "JORNADAS";
+
+                if (liga) {
+                    title.textContent = "Editar Liga";
+                    document.getElementById("liga-edit-id").value = liga.id_liga ?? liga.id ?? "";
+                    document.getElementById("liga-nombre").value = liga.nombre_liga ?? liga.nom ?? liga.nombre ?? "";
+                    document.getElementById("liga-temporada").value = liga.temporada ?? liga.temp ?? "";
+                    document.getElementById("liga-categoria").value = liga.categoria ?? liga.categ ?? "";
+                    document.getElementById("liga-descripcion").value = liga.descripcion ?? "";
+                    document.getElementById("liga-estado").value = liga.estado_liga ?? "PROXIMAMENTE";
+                    document.getElementById("liga-formato").value = liga.formato_liga ?? "JORNADAS";
+                    document.getElementById("liga-nombre").dataset.original = liga.nombre_liga ?? liga.nom ?? "";
+                    document.getElementById("liga-temporada").dataset.original = liga.temporada ?? liga.temp ?? "";
+                    document.getElementById("liga-categoria").dataset.original = liga.categoria ?? liga.categ ?? "";
+
+                    if (liga.escudo_bloqueado === 1 || liga.escudo) {
+                        document.getElementById("liga-escudo-group").style.display = "none";
+                    } else {
+                        document.getElementById("liga-escudo-group").style.display = "block";
+                    }
+                } else {
+                    title.textContent = "Nueva Liga";
+                    document.getElementById("liga-escudo-group").style.display = "block";
+                }
+
+                document.getElementById("liga-escudo").value = "";
+                overlay.classList.add("is-open");
+            };
+
+            window.closeLigaForm = function () {
+                document.getElementById("liga-form-overlay").classList.remove("is-open");
+            };
+
+            window.editLiga = function (nom, temp, categ) {
+                const liga = ligasData.find((l) => (l.nombre_liga === nom || l.nom === nom) &&
+                    (l.temporada === temp || l.temp === temp) &&
+                    (l.categoria === categ || l.categ === categ));
+                if (liga) openLigaForm(liga);
+            };
+
+            window.submitLiga = async function () {
+                const editId = document.getElementById("liga-edit-id").value;
+                const fileInput = document.getElementById("liga-escudo");
+                const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+                const body = {
+                    nom: document.getElementById("liga-nombre").value.trim(),
+                    temp: document.getElementById("liga-temporada").value.trim(),
+                    categ: document.getElementById("liga-categoria").value.trim(),
+                    descripcion: document.getElementById("liga-descripcion").value.trim(),
+                    estado_liga: document.getElementById("liga-estado").value || "PROXIMAMENTE",
+                    formato_liga: document.getElementById("liga-formato").value || "JORNADAS"
+                };
+
+                if (editId) {
+                    body.nom_actual = document.getElementById("liga-nombre").dataset.original;
+                    body.temp_actual = document.getElementById("liga-temporada").dataset.original;
+                    body.categ_actual = document.getElementById("liga-categoria").dataset.original;
+                }
+
+                if (!body.nom || !body.temp || !body.categ || !body.descripcion) {
+                    showToast("Todos los campos son obligatorios", "error");
+                    return;
+                }
+
+                if (hasFile) {
+                    if (hasFile) {
+                        const confirmado = await showConfirm(
+                            "Subir escudo",
+                            "Una vez guardado, el escudo no se podrá cambiar.",
+                            "warning",
+                            "Subir escudo"
+                        );
+
+                        if (!confirmado) return;
+                    }
+                }
+
+                try {
+                    let res;
+                    if (editId) {
+
+                        res = await fetch(API + "/ligas", {
+                            method: "PUT",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(body)
+                        });
+                    } else {
+                        res = await fetch(API + "/ligas", {
+                            method: "POST",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(body)
+                        });
+                    }
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        let savedId = editId || (data.data?.id_liga ?? null);
+
+                        if (hasFile && savedId) {
+                            const formData = new FormData();
+                            formData.append("escudo", fileInput.files[0]);
+                            try {
+                                await fetch(API + "/ligas/" + savedId + "/escudo", {
+                                    method: "POST",
+                                    credentials: "include",
+                                    body: formData
+                                });
+                            } catch (e) { console.error("Error subiendo escudo", e); }
+                        }
+
+                        showToast(
+                            editId ? "Liga actualizada correctamente" : "Liga creada correctamente",
+                            "success"
+                        );
+
+                        closeLigaForm();
+                        loadLigas();
+                    } else {
+                        showToast(data.message || "Error al guardar la liga", "error");
+                    }
+                } catch (err) {
+                    console.error("Error guardando liga:", err);
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            window.deleteLiga = async function (nom, temp, categ) {
+                const confirmado = await showConfirm(
+                    "Eliminar liga",
+                    `Esta acción eliminará la liga ${nom} (${temp}). No se podrá deshacer.`,
+                    "danger",
+                    "Eliminar"
+                );
+
+                if (!confirmado) return;
+
+                try {
+                    const res = await fetch(API + "/ligas", {
+                        method: "DELETE",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ nom, temp, categ })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        loadLigas();
+                    } else {
+                        showToast(data.message || "Error al guardar la liga", "error");
+                    }
+                } catch (err) {
+                    console.error("Error eliminando liga:", err);
+                    showToast("Error de conexión", "error");
+                }
+            };
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", loadLigas);
+            } else {
+                loadLigas();
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

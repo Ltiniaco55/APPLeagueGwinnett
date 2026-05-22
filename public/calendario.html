@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL — Calendario</title>
+    <meta name="description" content="Calendario mensual de partidos de Gwinnett Youth Soccer League.">
+
+    <link rel="stylesheet" href="./CSS/layout.css">
+    <link rel="stylesheet" href="./CSS/mini-menu.css">
+    <link rel="stylesheet" href="./CSS/toast.css">
+
+    <script src="./JS/login.js" defer></script>
+    <script src="./JS/sesionactiva.js" defer></script>
+    <script src="./JS/layout.js" defer></script>
+    <script src="./JS/header_secun.js" defer></script>
+    <script src="./JS/toast.js" defer></script>
+
+    <style>
+        :root {
+            --font-primary: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --fw-medium: 500;
+            --fw-bold: 700;
+            --fw-black: 900;
+            --fs-h1: 48px;
+            --lh-tight: 1.1;
+            --lh-relaxed: 1.7;
+            --tracking-tight: -1px;
+        }
+
+        body {
+            background: var(--gysl-superdark, #060e1e);
+        }
+
+        .cal-hero {
+            padding: 32px 0 28px;
+            background:
+                linear-gradient(90deg, rgba(6, 14, 30, .96), rgba(6, 14, 30, .76)),
+                radial-gradient(ellipse at 80% 20%, rgba(241, 184, 45, .18), transparent 50%),
+                var(--gysl-superdark, #060e1e);
+        }
+
+        .cal-hero__inner,
+        .cal-section__wrap {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .cal-hero__eyebrow {
+            color: var(--gysl-yellow, #f1b82d);
+            font-family: var(--font-primary);
+            font-size: .78rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .cal-hero__title {
+            margin: 10px 0 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: var(--fs-h1);
+            font-weight: var(--fw-black);
+            line-height: var(--lh-tight);
+            letter-spacing: var(--tracking-tight);
+        }
+
+        .cal-hero__subtitle {
+            margin: 14px 0 0;
+            max-width: 620px;
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: var(--fw-medium);
+            line-height: var(--lh-relaxed);
+        }
+
+        .cal-divider {
+            height: 3px;
+            background: linear-gradient(90deg,
+                    rgba(241, 184, 45, 0),
+                    rgba(241, 184, 45, .85),
+                    rgba(241, 184, 45, 0));
+        }
+
+        .cal-section {
+            padding: 38px 0 58px;
+            background:
+                radial-gradient(ellipse at 20% 15%, rgba(20, 52, 94, .45), transparent 55%),
+                radial-gradient(ellipse at 80% 60%, rgba(11, 42, 74, .42), transparent 55%),
+                var(--gysl-superdark, #060e1e);
+        }
+
+        .cal-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .cal-toolbar__left {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .cal-toolbar__title {
+            margin: 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1.45rem;
+            font-weight: 900;
+        }
+
+        .cal-toolbar__hint {
+            margin: 0;
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: .88rem;
+            font-weight: 600;
+        }
+
+        .cal-filter {
+            min-width: 300px;
+            padding: 12px 46px 12px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .16);
+            background:
+                linear-gradient(135deg, rgba(18, 44, 78, .95), rgba(10, 26, 50, .95));
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: .92rem;
+            font-weight: 800;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image:
+                linear-gradient(135deg, rgba(18, 44, 78, .95), rgba(10, 26, 50, .95)),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23f1b82d' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat, no-repeat;
+            background-position: center, right 16px center;
+            background-size: cover, 18px;
+        }
+
+        .cal-filter option {
+            background: #102642;
+            color: #fff;
+        }
+
+        .cal-status {
+            padding: 22px 24px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .12);
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: .94rem;
+            font-weight: 800;
+        }
+
+        .cal-status--error {
+            color: var(--gysl-red, #d72626);
+            border-color: rgba(215, 38, 38, .35);
+        }
+
+        .cal-board {
+            background: #ffffff;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+            border: 1px solid rgba(255, 255, 255, .18);
+        }
+
+        .cal-board__header {
+            display: grid;
+            grid-template-columns: 190px 1fr 190px;
+            align-items: center;
+            gap: 16px;
+            padding: 22px 26px;
+            background: #ffffff;
+            border-bottom: 1px solid #e8edf5;
+        }
+
+        .cal-month-btn {
+            border: 1px solid #d9e2ef;
+            background: #f7f9fc;
+            color: #0b2a4a;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-family: var(--font-primary);
+            font-size: .86rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform .18s ease, border-color .18s ease, background .18s ease;
+        }
+
+        .cal-month-btn:hover {
+            transform: translateY(-1px);
+            border-color: #f1b82d;
+            background: #fff8e5;
+        }
+
+        .cal-month-btn--next {
+            justify-self: end;
+        }
+
+        .cal-month-title {
+            margin: 0;
+            text-align: center;
+            color: #08162d;
+            font-family: var(--font-primary);
+            font-size: 1.65rem;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+        }
+
+        .cal-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: #f5f7fb;
+            border-bottom: 1px solid #e8edf5;
+        }
+
+        .cal-weekday {
+            padding: 14px 10px;
+            color: #506174;
+            font-family: var(--font-primary);
+            font-size: .78rem;
+            font-weight: 950;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            border-right: 1px solid #e8edf5;
+        }
+
+        .cal-weekday:last-child {
+            border-right: 0;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: #e8edf5;
+            gap: 1px;
+        }
+
+        .cal-day {
+            min-height: 138px;
+            background: #ffffff;
+            padding: 10px;
+            position: relative;
+        }
+
+        .cal-day.is-muted {
+            background: #f8fafc;
+        }
+
+        .cal-day.is-today {
+            box-shadow: inset 0 0 0 2px rgba(241, 184, 45, .85);
+        }
+
+        .cal-day__number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            color: #0b2a4a;
+            font-family: var(--font-primary);
+            font-size: .82rem;
+            font-weight: 950;
+            margin-bottom: 8px;
+        }
+
+        .cal-day.is-muted .cal-day__number {
+            color: #9aa8ba;
+        }
+
+        .cal-day.is-today .cal-day__number {
+            background: #f1b82d;
+            color: #08162d;
+        }
+
+        .cal-events {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .cal-event {
+            border: 0;
+            width: 100%;
+            text-align: left;
+            padding: 7px 8px;
+            border-radius: 9px;
+            font-family: var(--font-primary);
+            cursor: pointer;
+            background: #edf5ff;
+            border-left: 4px solid #3b82f6;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+
+        .cal-event:hover {
+            transform: translateX(2px);
+            box-shadow: 0 8px 18px rgba(8, 22, 45, .12);
+        }
+
+        .cal-event--jugado {
+            background: #eafaf1;
+            border-left-color: #2ecc71;
+        }
+
+        .cal-event--cancelado {
+            background: #fff0f0;
+            border-left-color: #d72626;
+            opacity: .85;
+        }
+
+        .cal-event--pendiente {
+            background: #fff8e5;
+            border-left-color: #f1b82d;
+        }
+
+        .cal-event__time {
+            display: block;
+            color: #6b7c90;
+            font-size: .68rem;
+            font-weight: 950;
+            margin-bottom: 3px;
+        }
+
+        .cal-event__teams {
+            display: block;
+            color: #08162d;
+            font-size: .76rem;
+            font-weight: 950;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cal-event__league {
+            display: block;
+            margin-top: 3px;
+            color: #506174;
+            font-size: .66rem;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cal-more {
+            margin-top: 3px;
+            color: #0b2a4a;
+            font-family: var(--font-primary);
+            font-size: .7rem;
+            font-weight: 950;
+        }
+
+        .cal-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, .68);
+            backdrop-filter: blur(7px);
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .cal-modal.is-open {
+            display: flex;
+        }
+
+        .cal-modal__card {
+            width: min(560px, 95%);
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(20, 52, 94, .55), transparent 60%),
+                var(--gysl-superdark, #060e1e);
+            border: 1px solid rgba(255, 255, 255, .14);
+            border-radius: 18px;
+            padding: 28px 32px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, .55);
+            position: relative;
+        }
+
+        .cal-modal__close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(255, 255, 255, .07);
+            color: var(--gysl-muted, #afc1e6);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .cal-modal__close:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, .13);
+        }
+
+        .cal-modal__kicker {
+            margin: 0 0 8px;
+            color: var(--gysl-yellow, #f1b82d);
+            font-family: var(--font-primary);
+            font-size: .76rem;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: .9px;
+        }
+
+        .cal-modal__title {
+            margin: 0 40px 18px 0;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1.5rem;
+            font-weight: 950;
+            line-height: 1.25;
+        }
+
+        .cal-detail-score {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 18px 0;
+            border-top: 1px solid rgba(255, 255, 255, .08);
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            margin-bottom: 20px;
+        }
+
+        .cal-detail-team {
+            flex: 1;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .cal-detail-vs {
+            min-width: 76px;
+            color: var(--gysl-yellow, #f1b82d);
+            font-family: var(--font-primary);
+            font-size: 1.45rem;
+            font-weight: 950;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .cal-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 18px;
+        }
+
+        .cal-detail-field {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+        }
+
+        .cal-detail-field label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--gysl-muted, #afc1e6);
+            font-family: var(--font-primary);
+            font-size: .7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .cal-detail-field span {
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: .92rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main id="page-content">
+
+        <section class="cal-hero">
+            <div class="cal-hero__inner">
+                <span class="cal-hero__eyebrow">Competición GYSL</span>
+                <h1 class="cal-hero__title">Calendario</h1>
+                <p class="cal-hero__subtitle" id="cal-subtitle">
+                    Consulta los partidos programados, resultados y jornadas de la competición.
+                </p>
+            </div>
+        </section>
+
+        <div class="cal-divider"></div>
+
+        <section class="cal-section">
+            <div class="cal-section__wrap">
+
+                <div class="cal-toolbar">
+                    <div class="cal-toolbar__left">
+                        <h2 class="cal-toolbar__title">Calendario de partidos</h2>
+                        <p class="cal-toolbar__hint" id="cal-toolbar-hint">Mostrando partidos del mes seleccionado.</p>
+                    </div>
+
+                    <select id="cal-liga-select" class="cal-filter">
+                        <option value="">Todas las ligas</option>
+                    </select>
+                </div>
+
+                <div id="cal-loading" class="cal-status">Cargando calendario...</div>
+                <div id="cal-error" class="cal-status cal-status--error" style="display:none;"></div>
+
+                <div class="cal-board" id="cal-board" style="display:none;">
+                    <div class="cal-board__header">
+                        <button type="button" class="cal-month-btn" id="cal-prev-month">‹ Mes anterior</button>
+                        <h3 class="cal-month-title" id="cal-month-title">—</h3>
+                        <button type="button" class="cal-month-btn cal-month-btn--next" id="cal-next-month">Mes
+                            siguiente ›</button>
+                    </div>
+
+                    <div class="cal-weekdays">
+                        <div class="cal-weekday">Lunes</div>
+                        <div class="cal-weekday">Martes</div>
+                        <div class="cal-weekday">Miércoles</div>
+                        <div class="cal-weekday">Jueves</div>
+                        <div class="cal-weekday">Viernes</div>
+                        <div class="cal-weekday">Sábado</div>
+                        <div class="cal-weekday">Domingo</div>
+                    </div>
+
+                    <div class="cal-grid" id="cal-grid"></div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <div class="cal-modal" id="cal-modal">
+        <div class="cal-modal__card">
+            <button type="button" class="cal-modal__close" id="cal-modal-close">✕</button>
+            <p class="cal-modal__kicker" id="cal-modal-kicker">Partido</p>
+            <h3 class="cal-modal__title" id="cal-modal-title">—</h3>
+
+            <div class="cal-detail-score">
+                <span class="cal-detail-team" id="cal-detail-local">—</span>
+                <span class="cal-detail-vs" id="cal-detail-score">VS</span>
+                <span class="cal-detail-team" id="cal-detail-visitante">—</span>
+            </div>
+
+            <div class="cal-detail-grid">
+                <div class="cal-detail-field">
+                    <label>Liga</label>
+                    <span id="cal-detail-liga">—</span>
+                </div>
+                <div class="cal-detail-field">
+                    <label>Ronda</label>
+                    <span id="cal-detail-ronda">—</span>
+                </div>
+                <div class="cal-detail-field">
+                    <label>Fecha</label>
+                    <span id="cal-detail-fecha">—</span>
+                </div>
+                <div class="cal-detail-field">
+                    <label>Hora</label>
+                    <span id="cal-detail-hora">—</span>
+                </div>
+                <div class="cal-detail-field">
+                    <label>Lugar</label>
+                    <span id="cal-detail-lugar">—</span>
+                </div>
+                <div class="cal-detail-field">
+                    <label>Estado</label>
+                    <span id="cal-detail-estado">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const API = "/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular";
+
+            const params = new URLSearchParams(window.location.search);
+            const ligaUrl = params.get("liga");
+
+            const loading = document.getElementById("cal-loading");
+            const errorBox = document.getElementById("cal-error");
+            const board = document.getElementById("cal-board");
+            const grid = document.getElementById("cal-grid");
+            const ligaSelect = document.getElementById("cal-liga-select");
+            const monthTitle = document.getElementById("cal-month-title");
+            const subtitle = document.getElementById("cal-subtitle");
+            const hint = document.getElementById("cal-toolbar-hint");
+
+            const btnPrev = document.getElementById("cal-prev-month");
+            const btnNext = document.getElementById("cal-next-month");
+
+            const modal = document.getElementById("cal-modal");
+            const modalClose = document.getElementById("cal-modal-close");
+
+            let ligasData = [];
+            let partidosData = [];
+            let fechaActiva = new Date();
+            let idLigaActiva = ligaUrl ? String(ligaUrl) : "";
+
+            function texto(valor, fallback = "—") {
+                return String(valor ?? "").trim() || fallback;
+            }
+
+            function normalizarFecha(fecha) {
+                const d = new Date(fecha);
+                return Number.isNaN(d.getTime()) ? null : d;
+            }
+
+            function pad(n) {
+                return String(n).padStart(2, "0");
+            }
+
+            function claveFecha(date) {
+                return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+            }
+
+            function formatearHora(fecha) {
+                const d = normalizarFecha(fecha);
+                if (!d) return "—";
+
+                return d.toLocaleTimeString("es-ES", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+            }
+
+            function formatearFechaLarga(fecha) {
+                const d = normalizarFecha(fecha);
+                if (!d) return "—";
+
+                return d.toLocaleDateString("es-ES", {
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                });
+            }
+
+            function nombreMes(date) {
+                return date.toLocaleDateString("es-ES", {
+                    month: "long",
+                    year: "numeric"
+                }).toUpperCase();
+            }
+
+            function getLigaActual() {
+                if (!idLigaActiva) return null;
+                return ligasData.find(liga => String(liga.id_liga ?? liga.id) === String(idLigaActiva)) || null;
+            }
+
+            function getPartidosFiltradosMes() {
+                const year = fechaActiva.getFullYear();
+                const month = fechaActiva.getMonth();
+
+                return partidosData
+                    .filter(partido => {
+                        const fecha = normalizarFecha(partido.fecha);
+                        if (!fecha) return false;
+
+                        const coincideMes = fecha.getFullYear() === year && fecha.getMonth() === month;
+                        const coincideLiga = !idLigaActiva || String(partido.id_liga) === String(idLigaActiva);
+
+                        return coincideMes && coincideLiga;
+                    })
+                    .sort((a, b) => normalizarFecha(a.fecha) - normalizarFecha(b.fecha));
+            }
+
+            function agruparPorDia(partidos) {
+                return partidos.reduce((acc, partido) => {
+                    const fecha = normalizarFecha(partido.fecha);
+                    if (!fecha) return acc;
+
+                    const key = claveFecha(fecha);
+                    if (!acc[key]) acc[key] = [];
+                    acc[key].push(partido);
+
+                    return acc;
+                }, {});
+            }
+
+            function estadoClass(estado) {
+                const e = String(estado ?? "").toLowerCase();
+
+                if (e === "jugado") return "cal-event--jugado";
+                if (e === "cancelado") return "cal-event--cancelado";
+                if (e === "pendiente") return "cal-event--pendiente";
+
+                return "";
+            }
+
+            function scorePartido(partido) {
+                const gl = partido.goles_local;
+                const gv = partido.goles_visitante;
+
+                if (gl === null || gl === undefined || gl === "" || gv === null || gv === undefined || gv === "") {
+                    return "VS";
+                }
+
+                return `${gl} : ${gv}`;
+            }
+
+            function renderSelectLigas() {
+                ligaSelect.innerHTML = '<option value="">Todas las ligas</option>';
+
+                ligasData.forEach(liga => {
+                    const id = liga.id_liga ?? liga.id;
+                    const nombre = texto(liga.nombre_liga ?? liga.nom ?? liga.nombre, "Liga sin nombre");
+                    const categoria = texto(liga.categoria ?? liga.categ, "");
+
+                    ligaSelect.innerHTML += `
+                        <option value="${id}">
+                            ${categoria ? `${nombre} · ${categoria}` : nombre}
+                        </option>
+                    `;
+                });
+
+                ligaSelect.value = idLigaActiva;
+            }
+
+            function renderCabecera() {
+                monthTitle.textContent = nombreMes(fechaActiva);
+
+                const liga = getLigaActual();
+
+                if (liga) {
+                    const nombre = texto(liga.nombre_liga ?? liga.nom ?? liga.nombre, "Liga");
+                    const temporada = texto(liga.temporada ?? liga.temp, "");
+                    const categoria = texto(liga.categoria ?? liga.categ, "");
+
+                    subtitle.textContent = [nombre, temporada, categoria].filter(Boolean).join(" · ");
+                    hint.textContent = `Mostrando partidos de ${nombre}.`;
+                } else {
+                    subtitle.textContent = "Consulta todos los partidos del mes seleccionado.";
+                    hint.textContent = "Mostrando partidos de todas las ligas.";
+                }
+            }
+
+            function renderEvento(partido) {
+                const local = texto(partido.club_local, "Local");
+                const visitante = texto(partido.club_visitante, "Visitante");
+                const hora = formatearHora(partido.fecha);
+                const liga = texto(partido.nombre_liga, "Liga");
+
+                return `
+                    <button
+                        type="button"
+                        class="cal-event ${estadoClass(partido.estado)}"
+                        data-partido-id="${partido.id_partido}"
+                        title="${local} vs ${visitante}"
+                    >
+                        <span class="cal-event__time">${hora}</span>
+                        <span class="cal-event__teams">${local} vs ${visitante}</span>
+                        <span class="cal-event__league">${liga}</span>
+                    </button>
+                `;
+            }
+
+            function renderCalendario() {
+                renderCabecera();
+
+                const year = fechaActiva.getFullYear();
+                const month = fechaActiva.getMonth();
+
+                const firstDay = new Date(year, month, 1);
+                const startOffset = (firstDay.getDay() + 6) % 7;
+                const startDate = new Date(year, month, 1 - startOffset);
+
+                const partidosMes = getPartidosFiltradosMes();
+                const partidosPorDia = agruparPorDia(partidosMes);
+
+                const todayKey = claveFecha(new Date());
+                let html = "";
+
+                for (let i = 0; i < 42; i++) {
+                    const date = new Date(startDate);
+                    date.setDate(startDate.getDate() + i);
+
+                    const key = claveFecha(date);
+                    const esMesActual = date.getMonth() === month;
+                    const esHoy = key === todayKey;
+                    const eventos = partidosPorDia[key] || [];
+                    const visibles = eventos.slice(0, 3);
+                    const extra = eventos.length - visibles.length;
+
+                    html += `
+                        <div class="cal-day ${!esMesActual ? "is-muted" : ""} ${esHoy ? "is-today" : ""}">
+                            <span class="cal-day__number">${date.getDate()}</span>
+                            <div class="cal-events">
+                                ${visibles.map(renderEvento).join("")}
+                                ${extra > 0 ? `<div class="cal-more">+${extra} partido(s)</div>` : ""}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                grid.innerHTML = html;
+            }
+
+            function abrirDetalle(idPartido) {
+                const partido = partidosData.find(p => String(p.id_partido) === String(idPartido));
+                if (!partido) return;
+
+                const local = texto(partido.club_local, "Local");
+                const visitante = texto(partido.club_visitante, "Visitante");
+
+                document.getElementById("cal-modal-kicker").textContent = texto(partido.nombre_liga, "Partido");
+                document.getElementById("cal-modal-title").textContent = `${local} vs ${visitante}`;
+                document.getElementById("cal-detail-local").textContent = local;
+                document.getElementById("cal-detail-visitante").textContent = visitante;
+                document.getElementById("cal-detail-score").textContent = scorePartido(partido);
+                document.getElementById("cal-detail-liga").textContent = texto(partido.nombre_liga);
+                document.getElementById("cal-detail-ronda").textContent = texto(partido.tipo_ronda);
+                document.getElementById("cal-detail-fecha").textContent = formatearFechaLarga(partido.fecha);
+                document.getElementById("cal-detail-hora").textContent = formatearHora(partido.fecha);
+                document.getElementById("cal-detail-lugar").textContent = texto(partido.lugar);
+                document.getElementById("cal-detail-estado").textContent = texto(partido.estado);
+
+                modal.classList.add("is-open");
+            }
+
+            async function cargarDatos() {
+                loading.style.display = "block";
+                errorBox.style.display = "none";
+                board.style.display = "none";
+
+                try {
+                    const [resLigas, resPartidos] = await Promise.all([
+                        fetch(API + "/ligas", { credentials: "include" }),
+                        fetch(API + "/partidos", { credentials: "include" })
+                    ]);
+
+                    const dataLigas = await resLigas.json();
+                    const dataPartidos = await resPartidos.json();
+
+                    if (!resLigas.ok || dataLigas.success === false) {
+                        throw new Error(dataLigas.message || "Error al cargar ligas");
+                    }
+
+                    if (!resPartidos.ok || dataPartidos.success === false) {
+                        throw new Error(dataPartidos.message || "Error al cargar partidos");
+                    }
+
+                    ligasData = Array.isArray(dataLigas) ? dataLigas : (dataLigas.data || []);
+                    partidosData = Array.isArray(dataPartidos) ? dataPartidos : (dataPartidos.data || []);
+
+                    renderSelectLigas();
+                    renderCalendario();
+
+                    loading.style.display = "none";
+                    board.style.display = "block";
+                } catch (error) {
+                    console.error("[Calendario]", error);
+                    loading.style.display = "none";
+                    errorBox.textContent = "No se pudo cargar el calendario.";
+                    errorBox.style.display = "block";
+                }
+            }
+
+            ligaSelect.addEventListener("change", function () {
+                idLigaActiva = ligaSelect.value;
+                renderCalendario();
+            });
+
+            btnPrev.addEventListener("click", function () {
+                fechaActiva = new Date(fechaActiva.getFullYear(), fechaActiva.getMonth() - 1, 1);
+                renderCalendario();
+            });
+
+            btnNext.addEventListener("click", function () {
+                fechaActiva = new Date(fechaActiva.getFullYear(), fechaActiva.getMonth() + 1, 1);
+                renderCalendario();
+            });
+
+            grid.addEventListener("click", function (e) {
+                const btn = e.target.closest(".cal-event");
+                if (!btn) return;
+
+                abrirDetalle(btn.dataset.partidoId);
+            });
+
+            modalClose.addEventListener("click", function () {
+                modal.classList.remove("is-open");
+            });
+
+            modal.addEventListener("click", function (e) {
+                if (e.target === modal) {
+                    modal.classList.remove("is-open");
+                }
+            });
+
+            cargarDatos();
+        })();
+    </script>
+
+</body>
+
+</html>

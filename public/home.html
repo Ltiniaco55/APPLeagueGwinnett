@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYSL — Layout Demo (Header + Footer)</title>
+    <meta name="description" content="Demo page showing the GYSL reusable header and footer layout components.">
+
+    <link rel="stylesheet" href="./CSS/layout.css">
+    <link rel="stylesheet" href="./CSS/home.css">
+    <link rel="stylesheet" href="./CSS/mini-menu.css">
+    <link rel="stylesheet" href="./CSS/admin-nav.css">
+    <script src="./JS/layout.js?v=2" defer></script>
+    <script src="./JS/login.js" defer></script>
+    <script src="./JS/sesionactiva.js" defer></script>
+    <script src="./JS/adminNav.js" defer></script>
+    <link rel="stylesheet" href="./CSS/toast.css">
+    <script src="./JS/toast.js" defer></script>
+    <script src="./JS/proximoPartidos.js" defer></script>
+
+
+</head>
+
+
+<body>
+
+    <main id="page-content">
+
+        <section class="gysl-hero">
+
+            <div class="gysl-hero-overlay"></div>
+
+            <div class="gysl-hero-content">
+
+                <h1 class="gysl-hero-title">
+                    Liga de Futbol Profesional<br>
+                    en Atlanta
+                </h1>
+
+                <p class="gysl-hero-subtitle">
+                    Fomentando el crecimiento atlético y organizacional
+                    en futbol y futsal juvenil.
+                </p>
+
+                <p class="gysl-hero-desc">
+                    Somos el torneo de fútbol y futsal más destacado de Atlanta,
+                    ofreciendo una organización profesional para el desarrollo
+                    de jóvenes atletas.
+                </p>
+
+                <div class="gysl-hero-actions">
+                    <a href="/2DO_CURSO_DAW/Desarrollo_web_en_entornos_servidor/Proyecto_intermodular/public/ligas.html#proximas-ligas"
+                        class="gysl-btn-ui-home">
+                        <span class="gysl-btn-ui-home__text">VER PRÓXIMOS EVENTOS</span>
+                    </a>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="gysl-fixtures" id="fixtures">
+            <div class="gysl-divider-smooth" aria-hidden="true"></div>
+
+            <div class="gysl-fixtures__inner">
+                <div class="gysl-fixtures__top">
+                    <h2 class="gysl-fixtures__title">PRÓXIMOS PARTIDOS</h2>
+
+                    <div class="gysl-tabs" role="tablist" aria-label="Filtrar próximos partidos">
+                        <button class="gysl-tab is-active" type="button" id="btn-todos-partidos">
+                            Todas
+                        </button>
+
+                        <button class="gysl-tab" type="button" id="btn-favoritos-partidos">
+                            Favoritos
+                        </button>
+
+                        <select class="gysl-tab gysl-tab-select" id="filtro-liga-partidos">
+                            <option value="">Ligas en curso</option>
+                        </select>
+
+                        <input type="text" class="gysl-tab gysl-tab-input" id="buscar-equipo-partidos"
+                            placeholder="Buscar equipo">
+
+                    </div>
+                </div>
+
+                <div class="gysl-carousel" aria-label="Carrusel de partidos">
+                    <div class="gysl-carousel__viewport">
+                        <div class="gysl-carousel__track" id="gysl-carousel-track">
+                            <div class="gysl-carousel__empty">
+                                Cargando próximos partidos...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="gysl-dots" id="gysl-carousel-dots" aria-label="Paginación"></div>
+                </div>
+
+            </div>
+
+            <div class="gysl-fixtures__bottom">
+                <a class="gysl-fixtures__all" href="calendario.html">
+                    Ver calendario completo ›
+                </a>
+            </div>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+
+</html>
