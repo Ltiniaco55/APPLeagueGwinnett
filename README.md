@@ -17,7 +17,7 @@ Plataforma web para gestión integral de competiciones deportivas infantiles, ju
 
 ### 1. Clonar repositorio
 ```bash
-git clone https://github.com/TU-USUARIO/TU-REPO.git
+git clone https://github.com/Ltiniaco55/APPLeagueGwinnett.git
 ```
 
 O descargar ZIP desde GitHub.
