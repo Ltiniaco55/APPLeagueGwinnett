@@ -259,6 +259,25 @@
                 padding: 24px 0 36px;
             }
         }
+
+        .clas-btn-ligas {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 22px;
+            border-radius: 12px;
+            background: rgba(241, 184, 45, .12);
+            border: 1px solid rgba(241, 184, 45, .45);
+            color: var(--gysl-yellow, #f1b82d);
+            font-family: var(--font-primary);
+            font-size: .88rem;
+            font-weight: 900;
+            text-decoration: none;
+            transition: background .2s ease;
+        }
+
+        .clas-btn-ligas:hover {
+            background: rgba(241, 184, 45, .22);
+        }
     </style>
 </head>
 
@@ -284,6 +303,10 @@
                 <div id="clas-loading" class="clas-status">Cargando clasificación…</div>
 
                 <div id="clas-empty" class="clas-status" style="display:none;"></div>
+
+                <a href="ligas.html" id="clas-btn-ligas" class="clas-btn-ligas" style="display:none;">
+                    Ver ligas disponibles →
+                </a>
 
                 <div id="clas-table-wrap" class="clas-table-wrap" style="display:none;">
                     <table class="clas-table" id="clas-table">
@@ -416,11 +439,13 @@
                 elWrap.style.display = "";
             }
 
-            function renderError(message) {
+            function renderError(message, mostrarBoton = false) {
                 elLoading.style.display = "none";
                 elEmpty.textContent = message;
                 elEmpty.classList.add("clas-status--error");
                 elEmpty.style.display = "";
+                const btn = document.getElementById("clas-btn-ligas");
+                if (btn) btn.style.display = mostrarBoton ? "inline-block" : "none";
             }
 
             function renderEmpty() {
@@ -436,7 +461,7 @@
                 console.log("[Clasificación] URL actual:", window.location.href);
 
                 if (!idLiga) {
-                    renderError("No se indicó ninguna liga.");
+                    renderError("No se indicó ninguna liga.", true);
                     return;
                 }
 

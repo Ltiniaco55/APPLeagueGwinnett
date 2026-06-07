@@ -266,6 +266,25 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .eq-btn-ligas {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 22px;
+            border-radius: 12px;
+            background: rgba(241, 184, 45, .12);
+            border: 1px solid rgba(241, 184, 45, .45);
+            color: #f1b82d;
+            font-family: var(--font-primary);
+            font-size: .88rem;
+            font-weight: 900;
+            text-decoration: none;
+            transition: background .2s ease;
+        }
+
+        .eq-btn-ligas:hover {
+            background: rgba(241, 184, 45, .22);
+        }
     </style>
 </head>
 
@@ -295,6 +314,9 @@
                 <div id="equipos-empty" class="eq-status" style="display:none;">
                     No hay equipos asociados a esta liga.
                 </div>
+                <a href="ligas.html" id="eq-btn-ligas" class="eq-btn-ligas" style="display:none;">
+                    Ver ligas disponibles →
+                </a>
 
                 <div id="equipos-content" style="display:none;">
                     <div class="eq-toolbar">
@@ -353,12 +375,14 @@
                 return texto(nombre, "?").charAt(0).toUpperCase();
             }
 
-            function mostrarError(mensaje) {
+            function mostrarError(mensaje, mostrarBoton = false) {
                 loading.style.display = "none";
                 content.style.display = "none";
                 empty.textContent = mensaje;
                 empty.classList.add("eq-status--error");
                 empty.style.display = "block";
+                const btn = document.getElementById("eq-btn-ligas");
+                if (btn) btn.style.display = mostrarBoton ? "inline-block" : "none";
             }
 
             function mostrarVacio(mensaje = "No hay equipos asociados a esta liga.") {
@@ -436,7 +460,7 @@
 
             async function cargarDatos() {
                 if (!idLiga) {
-                    mostrarError("No se indicó ninguna liga.");
+                    mostrarError("No se indicó ninguna liga.", true);
                     return;
                 }
 

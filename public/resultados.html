@@ -337,6 +337,25 @@
         grid-template-columns: 1fr;
       }
     }
+
+    .res-btn-ligas {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 12px 22px;
+        border-radius: 12px;
+        background: rgba(241, 184, 45, .12);
+        border: 1px solid rgba(241, 184, 45, .45);
+        color: #f1b82d;
+        font-family: var(--font-primary);
+        font-size: .88rem;
+        font-weight: 900;
+        text-decoration: none;
+        transition: background .2s ease;
+    }
+
+    .res-btn-ligas:hover {
+        background: rgba(241, 184, 45, .22);
+    }
   </style>
 </head>
 
@@ -359,6 +378,9 @@
 
         <div id="res-loading" class="res-status">Cargando resultados…</div>
         <div id="res-empty" class="res-status" style="display:none;"></div>
+        <a href="ligas.html" id="res-btn-ligas" class="res-btn-ligas" style="display:none;">
+            Ver ligas disponibles →
+        </a>
 
         <div id="res-filtro-jornadas" class="res-filtros" style="display:none;">
           <label for="sel-jornada">Jornada</label>
@@ -481,11 +503,13 @@
         elContent.style.display = 'none';
       }
 
-      function mostrarError(mensaje) {
+      function mostrarError(mensaje, mostrarBoton = false) {
         elLoading.style.display = 'none';
         elEmpty.textContent = mensaje;
         elEmpty.classList.add('res-status--error');
         elEmpty.style.display = '';
+        const btn = document.getElementById('res-btn-ligas');
+        if (btn) btn.style.display = mostrarBoton ? 'inline-block' : 'none';
       }
 
       function mostrarContenido() {
@@ -827,7 +851,7 @@
         formatoLiga = params.formato;
 
         if (!params.idLiga) {
-          mostrarError('No se indicó ninguna liga.');
+          mostrarError('No se indicó ninguna liga.', true);
           return;
         }
 

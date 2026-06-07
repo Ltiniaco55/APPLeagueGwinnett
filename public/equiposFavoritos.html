@@ -672,9 +672,9 @@
                 const idEquipo = obtenerIdEquipo(equipo);
                 const club = texto(equipo.club ?? equipo.nombre, "Equipo sin nombre");
                 const categoria = texto(equipo.categoria, "Sin categoría");
-                const ligasEquipo = obtenerIdsLigas(equipo)
-                    .map(obtenerLiga)
-                    .filter(Boolean);
+                const ligasEquipo = (equipo.ligas && equipo.ligas.length)
+                    ? equipo.ligas
+                    : obtenerIdsLigas(equipo).map(obtenerLiga).filter(Boolean);
 
                 const ligasHtml = ligasEquipo.length
                     ? ligasEquipo.map(liga => {
@@ -955,7 +955,7 @@
             }
 
             btnAgregarFavorito.addEventListener("click", function () {
-                const idEquipo = Number(selectEquipoFavorito.value);
+                const idEquipo = Number(equipoSeleccionado);
 
                 if (!idEquipo) return;
 
