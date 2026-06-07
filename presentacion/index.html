@@ -900,10 +900,11 @@
                         <div class="code">
                             <div>API REST</div>
                             <pre>GET    /ligas
-GET    /partidos
 POST   /admin/partidos
-GET    /favoritos/equipos
-DELETE /favoritos/equipos</pre>
+PUT    /admin/partidos/{id}
+PATCH  /admin/partidos/{id}/cancelar
+DELETE /admin/partidos/{id}
+POST   /staff/jugadores/alta</pre>
                         </div>
                     </div>
                 </div>
@@ -916,13 +917,18 @@ DELETE /favoritos/equipos</pre>
                     <img src="../public/escudos/gwinnett.svg" alt="Logo">
                     Roles
                 </div>
-                <span>05 / 14</span>
+                <span>06 / 14</span>
             </div>
 
             <div class="content">
                 <div class="kicker">Control de acceso</div>
 
-                <h2 class="title sm">Roles claros para evitar acciones no autorizadas</h2>
+                <h2 class="title sm">Autenticación segura y control de acceso por roles</h2>
+
+                <div class="code" style="margin-bottom:24px;">
+                    <div>Flujo de login</div>
+                    <pre><span class="tok">POST /auth/login</span> → authController/password_verify() → Autenticacion::login()/session_regenerate_id(true) → $_SESSION['id_usuario'] = $id → devuelve rol + permisos</pre>
+                </div>
 
                 <table class="roles">
                     <thead>
@@ -951,6 +957,7 @@ DELETE /favoritos/equipos</pre>
                         </tr>
                     </tbody>
                 </table>
+
             </div>
         </section>
 
@@ -960,7 +967,7 @@ DELETE /favoritos/equipos</pre>
                     <img src="../public/escudos/gwinnett.svg" alt="Logo">
                     Admin
                 </div>
-                <span>06 / 14</span>
+                <span>07 / 14</span>
             </div>
 
             <div class="content">
@@ -1013,7 +1020,7 @@ DELETE /favoritos/equipos</pre>
                     <img src="../public/escudos/gwinnett.svg" alt="Logo">
                     Jugadores
                 </div>
-                <span>07 / 14</span>
+                <span>08 / 14</span>
             </div>
 
             <div class="content">
@@ -1060,7 +1067,7 @@ DELETE /favoritos/equipos</pre>
                     <img src="../public/escudos/gwinnett.svg" alt="Logo">
                     Competición
                 </div>
-                <span>08 / 14</span>
+                <span>09 / 14</span>
             </div>
 
             <div class="content">
@@ -1105,7 +1112,7 @@ DELETE /favoritos/equipos</pre>
                     <img src="../public/escudos/gwinnett.svg" alt="Logo">
                     Frontend
                 </div>
-                <span>09 / 14</span>
+                <span>10 / 14</span>
             </div>
 
             <div class="content">
@@ -1180,7 +1187,7 @@ admin-bottom-nav.html</pre>
                     <img src="../public/escudos/gwinnett.svg" alt="Logo">
                     JavaScript
                 </div>
-                <span>10 / 14</span>
+                <span>11 / 14</span>
             </div>
 
             <div class="content">
@@ -1278,7 +1285,7 @@ UI adaptada según rol</pre>
                     <img src="../public/escudos/gwinnett.svg" alt="Logo">
                     Vista producto
                 </div>
-                <span>11 / 14</span>
+                <span>12 / 14</span>
             </div>
 
             <div class="content">
@@ -1344,7 +1351,7 @@ UI adaptada según rol</pre>
                     <img src="../public/escudos/gwinnett.svg" alt="Logo">
                     Demo
                 </div>
-                <span>12 / 14</span>
+                <span>13 / 14</span>
             </div>
 
             <div class="content">
@@ -1396,7 +1403,7 @@ UI adaptada según rol</pre>
                     <img src="../public/escudos/gwinnett.svg" alt="Logo">
                     Cierre
                 </div>
-                <span>13 / 14</span>
+                <span>14 / 14</span>
             </div>
 
             <div class="content center">
